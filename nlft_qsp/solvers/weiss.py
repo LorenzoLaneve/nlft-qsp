@@ -51,7 +51,7 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
     if eps < 0:
         eps = 100 * bd.machine_eps()
 
-    eta = 1 - b.sup_norm(4*d)
+    eta = 1 - b.sup_norm(max(4000, 4*d))
 
     N = next_power_of_two(int(d/eta))//2 # Exponential search on N
     threshold = 1
