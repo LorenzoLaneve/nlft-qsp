@@ -10,6 +10,7 @@ from nlft_qsp.rand import random_list, random_polynomial
 from nlft_qsp.solvers import weiss
 from nlft_qsp.solvers import riemann_hilbert
 from nlft_qsp.solvers import nlfft
+from nlft_qsp.solvers import layer_stripping
 
 
 class RHWTestCase(unittest.TestCase):
@@ -76,6 +77,19 @@ class RHWTestCase(unittest.TestCase):
         self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
 
         nlft = nlfft.inlft(a, b)
+        a2, b2 = nlft.transform()
+
+        self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=bd.machine_threshold())
+
+    @bd.workdps(30)
+    def test_inlft_layer_stripping(self):
+        b = random_polynomial(1600, eta=0.5)
+        a = weiss.complete(b)
+
+        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
+
+        nlft = layer_stripping.inlft(a, b)
         a2, b2 = nlft.transform()
 
         self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=bd.machine_threshold())
