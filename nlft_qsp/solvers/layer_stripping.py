@@ -4,9 +4,6 @@ from poly import Polynomial
 
 import numerics as bd
 
-def layer_strip_recurse(a: Polynomial, b: Polynomial):
-    pass
-
 def inlft(a: Polynomial, b: Polynomial):
     """Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.
 
