@@ -45,7 +45,7 @@ class RHWTestCase(unittest.TestCase):
         c = random_polynomial(16, eta=1)
         e0 = [1] + [0] * 15
 
-        L = riemann_hilbert.half_cholesky_ldl(e0, reversed(c.coeffs))
+        L = half_cholesky.half_cholesky_ldl(e0, reversed(c.coeffs))
         L = np.array(bd.to_list(L), dtype=np.complex128)
         # we force numpy/scipy for this test, but L is computed with bd.
 
