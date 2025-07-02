@@ -39,7 +39,7 @@ Same as the above, but it returns $a$, along with a polynomial $c$ which is the 
 - `solvers.riemann_hilbert.inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence`\
 Returns the pre-image of $(a, b)$ with the plain Riemann-Hilbert algorithm, given $b$ and the Fourier approximation $c$ to $b/a$. $\mathcal{O}(n^4)$
 
-- `solvers.riemann_hilbert.inlft_hc(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence`\
+- `solvers.half_cholesky.inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence`\
 Same as above, but using the Half-Cholesky method. $\mathcal{O}(n^2)$
 
 - `solvers.nlfft.inlft(a: Polynomial, b: Polynomial) -> NonLinearFourierSequence`

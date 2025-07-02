@@ -11,6 +11,7 @@ from nlft_qsp.solvers import weiss
 from nlft_qsp.solvers import riemann_hilbert
 from nlft_qsp.solvers import nlfft
 from nlft_qsp.solvers import layer_stripping
+from nlft_qsp.solvers import half_cholesky
 
 
 class RHWTestCase(unittest.TestCase):
@@ -63,7 +64,7 @@ class RHWTestCase(unittest.TestCase):
         b = random_polynomial(16, eta=0.5)
         a, c = weiss.ratio(b)
 
-        nlft = riemann_hilbert.inlft_hc(b, c)
+        nlft = half_cholesky.inlft(b, c)
         a2, b2 = nlft.transform()
 
         self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=100 * bd.machine_eps())
