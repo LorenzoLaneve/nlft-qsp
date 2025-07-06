@@ -224,6 +224,24 @@ class NLFTTestCase(unittest.TestCase):
         for bk, bhk in zip(b.coeffs, [0.0685994, -0.720294, 0.137199]):
             self.assertAlmostEqual(bk, bhk, delta=1e-5)
 
+    def test_cheb2poly(self):
+        P = Polynomial(random_sequence(10, 16))
+        T = ChebyshevTExpansion.from_polynomial(P)
+
+        s = 100000
+        for l in range(s):
+            x = 2*l/s - 1
+            self.assertAlmostEqual(P(x), T(x), delta=bd.machine_threshold())
+
+    def test_poly2cheb(self):
+        T = ChebyshevTExpansion(random_sequence(10, 16))
+        P = T.to_polynomial()
+
+        s = 100000
+        for l in range(s):
+            x = 2*l/s - 1
+            self.assertAlmostEqual(P(x), T(x), delta=bd.machine_threshold())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -363,3 +363,12 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         P = Polynomial(list(reversed(self.coeffs)) + self.coeffs[1:], support_start=-len(self.coeffs)+1)
         P[0] *= 2
         return P/2
+    
+    @classmethod
+    def from_polynomial(cls, P: Polynomial):
+        """Returns the Chebyshev expansion `T` satisfying `T(x) = P(x)`."""
+        return ChebyshevTExpansion(bd.poly2cheb(P.coeffs))
+    
+    def to_polynomial(self) -> Polynomial:
+        """Returns the polynomial `P` satisfying `P(x) = T(x)`."""
+        return Polynomial(bd.cheb2poly(self.coeffs))

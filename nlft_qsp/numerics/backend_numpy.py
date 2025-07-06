@@ -149,3 +149,9 @@ class NumpyBackend(NumericBackend):
     
     def qr_decomp(self, A):
         return scipy.linalg.qr(A)
+    
+    def poly2cheb(self, p):
+        return np.polynomial.chebyshev.poly2cheb(p).tolist()
+    
+    def cheb2poly(self, p):
+        return np.polynomial.chebyshev.cheb2poly(p).tolist()

@@ -236,3 +236,13 @@ def qr_decomp(A):
     """Decomposes A = QR, where Q is unitary and R is upper triangular.
     The matrix in input, as well as the two outputs, are given as objects of the backend."""
     return __bd_wrapper.bd.qr_decomp(A)
+
+def poly2cheb(p):
+    """Returns a list of coefficients (as objects of the backend) corresponding to the
+    Chebyshev expansion of the polynomial `p`, given as list of coefficients."""
+    return __bd_wrapper.bd.poly2cheb(p)
+
+def cheb2poly(c):
+    """Returns a list of coefficients (as objects of the backend) corresponding to the
+    polynomial of the Chebyshev expansion `c`, given as list of coefficients."""
+    return __bd_wrapper.bd.cheb2poly(c)
