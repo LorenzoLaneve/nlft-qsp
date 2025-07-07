@@ -421,6 +421,31 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
     def duplicate(self):
         return QSVTPhaseFactors(self.phi)
 
+    @classmethod
+    def from_chebqsp(cls, pf: ChebyshevQSPPhaseFactors):
+        """Returns a set of QSVT phase factors constructing the same left chebyshev expansion as the given QSP protocol."""
+        d = pf.degree()
+        phi = [0] * (d+1)
+
+        phi[0] = pf.phi[0] + (2*d - 1)*bd.pi()/4
+        for k in range(1, d-1):
+            phi[k] = pf.phi[k] - bd.pi()/2
+        phi[d] = pf.phi[d] - bd.pi()/4
+
+        return QSVTPhaseFactors(phi)
+
+    def to_chebqsp(self) -> ChebyshevQSPPhaseFactors:
+        """Returns a set of Chebyshev QSP phase factors constructing the same left chebyshev expansion as the given QSVT protocol."""
+        d = self.degree()
+        phi = [0] * (d+1)
+
+        phi[0] = self.phi[0] - (2*d - 1)*bd.pi()/4
+        for k in range(1, d-1):
+            phi[k] = self.phi[k] + bd.pi()/2
+        phi[d] = self.phi[d] + bd.pi()/4
+
+        return ChebyshevQSPPhaseFactors(phi)
+
 
 #### QSP SOLVERS
 
@@ -585,3 +610,15 @@ def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
     
     Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
     return chebqsp_solve(chebyshev_approximate(f, deg))
+
+def qsvt_solve(T: list[generic_complex] | ChebyshevTExpansion) -> QSVTPhaseFactors:
+    """Returns the set of phase factors for a reflection QSP/QSVT protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+
+    The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
+    
+    Args:
+        c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
+    
+    Raises:
+        ValueError: If the target polynomial does not have definite parity or is not real."""
+    return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
