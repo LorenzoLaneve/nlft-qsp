@@ -369,6 +369,19 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         """Returns the Chebyshev expansion `T` satisfying `T(x) = P(x)`."""
         return ChebyshevTExpansion(bd.poly2cheb(P.coeffs))
     
+    @classmethod
+    def from_laurent_polynomial(cls, P: Polynomial):
+        """Returns the Chebyshev expansion `T` satisfying `T(x) = (P(z) + P^*(z))/2`.
+        
+        Note: `P` must be symmetric."""
+        if not P.is_symmetric():
+            raise ValueError("The given Laurent polynomial is not symmetric.")
+
+        coeffs = [2*P[k] for k in range(P.support().stop)]
+        coeffs[0] /= 2
+
+        return ChebyshevTExpansion(coeffs)
+    
     def to_polynomial(self) -> Polynomial:
         """Returns the polynomial `P` satisfying `P(x) = T(x)`."""
         return Polynomial(bd.cheb2poly(self.coeffs))

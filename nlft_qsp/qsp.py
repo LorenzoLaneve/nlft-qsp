@@ -1,9 +1,10 @@
 
-from nlft import NonLinearFourierSequence
 import numerics as bd
 
 from poly import ChebyshevTExpansion, Polynomial
+from nlft import NonLinearFourierSequence
 from numerics.backend import generic_real, generic_complex
+from approximate import chebyshev_approximate
 
 from solvers import nlfft, weiss
 
@@ -576,3 +577,11 @@ def chebqsp_solve(T: list[generic_complex] | ChebyshevTExpansion) -> ChebyshevQS
 
     xqsp = xqsp_solve_laurent(T.to_laurent())
     return ChebyshevQSPPhaseFactors(xqsp.phi)
+
+def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
+    """Approximate the given callable objec `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+    and returns the Chebyshev QSP phase factors implementing an approximating polynomial of degree `deg`
+    (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+    
+    Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
+    return chebqsp_solve(chebyshev_approximate(f, deg))
