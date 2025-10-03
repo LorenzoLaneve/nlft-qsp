@@ -15,6 +15,18 @@ quantum signal processing for arbitrary Szegö functions*, [arXiv:2407.05634](ht
 - Hongkang Ni, Rahul Sarkar, Lexing Ying, Lin Lin. *Inverse nonlinear fast Fourier transform on SU(2) with applications to quantum signal processing*, [arXiv:2505.12615](https://arxiv.org/abs/2505.12615).
 
 
+## Examples
+
+The `examples/` folder contains notebooks applying QSP/QSVT or QSP/QET-U to different settings.
+
+- `grover.ipynb` computes the QSP protocol for Grover's search/fixed-point amplitude amplification.
+
+- `matrix_inversion.ipynb` computes the QSP protocol approximating the eigenvalue transformation $f(x) = 1/x$.
+
+- `eigenvalue_filtering.ipynb` shows how to locate an eigenphase on the unit circle.
+
+Performance analysis of the QSP/NLFT solvers are available in the `benchmarks.ipynb` notebook.
+
 
 ## How to use the package
 
