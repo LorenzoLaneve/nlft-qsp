@@ -58,6 +58,8 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
     attempts = 0
     while threshold > eps:
         N *= 2
+        if verbose:
+            print(f"N = {N}")
 
         b_points = b.eval_at_roots_of_unity(N)
 

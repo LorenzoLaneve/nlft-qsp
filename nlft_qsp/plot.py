@@ -29,6 +29,32 @@ def plot_chebyshev(funcs: dict, num_points: int=1000):
     plt.grid(True)
     plt.show()
 
+def plot_fourier(funcs: dict, num_points: int=1000):
+    """
+    Plots the absolute value of each object in funcs over the unit circle, i.e., plugging
+    :math:`z = exp(1j*x)` for :math:`x \in [-\pi, \pi]`.
+    These can be Python functions, `Polynomial` objects, or any callable object.
+
+    Parameters:
+    - funcs (dict): a dictionary where each key is the name appearing in the legend of the corresponding function plot.
+    - num_points (int): number of sampling points.
+    """
+    plt.figure(figsize=(6, 3))
+    
+    for name, f in funcs.items():
+        try:
+            x_vals = [-bd.pi() + 2*bd.pi()*k/num_points for k in range(num_points+1)]
+            y_vals = [bd.abs(f(bd.exp(1j * x))) for x in x_vals]
+            plt.plot(x_vals, y_vals, label=name)
+        except Exception as e:
+            print(f"Error evaluating function {name}: {e}")
+    
+    plt.xlabel("x")
+    plt.xlim(left=-bd.pi(), right=bd.pi())
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 def plot_support_2d(l: list, rng: tuple[range]):
     """Plots where the given objects have non-zero elements (up to machine threshold) in rng.
     
