@@ -191,6 +191,23 @@ class ComplexL0SequenceMD:
         
         return hcube
     
+    def coeff_dict(self) -> dict:
+        """Returns a dictionary of values representing the flattened version of `coeff_list()`.
+        The keys are m-dimensional tuples, and the values are the corresponding coefficients."""
+        L = self.coeff_list()
+        result = {}
+
+        def recurse(sublist, index_prefix=()):
+            if not isinstance(sublist, list):
+                # reached a coefficient value
+                result[index_prefix] = sublist
+                return
+            for i, elem in enumerate(sublist):
+                recurse(elem, index_prefix + (i,))
+
+        recurse(L)
+        return result
+    
     def duplicate(self):
         return self.__class__(self.coeff_list(), self.support_start)
     
@@ -500,6 +517,15 @@ class PolynomialMD(ComplexL0SequenceMD):
         rng = tuple(range(r.start, r.stop+1) for r in rng)
 
         return PolynomialMD(self.coeff_list(rng), tuple(r.start for r in rng))
+    
+    def __str__(self, tol=bd.machine_threshold()):
+        """Converts the polynomial to a human-readable string representation.
+
+        Returns:
+            str: The string representation of the polynomial.
+        """
+        sup_start = self.support_start
+        return ' + '.join(f"{c} z^{tuple(x + y for x, y in zip(k, sup_start))}" for k, c in self.coeff_dict().items() if bd.abs(c) > tol)
     
 
 def to_poly_md(p: Polynomial, m: int) -> PolynomialMD:
