@@ -2,6 +2,9 @@
 
 from typing import Iterable
 
+import csv
+from collections import defaultdict
+
 
 def next_power_of_two(n):
     """Returns the smallest power of two that is `>= n`."""
@@ -36,3 +39,36 @@ def shape(lst: list):
 
     max_sub_shape = tuple(max(sizes) for sizes in zip(*[s + (0,)*(max(len(s) for s in sub_shapes) - len(s)) for s in sub_shapes]))
     return (N0,) + max_sub_shape
+
+def plot_data(test_results: dict):
+    degree_to_time = defaultdict(dict)
+    degree_to_err = defaultdict(dict)
+    all_degrees = set()
+    all_keys = list(test_results.keys())
+
+    for key, lst in test_results.items():
+        for entry in lst:
+            d = entry["degree"]
+            t = entry["time"]/1000000000
+            e = entry["inlft_err"]
+            all_degrees.add(d)
+            degree_to_time[d][key] = t
+            degree_to_err[d][key] = e
+
+        all_degrees = sorted(all_degrees)
+
+    with open("benchmarks/benchmark_time.dat", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["degree"] + all_keys)
+
+        for d in all_degrees:
+            row = [d] + [degree_to_time[d].get(k, "") for k in all_keys]
+            writer.writerow(row)
+
+    with open("benchmarks/benchmark_err.dat", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["degree"] + all_keys)
+
+        for d in all_degrees:
+            row = [d] + [degree_to_err[d].get(k, "") for k in all_keys]
+            writer.writerow(row)
