@@ -264,7 +264,10 @@ class GQSPPhaseFactors(PhaseFactors):
     
     Signal operator: `W(z) = diag(z, z^(-1))`,
     
-    Processing operators: `A[0] = exp(I*lbd*Z) exp(I*phi[0]*X) exp(I*theta[0]*Z), A[k] = exp(I*phi[k]*X) exp(I*theta[k]*Z)`."""
+    Processing operators: `A[0] = exp(I*lbd*Z) exp(I*phi[0]*X) exp(I*theta[0]*Z), A[k] = exp(I*phi[k]*X) exp(I*theta[k]*Z)`.
+    
+    Note:
+        This class follows the convention of arXiv:2503.03026, Theorem 2, which is different from the original GQSP convention. If the convention of arXiv:2308.01501 Theorem 3 is desired, then one should use the `to_mw_gqsp()` method."""
     def __init__(self, phi: list[generic_real], lbd: generic_real=0, theta: list[generic_real]=None):
         self.lbd = lbd
         self.phi = list(phi)
@@ -369,6 +372,23 @@ class GQSPPhaseFactors(PhaseFactors):
         lbd += alpha/2
         theta[-1] += alpha/2
         return GQSPPhaseFactors(phi, lbd, theta)
+    
+    def to_mw_gqsp(self) -> tuple[list[generic_real], list[generic_real], generic_real]:
+        """Converts the GQSP phase factors to the convention of arXiv:2308.01501 Theorem 3.
+
+        In particular, a protocol should be constructed so that `A[k] = R(theta[k], phi[k], 0)` for k < n and `A[n] = R(theta[n], phi[n], lbd)` where `R(theta, phi, lbd)` is as given in arXiv:2308.01501.
+
+        Returns:
+            The phase factors theta[k], phi[k] (as lists) and lbd, in this order."""
+        n = self.degree()
+
+        alpha = - self.lbd - sum(self.theta) - (n+1) * bd.pi() # needed to counterbalance the global phase
+
+        mw_theta = [self.phi[k] for k in range(n+1)]
+        mw_phi = [2 * self.lbd - bd.pi()/2 + alpha] + [2 * self.theta[k-1] - bd.pi() for k in range(1, n+1)]
+        mw_lbd = 2 * self.theta[n] - bd.pi()/2 + alpha
+
+        return mw_theta, mw_phi, mw_lbd
 
     
 class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
