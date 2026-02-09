@@ -61,6 +61,7 @@ Computes the inverse NLFT of $(a, b)$ using the Inverse Non-Linear Fast Fourier 
 
 - `qsp.gqsp_solve(P: Polynomial) -> GQSPPhaseFactors`\
 Computes the GQSP phase factors implementing $(P, Q)$, for a complementary $Q$ computed with Weiss' algorithm.
+**Note**: This GQSP solver follows the convention of [arXiv:2503.03026](https://arxiv.org/abs/2503.03026). In order to obtain the phase factors for the convention of [arXiv:2308.01501](https://arxiv.org/abs/2308.01501), use the `to_mw_gqsp()` method provided by the `GQSPPhaseFactors` class.
 
 - `qsp.xqsp_solve(P: Polynomial) -> XQSPPhaseFactors`\
 Same as above, but for analytic $X$-constrained QSP.
