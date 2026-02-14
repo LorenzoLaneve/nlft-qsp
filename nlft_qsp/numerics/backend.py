@@ -1,16 +1,16 @@
 
 import functools
 
-from typing import SupportsFloat, SupportsComplex
+from typing import SupportsFloat, SupportsComplex, TypeAlias
 
 
 """Type alias for generic floating-point real numbers.
 """
-type generic_real = SupportsFloat | float
+generic_real: TypeAlias = SupportsFloat | float
 
 """Type alias for generic floating-point complex numbers.
 """
-type generic_complex = SupportsComplex | complex
+generic_complex: TypeAlias = SupportsComplex | complex
 
 
 class DummyPrecisionManager:
