@@ -28,12 +28,13 @@ class NumpyBackend(NumericBackend):
         but it gives poor precision.
     """
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         """Initializes a numpy backend.
         """
         dtype, ftype = select_largest_dtypes()
         
-        print('NumpyBackend -- chosen dtypes: %s, %s' % (dtype.__name__, ftype.__name__))
+        if verbose:
+            print('NumpyBackend -- chosen dtypes: %s, %s' % (dtype.__name__, ftype.__name__))
 
         self.dtype = dtype
         self.ftype = ftype
