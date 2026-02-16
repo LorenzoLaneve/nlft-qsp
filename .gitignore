@@ -1,5 +1,7 @@
 /.venv
+/.test_venv
 /.vscode
+/dist
 /nlft_qsp.egg-info
 /__pycache__
 **/__pycache__
