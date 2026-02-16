@@ -1,5 +1,7 @@
 # Convolution optimization algorithm for polynomial completion (taken from github.com/Danimhn/GQSP-Code)
 
+# NOTE: this optional module uses torch (~=2.7.1), which is not included in the package requirements.
+
 import torch
 from torchaudio.transforms import FFTConvolve
 
