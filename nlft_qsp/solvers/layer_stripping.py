@@ -1,8 +1,8 @@
 
-from nlft import NonLinearFourierSequence
-from poly import Polynomial
+from ..nlft import NonLinearFourierSequence
+from ..poly import Polynomial
 
-import numerics as bd
+from .. import numerics as bd
 
 def inlft(a: Polynomial, b: Polynomial):
     """Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.

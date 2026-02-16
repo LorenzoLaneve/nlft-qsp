@@ -1,8 +1,8 @@
 
-import numerics as bd
+from .. import numerics as bd
 
-from nlft import NonLinearFourierSequence
-from poly import Polynomial
+from ..nlft import NonLinearFourierSequence
+from ..poly import Polynomial
 
 
 def half_cholesky_ldl(u, v):

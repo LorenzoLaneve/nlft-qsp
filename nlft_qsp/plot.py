@@ -2,7 +2,7 @@
 
 from matplotlib import pyplot as plt
 
-import numerics as bd
+from . import numerics as bd
 
 def plot_chebyshev(funcs: dict, num_points: int=1000):
     """

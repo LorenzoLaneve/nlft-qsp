@@ -1,11 +1,11 @@
 
 from numbers import Number
 
-import numerics as bd
-from numerics import coeffs_pad
-from numerics.backend import generic_complex, generic_real
+from . import numerics as bd
+from .numerics import coeffs_pad
+from .numerics.backend import generic_complex, generic_real
 
-from util import next_power_of_two, sequence_shift
+from .util import next_power_of_two, sequence_shift
 
 
 class ComplexL0Sequence:

@@ -1,11 +1,11 @@
 
 from math import ceil
 
-import numerics as bd
+from .. import numerics as bd
 
-from poly import Polynomial
-from poly_md import PolynomialMD, deep_inplace, deep_sequence_shift
-from util import next_power_of_two, sequence_shift
+from ..poly import Polynomial
+from ..poly_md import PolynomialMD, deep_inplace, deep_sequence_shift
+from ..util import next_power_of_two, sequence_shift
 
 WEISS_MAX_ATTEMPTS = 3
 

@@ -1,8 +1,13 @@
-
 import mpmath as mp
 
-from numerics.backend_mpmath import MPMathBackend
-from numerics.backend_numpy import NumpyBackend
+from .backend_mpmath import MPMathBackend
+from .backend_numpy import NumpyBackend
+
+__all__ = [
+    "MPMathBackend",
+    "NumpyBackend",
+    "set_backend"
+]
 
 
 """The currently active backend. This exposes all the mathematical functions needed by the package
@@ -16,19 +21,6 @@ class __bd_wrapper:
 def set_backend(new_bd):
     """Sets the current working backend to the given `NumericBackend` object."""
     __bd_wrapper.bd = new_bd
-
-
-def plot_on_circle(l):
-    r"""Plots the given functions on the unit circle. The functions must be given as complex functions :math:`f(z)`,
-    and the plot will be of :math:`f(e^ix)` for `x \in [-\pi, \pi]`.
-
-    Args:
-        l (function | list[functions]): The complex function(s) to be plotted.
-    """
-    if not isinstance(l, list):
-        l = [l]
-
-    mp.plot([lambda x, f=f: f(exp(1j * x)) for f in l], [-mp.pi, mp.pi])
 
 def coeffs_pad(c: list, N: int):
     """Pads the list c with zeros so that it results of length N. If len(c) >= N, then the list will be left unchanged.

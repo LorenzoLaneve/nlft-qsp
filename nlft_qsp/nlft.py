@@ -1,7 +1,7 @@
 
-import numerics as bd
+from . import numerics as bd
 
-from poly import ComplexL0Sequence, Polynomial
+from .poly import ComplexL0Sequence, Polynomial
 
 
 class NonLinearFourierSequence(ComplexL0Sequence):

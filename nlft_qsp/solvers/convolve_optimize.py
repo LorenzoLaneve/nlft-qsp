@@ -3,9 +3,9 @@
 import torch
 from torchaudio.transforms import FFTConvolve
 
-from poly import Polynomial
+from ..poly import Polynomial
 
-import numerics as bd
+from .. import numerics as bd
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

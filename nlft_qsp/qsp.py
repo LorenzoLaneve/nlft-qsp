@@ -1,12 +1,12 @@
 
-import numerics as bd
+from . import numerics as bd
 
-from poly import ChebyshevTExpansion, Polynomial
-from nlft import NonLinearFourierSequence
-from numerics.backend import generic_real, generic_complex
-from approximate import chebyshev_approximate
+from .poly import ChebyshevTExpansion, Polynomial
+from .nlft import NonLinearFourierSequence
+from .numerics.backend import generic_real, generic_complex
+from .approximate import chebyshev_approximate
 
-from solvers import nlfft, weiss
+from .solvers import nlfft, weiss
 
 def is_definite_parity(P: Polynomial, n: int = -1) -> bool:
     """Returns whether the polynomial has the parity of n. If n is not defined, then n = index of last coefficient of P."""

@@ -1,8 +1,8 @@
 
-import numerics as bd
+from .. import numerics as bd
 
-from nlft import NonLinearFourierSequence
-from poly import Polynomial
+from ..nlft import NonLinearFourierSequence
+from ..poly import Polynomial
 
 def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSequence, Polynomial, Polynomial]:
     n = a_star.effective_degree() + 1

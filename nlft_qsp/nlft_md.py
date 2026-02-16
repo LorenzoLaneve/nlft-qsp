@@ -1,9 +1,9 @@
 
 from numbers import Number
-from nlft import NonLinearFourierSequence
-import numerics as bd
+from .nlft import NonLinearFourierSequence
+from . import numerics as bd
 
-from poly_md import ComplexL0SequenceMD, PolynomialMD, to_poly_md
+from .poly_md import ComplexL0SequenceMD, PolynomialMD, to_poly_md
 
 # Example:
 # [[a, b], [c], [d, e, f], [g]]

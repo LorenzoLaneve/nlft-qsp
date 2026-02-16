@@ -1,7 +1,7 @@
 import numpy as np
 
-from poly import ChebyshevTExpansion, Polynomial
-from util import next_power_of_two
+from .poly import ChebyshevTExpansion, Polynomial
+from .util import next_power_of_two
 
 
 def chebyshev_approximate(f, N) -> ChebyshevTExpansion:

@@ -3,8 +3,8 @@ import random
 from numbers import Number
 import mpmath as mp
 
-import numerics as bd
-from poly import Polynomial
+from . import numerics as bd
+from .poly import Polynomial
 
 def random_real(c):
     return bd.make_float(c*mp.rand())

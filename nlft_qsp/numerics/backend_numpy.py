@@ -3,10 +3,10 @@ import numpy as np
 import scipy.linalg
 
 
-from numerics.backend import NumericBackend
-from numerics.backend import generic_complex, generic_real
+from .backend import NumericBackend
+from .backend import generic_complex, generic_real
 
-from util import next_power_of_two
+from ..util import next_power_of_two
 
 def select_largest_dtypes():
     """Select the largest dtype available in the platform."""

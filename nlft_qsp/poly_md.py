@@ -4,11 +4,11 @@ from math import prod
 from numbers import Number
 from typing import Iterable
 
-import numerics as bd
-from numerics.backend import generic_complex, generic_real
+from . import numerics as bd
+from .numerics.backend import generic_complex, generic_real
 
-from poly import Polynomial
-from util import flatten, next_power_of_two, sequence_shift
+from .poly import Polynomial
+from .util import flatten, next_power_of_two, sequence_shift
 
 def minimal_covering_range(l):
     """Given a list of tuples `l` containing `range` objects, returns a tuple `t` containing `range`

@@ -1,9 +1,9 @@
 
 
-from numerics.backend import NumericBackend
-from numerics.backend import generic_complex, generic_real
+from .backend import NumericBackend
+from .backend import generic_complex, generic_real
 
-from util import next_power_of_two
+from ..util import next_power_of_two
 
 
 class MPMathBackend(NumericBackend):
