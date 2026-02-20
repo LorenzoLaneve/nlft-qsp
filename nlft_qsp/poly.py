@@ -220,6 +220,25 @@ class Polynomial(ComplexL0Sequence):
                 schwarz_coeffs.append(self[k])
 
         return Polynomial(schwarz_coeffs, self.support_start)
+    
+    def hilbert_transform(self):
+        r"""Returns the polynomial P such that P + self yields an analytic polynomial.
+
+        Note: This is actually i H[self], i.e., the Hilbert transform as returned is already multiplied by i.
+        
+        Returns:
+            Polynomial: The Hilbert transform of the polynomial.
+        """
+        hilbert_coeffs = []
+        for k in self.support():
+            if k < 0:
+                hilbert_coeffs.append(-self[k])
+            elif k > 0:
+                hilbert_coeffs.append(self[k])
+            else:
+                hilbert_coeffs.append(0)
+
+        return Polynomial(hilbert_coeffs, self.support_start)
 
     def __mul__(self, other):
         if isinstance(other, Number):
