@@ -1,5 +1,4 @@
 import numpy as np
-from sympy import Matrix
 
 from .. import numerics as bd
 
