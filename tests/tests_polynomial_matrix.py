@@ -264,14 +264,18 @@ class MatrixPolynomialTestCase(unittest.TestCase):
 
     def test_conjugate(self):
         """Test conjugation of matrix polynomial."""
+        n = 16
         M = MatrixPolynomial((2, 2))
-        M[0, 0, 0] = 1 + 2j
-        M[0, 0, 1] = 3 - 1j
+
+        M[0, 0] = Polynomial(random_sequence(10, n))
+        M[0, 1] = Polynomial(random_sequence(10, n))
+        M[1, 0] = Polynomial(random_sequence(10, n))
+        M[1, 1] = Polynomial(random_sequence(10, n))
         
         M_conj = M.conjugate()
-        
-        self.assertEqual(M_conj[0, 0, 0], 1 - 2j)
-        self.assertEqual(M_conj[0, 0, -1], 3 + 1j)
+
+        for k in range(n):
+            np.testing.assert_array_equal(np.matrix(M[:, :, k]), np.conjugate(np.transpose(M_conj[:, :, -k])))
 
     def test_truncate(self):
         """Test truncation of matrix polynomial."""

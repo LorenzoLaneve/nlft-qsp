@@ -1,5 +1,7 @@
 from numbers import Number
 
+import numpy as np
+
 from . import numerics as bd
 from .numerics.backend import generic_complex
 
@@ -330,7 +332,7 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         """
         result = MatrixPolynomial(self.shape)
         for (i, j), poly in self._sequences.items():
-            result._sequences[(i, j)] = poly.conjugate()
+            result._sequences[(j, i)] = poly.conjugate() # transpose also
         return result
     
     def sharp(self):
@@ -472,6 +474,8 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         """Estimates the supremum norm of the matrix polynomial over the unit circle.
         
         The norm is the maximum spectral norm across all sample points.
+
+        NOTE: we use numpy.linalg.norm to compute the spectral norm.
         
         Args:
             N (int, optional): The number of samples. Defaults to 1024.
@@ -483,9 +487,9 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         max_norm = 0
         for mat in evals:
             # Compute spectral norm (largest singular value)
-            # For simplicity, use Frobenius norm as approximation
-            frob_norm = bd.sqrt(sum(abs(mat[i][j])**2 for i in range(self.shape[0]) for j in range(self.shape[1])))
-            max_norm = max(max_norm, frob_norm)
+            op_norm = np.linalg.norm(np.matrix(mat), ord=2)
+
+            max_norm = max(max_norm, op_norm)
         return max_norm
     
     def truncate(self, m: int, n: int):
