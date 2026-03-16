@@ -332,6 +332,13 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
         return self.truncate(0, self.support_start + len(self.coeffs) - 1)
+    
+    def only_negative_degrees(self):
+        """Discards all the positive degrees, keeping only the non-positive ones.
+        
+        Returns:
+            Polynomial: A new polynomial containing only the negative-degree coefficients."""
+        return self.truncate(self.support_start, 0)
 
     def __str__(self):
         """Converts the polynomial to a human-readable string representation.
