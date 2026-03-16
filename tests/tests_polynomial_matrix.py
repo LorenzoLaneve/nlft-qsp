@@ -7,7 +7,6 @@ import numpy as np
 from nlft_qsp.poly import Polynomial
 from nlft_qsp.poly_matrix import MatrixPolynomial
 from nlft_qsp.rand import random_sequence
-from nlft_qsp.nlft import NonLinearFourierSequence
 
 
 class MatrixPolynomialTestCase(unittest.TestCase):
@@ -48,6 +47,22 @@ class MatrixPolynomialTestCase(unittest.TestCase):
         M[0, 1, -1] = 2 + 1j
         self.assertEqual(M[0, 1, -1], 2 + 1j)
         self.assertEqual(M[0, 1, 2], 5 + 3j)
+
+    def test_get_submatrix(self):
+        """Test getting a submatrix of sequences."""
+        M = MatrixPolynomial((3, 3))
+        
+        M[0, 0, 0] = 1
+        M[0, 1, 0] = 2
+        M[1, 0, 0] = 3
+        M[1, 1, 0] = 4
+        
+        sub = M[:2, :2]
+        self.assertEqual(sub.shape, (2, 2))
+        self.assertEqual(sub[0, 0].coeffs, [1])
+        self.assertEqual(sub[0, 1].coeffs, [2])
+        self.assertEqual(sub[1, 0].coeffs, [3])
+        self.assertEqual(sub[1, 1].coeffs, [4])
 
     def test_get_matrix_at_degree(self):
         """Test getting the full matrix at a specific degree."""

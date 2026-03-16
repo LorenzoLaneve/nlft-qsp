@@ -74,6 +74,21 @@ class ComplexL0MatrixSequence:
         
         self.shape = (rows, cols)
         self._sequences = {}  # (i, j) -> ComplexL0Sequence
+
+    @property
+    def support_start(self):
+        """Returns the minimum support start across all sequences in the matrix."""
+        if not self._sequences:
+            return 0
+        return min(seq.support_start for seq in self._sequences.values())
+    
+    def support(self) -> range:
+        """Returns the overall support range covering all sequences in the matrix."""
+        if not self._sequences:
+            return range(0, 0)
+        min_start = min(seq.support_start for seq in self._sequences.values())
+        max_end = max(seq.support_start + len(seq.coeffs) for seq in self._sequences.values())+1
+        return range(min_start, max_end)
     
     def _ensure_sequence(self, i: int, j: int) -> ComplexL0Sequence:
         """Get or create the sequence at position (i, j)."""
@@ -84,26 +99,53 @@ class ComplexL0MatrixSequence:
     def __getitem__(self, key):
         """Multi-level indexing for ComplexL0MatrixSequence.
         
-        Supports three modes:
+        Supports four modes:
         - P[i, j] returns the ComplexL0Sequence at position (i, j)
+        - P[i1:i2, j1:j2] returns a submatrix sequence with the specified slice ranges
         - P[i, j, k] returns the coefficient of z^k in sequence (i, j)
         - P[:, :, k] returns a 2D array of all k-th coefficients (matrix form)
         
         Args:
-            key: Either (i, j), (i, j, k), or (:, :, k)
+            key: Either (i, j), (i1:i2, j1:j2), (i, j, k), or (:, :, k)
         
         Returns:
-            ComplexL0Sequence, generic_complex, or 2D list depending on indexing mode.
+            ComplexL0Sequence, ComplexL0MatrixSequence, generic_complex, or 2D list depending on indexing mode.
         """
         if not isinstance(key, tuple):
             raise TypeError("indexing requires a tuple")
         
         if len(key) == 2:
-            # P[i, j] -> ComplexL0Sequence
             i, j = key
-            if not (0 <= i < self.shape[0] and 0 <= j < self.shape[1]):
-                raise IndexError(f"index ({i}, {j}) out of bounds for shape {self.shape}")
-            return self._ensure_sequence(i, j)
+            
+            # P[i1:i2, j1:j2] -> submatrix sequence
+            if isinstance(i, slice) or isinstance(j, slice):
+                # Convert slices to ranges
+                i_start, i_stop, i_step = i.indices(self.shape[0]) if isinstance(i, slice) else (i, i+1, 1)
+                j_start, j_stop, j_step = j.indices(self.shape[1]) if isinstance(j, slice) else (j, j+1, 1)
+                
+                # Get the actual indices
+                i_indices = range(i_start, i_stop, i_step)
+                j_indices = range(j_start, j_stop, j_step)
+                
+                # Create new matrix with submatrix dimensions
+                num_rows = len(i_indices)
+                num_cols = len(j_indices)
+                result = type(self)((num_rows, num_cols))
+                
+                # Copy sequences from the specified slice
+                for new_i, old_i in enumerate(i_indices):
+                    for new_j, old_j in enumerate(j_indices):
+                        seq = self._sequences.get((old_i, old_j))
+                        if seq is not None:
+                            result._sequences[(new_i, new_j)] = self._create_sequence(seq.coeffs[:], seq.support_start)
+                
+                return result
+            
+            # P[i, j] -> ComplexL0Sequence
+            else:
+                if not (0 <= i < self.shape[0] and 0 <= j < self.shape[1]):
+                    raise IndexError(f"index ({i}, {j}) out of bounds for shape {self.shape}")
+                return self._ensure_sequence(i, j)
         
         elif len(key) == 3:
             i, j, k = key
@@ -330,9 +372,9 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         Returns:
             MatrixPolynomial: The conjugate matrix polynomial.
         """
-        result = MatrixPolynomial(self.shape)
+        result = MatrixPolynomial((self.shape[1], self.shape[0])) # transpose shape for conjugate
         for (i, j), poly in self._sequences.items():
-            result._sequences[(j, i)] = poly.conjugate() # transpose also
+            result[j, i] = poly.conjugate() # transpose also
         return result
     
     def sharp(self):
@@ -341,9 +383,9 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         Returns:
             MatrixPolynomial: The sharp-conjugate matrix polynomial.
         """
-        result = MatrixPolynomial(self.shape)
+        result = MatrixPolynomial((self.shape[1], self.shape[0])) # transpose shape for sharp
         for (i, j), poly in self._sequences.items():
-            result._sequences[(i, j)] = poly.sharp()
+            result[j, i] = poly.sharp() # transpose also
         return result
 
     def schwarz_transform(self):
@@ -470,6 +512,36 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
 
         return results
     
+    def l2_norm(self):
+        """Estimates the L2 norm of the matrix polynomial over the unit circle.
+        
+        The norm is the sum of square Frobenius norms of all the coefficients.
+
+        NOTE: we use numpy.linalg.norm with ord='fro' to compute the Frobenius norm.
+        
+        Args:
+            N (int, optional): The number of samples. Defaults to 1024.
+
+        Returns:
+            float: An estimate for the L2 norm.
+        """
+        return bd.sqrt(self.l2_squared_norm())
+    
+    def l2_squared_norm(self):
+        """Estimates the squared L2 norm of the matrix polynomial over the unit circle.
+        
+        The norm is the sum of square Frobenius norms of all the coefficients.
+
+        NOTE: we use numpy.linalg.norm with ord='fro' to compute the Frobenius norm.
+        
+        Args:
+            N (int, optional): The number of samples. Defaults to 1024.
+
+        Returns:
+            float: An estimate for the squared L2 norm.
+        """
+        return sum(poly.l2_squared_norm() for poly in self._sequences.values())
+    
     def sup_norm(self, N=1024):
         """Estimates the supremum norm of the matrix polynomial over the unit circle.
         
@@ -517,6 +589,17 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
         for (i, j), poly in self._sequences.items():
             result._sequences[(i, j)] = poly.only_positive_degrees()
         return result
+    
+    def anti_analytic_part(self):
+        """Discards all positive degrees, keeping only non-positive ones.
+        
+        Returns:
+            MatrixPolynomial: A new polynomial with only non-positive degrees.
+        """
+        result = MatrixPolynomial(self.shape)
+        for (i, j), poly in self._sequences.items():
+            result._sequences[(i, j)] = poly.only_negative_degrees()
+        return result
 
     def __str__(self):
         """String representation of the matrix polynomial.
@@ -525,3 +608,89 @@ class MatrixPolynomial(ComplexL0MatrixSequence):
             str: A description of the matrix polynomial.
         """
         return f"MatrixPolynomial{self.shape}"
+    
+    @classmethod
+    def from_constant_matrix(cls, matrix):
+        """Creates a MatrixPolynomial from a constant matrix (list of lists or array-like).
+
+        Args:
+            matrix: A 2D list or array-like representing the constant matrix.
+            """
+        rows, cols = _infer_shape(matrix)
+        result = cls((rows, cols))
+        for i in range(rows):
+            for j in range(cols):
+                result[i, j, 0] = matrix[i][j] if isinstance(matrix, list) else matrix[i, j]
+        return result
+    
+    @classmethod
+    def block_matrix(cls, blocks: list[list['MatrixPolynomial']]):
+        """Creates a matrix polynomial from a 2D list of MatrixPolynomials.
+
+        Args:
+            blocks: A 2D list of MatrixPolynomial instances representing the blocks.
+            """
+        block_rows = len(blocks)
+        block_cols = len(blocks[0]) if block_rows > 0 else 0
+        
+        # Validate blocks and determine total size
+        total_rows = 0
+        total_cols = 0
+        for i in range(block_rows):
+            row_height = None
+            for j in range(block_cols):
+                block = blocks[i][j]
+                if not isinstance(block, MatrixPolynomial):
+                    raise TypeError(f"block at ({i}, {j}) is not a MatrixPolynomial")
+                if row_height is None:
+                    row_height = block.shape[0]
+                elif block.shape[0] != row_height:
+                    raise ValueError(f"row {i} has inconsistent block heights")
+            total_rows += row_height
+        
+        for j in range(block_cols):
+            col_width = None
+            for i in range(block_rows):
+                block = blocks[i][j]
+                if col_width is None:
+                    col_width = block.shape[1]
+                elif block.shape[1] != col_width:
+                    raise ValueError(f"column {j} has inconsistent block widths")
+            total_cols += col_width
+        
+        result = cls((total_rows, total_cols))
+        
+        # Fill in the blocks
+        current_row = 0
+        for i in range(block_rows):
+            current_col = 0
+            for j in range(block_cols):
+                block = blocks[i][j]
+                for r in range(block.shape[0]):
+                    for c in range(block.shape[1]):
+                        result[current_row + r, current_col + c] = block[r, c].duplicate()
+                current_col += block.shape[1]
+            current_row += block.shape[0]
+        
+        return result
+    
+    @classmethod
+    def diagonal_block_matrix(cls, blocks: list['MatrixPolynomial']):
+        """Creates a block-diagonal matrix polynomial from a list of square MatrixPolynomials.
+
+        Args:
+            blocks: A list of square MatrixPolynomial instances to place on the diagonal.
+        """
+        total_size = sum(block.shape[0] for block in blocks)
+        result = cls((total_size, total_size))
+        
+        current_index = 0
+        for block in blocks:
+            if block.shape[0] != block.shape[1]:
+                raise ValueError("blocks must be square for diagonal block matrix")
+            for i in range(block.shape[0]):
+                for j in range(block.shape[1]):
+                    result[current_index + i, current_index + j] = block[i, j].duplicate()
+            current_index += block.shape[0]
+        
+        return result
