@@ -5,9 +5,9 @@ import numpy as np
 
 import nlft_qsp.numerics as bd
 
-from nlft_qsp.poly import ChebyshevTExpansion
+from nlft_qsp.poly import ChebyshevTExpansion, Polynomial
 from nlft_qsp.nlft import NonLinearFourierSequence
-from nlft_qsp.qsp import ChebyshevQSPPhaseFactors, GQSPPhaseFactors, QSVTPhaseFactors, XQSPPhaseFactors, YQSPPhaseFactors, gqsp_solve, chebqsp_solve, xqsp_solve, yqsp_solve
+from nlft_qsp.qsp import ChebyshevQSPPhaseFactors, GQSPPhaseFactors, QSVTPhaseFactors, XQSPPhaseFactors, YQSPPhaseFactors, gqsp_solve, chebqsp_solve, xqsp_solve, yqsp_solve, qsvt_solve
 from nlft_qsp.rand import random_polynomial, random_real_polynomial, random_real_sequence, random_sequence
 
 
@@ -65,24 +65,6 @@ class QSPTestCase(unittest.TestCase):
 
         for k, c in enumerate([-0.418258-0.112072j, 0, 0, 0, 0.418258+0.112072j]):
             self.assertAlmostEqual(Q[k - 2], c, delta=10e-7)
-
-    @bd.workdps(30)
-    def test_qsvt_phase_factors(self):
-        seq = random_real_sequence(2*bd.pi(), 12)
-        qsp = ChebyshevQSPPhaseFactors(seq)
-        
-        d = qsp.degree()
-        seq[0] += (2*d - 1) * bd.pi()/4
-        for k in range(1, d):
-            seq[k] -= bd.pi()/2
-        seq[d] -= bd.pi()/4
-        qsvt = QSVTPhaseFactors(seq)
-
-        P1, Q1 = qsp.polynomials(mode='laurent')
-        P2, Q2 = qsvt.polynomials(mode='laurent')
-
-        self.assertAlmostEqual((P1 - P2).l2_norm(), 0, delta=bd.machine_threshold())
-        self.assertAlmostEqual((Q1 - Q2).l2_norm(), 0, delta=bd.machine_threshold())
 
     @bd.workdps(30)
     def test_gqsp_polynomials(self):
@@ -191,6 +173,59 @@ class QSPTestCase(unittest.TestCase):
                 x = bd.cos(alpha)
                 self.assertAlmostEqual(bd.re(P(z)), T(x), delta=bd.machine_threshold())
 
+    def test_qsvt_polynomials(self):
+        phi = [bd.pi()/3, bd.pi()/6, bd.pi()/4]
+
+        #Expected polynomial = e^(5 i \pi/12) + e^(i \pi/4) (i - e^(i \pi/6)) x^2
+        Texp = ChebyshevTExpansion.from_polynomial(Polynomial([bd.exp(1j*5*bd.pi()/12), 0, bd.exp(1j*bd.pi()/4)*(1j - bd.exp(1j*bd.pi()/6))]))
+
+        qsp = QSVTPhaseFactors(phi)
+        P, _ = qsp.polynomials(mode='laurent')
+        T = ChebyshevTExpansion.from_laurent_polynomial(P)
+
+        for k in range(T.degree() + 1):
+            self.assertAlmostEqual(T[k], Texp[k], delta=bd.machine_threshold())
+
+    def test_qsvt_solve(self):
+        coef_odd = [0, 0.1, 0, -0.3, 0, 0.2, 0, 0.14]
+        coef_even = [0.3, 0, -0.2, 0, 0.1, 0, 0.19]
+        for coef in (coef_odd, coef_even):
+            T = ChebyshevTExpansion(coef)
+            phase_factors = qsvt_solve(T)
+            P, Q = phase_factors.polynomials(mode="laurent")
+
+            # Degree
+            self.assertEqual(P.effective_degree(), T.degree()*2)
+            
+            # Polynomial relationships
+            for alpha in np.linspace(0, 2*np.pi, 100):
+                z = bd.exp(1j*alpha)
+                x = bd.cos(alpha)
+                self.assertAlmostEqual(bd.re(P(z)), T(x), delta=bd.machine_threshold())
+
+    @bd.workdps(30)
+    def test_chebqsp_to_qsvt(self):
+        seq = random_real_sequence(2*bd.pi(), 12)
+        qsp = ChebyshevQSPPhaseFactors(seq)
+        qsvt = QSVTPhaseFactors.from_chebqsp(qsp)
+        
+        P1, Q1 = qsp.polynomials(mode='laurent')
+        P2, Q2 = qsvt.polynomials(mode='laurent')
+
+        self.assertAlmostEqual((P1 - P2).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((Q1 - Q2).l2_norm(), 0, delta=bd.machine_threshold())
+
+    @bd.workdps(30)
+    def test_qsvt_to_chebqsp(self):
+        seq = random_real_sequence(2*bd.pi(), 12)
+        qsvt = QSVTPhaseFactors(seq)
+        qsp = qsvt.to_chebqsp()
+        
+        P1, Q1 = qsp.polynomials(mode='laurent')
+        P2, Q2 = qsvt.polynomials(mode='laurent')
+
+        self.assertAlmostEqual((P1 - P2).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((Q1 - Q2).l2_norm(), 0, delta=bd.machine_threshold())
 
 if __name__ == '__main__':
     unittest.main()
