@@ -624,7 +624,7 @@ def chebqsp_solve(T: list[generic_complex] | ChebyshevTExpansion) -> ChebyshevQS
     return ChebyshevQSPPhaseFactors(xqsp.phi)
 
 def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
-    """Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
     and returns the Chebyshev QSP phase factors implementing an approximating polynomial of degree `deg`
     (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
     
@@ -644,7 +644,7 @@ def qsvt_solve(T: list[generic_complex] | ChebyshevTExpansion) -> QSVTPhaseFacto
     return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
 
 def qsvt_approximate(f, deg: int) -> QSVTPhaseFactors:
-    """Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
     and returns the reflection QSP (a.k.a. QSVT) phase factors implementing an approximating polynomial of degree `deg`
     (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
     
