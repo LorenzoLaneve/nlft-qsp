@@ -402,7 +402,7 @@ class PolynomialMD(ComplexL0SequenceMD):
         st = self.duplicate() # TODO This method can be more efficient
 
         for k in itertools.product(*self.support()):
-            st[*k] = schwarz_multiplier(k) * st[*k]
+            st[k] = schwarz_multiplier(k) * st[k]
 
         return st
     
