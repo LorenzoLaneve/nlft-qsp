@@ -8,6 +8,7 @@ from nlft_qsp.nlft_md import StairlikeSequence2D
 from nlft_qsp.poly_md import PolynomialMD
 from nlft_qsp.rand import random_complex, random_list, random_sequence, random_stairlike_sequence_2d
 from nlft_qsp.poly import Polynomial
+from nlft_qsp.solvers import weiss_md
 
 
 class PolynomialMDTestCase(unittest.TestCase):
@@ -393,6 +394,15 @@ class StairlikeSequence2DTestCase(unittest.TestCase):
         self.assertAlmostEqual(0,          q[1, 0],  delta=10*bd.machine_threshold())
         self.assertAlmostEqual(0,          q[1, 1],  delta=10*bd.machine_threshold())
 
+    def test_laurent_approx_md(self):
+        N = 16
+        points = random_list(1, (N, N)) # points[k][h] = f(\omega^k, \omega^h)
+
+        P = weiss_md.laurent_approximation_md(points, 2)
+
+        self.assertAlmostEqual(max(abs(P(bd.exp(2j*bd.pi()*k/N), bd.exp(2j*bd.pi()*h/N)) - points[k][h])
+                                   for k in range(N) for h in range(N)), 0,
+                                   delta=10*bd.machine_threshold())
 
 
 if __name__ == '__main__':

@@ -448,7 +448,7 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
         phi = [0] * (d+1)
 
         phi[0] = pf.phi[0] + (2*d - 1)*bd.pi()/4
-        for k in range(1, d-1):
+        for k in range(1, d):
             phi[k] = pf.phi[k] - bd.pi()/2
         phi[d] = pf.phi[d] - bd.pi()/4
 
@@ -460,7 +460,7 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
         phi = [0] * (d+1)
 
         phi[0] = self.phi[0] - (2*d - 1)*bd.pi()/4
-        for k in range(1, d-1):
+        for k in range(1, d):
             phi[k] = self.phi[k] + bd.pi()/2
         phi[d] = self.phi[d] + bd.pi()/4
 
@@ -624,7 +624,7 @@ def chebqsp_solve(T: list[generic_complex] | ChebyshevTExpansion) -> ChebyshevQS
     return ChebyshevQSPPhaseFactors(xqsp.phi)
 
 def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
-    """Approximate the given callable objec `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
     and returns the Chebyshev QSP phase factors implementing an approximating polynomial of degree `deg`
     (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
     
@@ -642,3 +642,11 @@ def qsvt_solve(T: list[generic_complex] | ChebyshevTExpansion) -> QSVTPhaseFacto
     Raises:
         ValueError: If the target polynomial does not have definite parity or is not real."""
     return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
+
+def qsvt_approximate(f, deg: int) -> QSVTPhaseFactors:
+    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+    and returns the reflection QSP (a.k.a. QSVT) phase factors implementing an approximating polynomial of degree `deg`
+    (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+    
+    Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
+    return qsvt_solve(chebyshev_approximate(f, deg))

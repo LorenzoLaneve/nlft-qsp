@@ -96,16 +96,6 @@ class RHWTestCase(unittest.TestCase):
         self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=bd.machine_threshold())
         self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    def test_laurent_approx_md(self):
-        N = 16
-        points = random_list(1, (N, N)) # points[k][h] = f(\omega^k, \omega^h)
-
-        P = weiss.laurent_approximation_md(points, 2)
-
-        self.assertAlmostEqual(max(abs(P(bd.exp(2j*bd.pi()*k/N), bd.exp(2j*bd.pi()*h/N)) - points[k][h])
-                                   for k in range(N) for h in range(N)), 0,
-                                   delta=10*bd.machine_threshold())
-
 
 if __name__ == '__main__':
     unittest.main()
