@@ -18,7 +18,7 @@ class NonLinearFourierSequence(ComplexL0Sequence):
             coeffs (list of complex): A list of complex numbers representing the sequence. The list includes both the lower 
                                       and upper bounds of the sequence.
             support_start (int): The index of the first element of the sequence in Z. The support of the sequence will 
-                                 be in the range [support_start, support_start + len(coeffs)].
+                                 be in the range [support_start, support_start + coeffs.shape[0]].
         """
         super().__init__(coeffs, support_start)
     
@@ -54,7 +54,7 @@ class NonLinearFourierSequence(ComplexL0Sequence):
         Returns:
             tuple[Polynomial, Polynomial]: The SU(2)-NLFT of the sequence.
         """
-        n = len(self.coeffs) - 1
+        n = self.coeffs.shape[0] - 1
         a, b = self.transform_bounds(self.support_start, self.support_start + n + 1)
 
         if n < 0:

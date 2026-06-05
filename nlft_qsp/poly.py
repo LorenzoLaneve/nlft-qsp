@@ -27,7 +27,6 @@ class ComplexL0Sequence:
             raise ValueError(f"The list of coefficients must be a single list or np.ndarray of complex values. Got {coeffs}.")
 
         self.coeffs = bd.matrix(coeffs)
-        #self.coeffs = [c for c in coeffs]
         self.support_start = support_start
 
     def support(self) -> range:
@@ -39,7 +38,7 @@ class ComplexL0Sequence:
         Returns:
             range: The support of the sequence.
         """
-        return range(self.support_start, self.support_start + len(self.coeffs))
+        return range(self.support_start, self.support_start + self.coeffs.shape[0])
     
     def __getitem__(self, k: int) -> complex_type:
         """Returns the k-th element of the sequence, i.e., F_k.
@@ -61,8 +60,8 @@ class ComplexL0Sequence:
             k (int): The exponent of z.
             c (complex): The coefficient to set.
         """
-        if self.support_start + len(self.coeffs) <= k:
-            self.coeffs = np.pad(self.coeffs, (0, k - self.support_start - len(self.coeffs) + 1))
+        if self.support_start + self.coeffs.shape[0] <= k:
+            self.coeffs = np.pad(self.coeffs, (0, k - self.support_start - self.coeffs.shape[0] + 1))
         elif self.support_start > k:
             self.coeffs = np.pad(self.coeffs, (self.support_start - k, 0))
             self.support_start = k
@@ -116,8 +115,8 @@ class ComplexL0Sequence:
         elif not isinstance(other, Polynomial):
             raise TypeError("Polynomial addition admits only other polynomials or scalars.")
                 
-        self_end = self.support_start + len(self.coeffs)
-        other_end = other.support_start + len(other.coeffs)
+        self_end = self.support_start + self.coeffs.shape[0]
+        other_end = other.support_start + other.coeffs.shape[0]
         
         sum_start = min(self.support_start, other.support_start)
         sum_end = max(self_end, other_end)
@@ -187,7 +186,7 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             int: The effective degree of the polynomial.
         """
-        return len(self.coeffs) - 1
+        return self.coeffs.shape[0] - 1
 
     def conjugate(self):
         r"""Returns the conjugate polynomial on the unit circle. If :math:`p(z) = \sum_k p_k z^k`, then its conjugate is defined as :math:`p^*(z) = \sum_k p_k^* z^{-k}`
@@ -196,7 +195,7 @@ class Polynomial(ComplexL0Sequence):
             Polynomial: The conjugate polynomial.
         """
         conj_coeffs = [np.conj(x) for x in reversed(self.coeffs)]
-        return Polynomial(conj_coeffs, -(self.support_start + len(self.coeffs) - 1))
+        return Polynomial(conj_coeffs, -(self.support_start + self.coeffs.shape[0] - 1))
     
     def sharp(self):
         r"""Same as `conjugate()`, but the support_start is left unchanged.
@@ -230,12 +229,10 @@ class Polynomial(ComplexL0Sequence):
             return Polynomial([other * c for c in self.coeffs], self.support_start)
         elif not isinstance(other, Polynomial):
             raise TypeError("Polynomial addition admits only other polynomials or scalars.")
-        len_c = len(self.coeffs) + len(other.coeffs) - 1
 
-        cof_bb = coeffs_pad(self.coeffs, len_c)
-
-        coeffs_a = np.fft.fft(cof_bb)
-        coeffs_b = np.fft.fft(coeffs_pad(other.coeffs, len_c))
+        # Pad so they end up with the same length
+        coeffs_a = np.fft.fft(np.pad(self.coeffs, pad_width=(0, other.coeffs.shape[0] - 1)))
+        coeffs_b = np.fft.fft(np.pad(other.coeffs, pad_width=(0, self.coeffs.shape[0] - 1)))
 
         # Multiply in the Fourier domain
         coeffs_c = [a * b for a, b in zip(coeffs_a, coeffs_b)]
@@ -265,7 +262,7 @@ class Polynomial(ComplexL0Sequence):
             complex: The evaluated result.
         """
         res = self.coeffs[-1]
-        for k in reversed(range(len(self.coeffs) - 1)):
+        for k in reversed(range(self.coeffs.shape[0] - 1)):
             res = res * z + self.coeffs[k]
         return res * (z ** self.support_start)
 
@@ -280,7 +277,7 @@ class Polynomial(ComplexL0Sequence):
             The k-th element will be `self[w^k]`, where `w` is the main N-th root of unity.
         """
         N = next_power_of_two(N)
-        M = next_power_of_two(max(N, len(self.coeffs)))
+        M = next_power_of_two(max(N, self.coeffs.shape[0]))
 
         coeffs = coeffs_pad(self.coeffs, M)
         coeffs = sequence_shift(coeffs, self.support_start)
@@ -317,7 +314,7 @@ class Polynomial(ComplexL0Sequence):
         
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
-        return self.truncate(0, self.support_start + len(self.coeffs) - 1)
+        return self.truncate(0, self.support_start + self.coeffs.shape[0] - 1)
 
     def __str__(self):
         """Converts the polynomial to a human-readable string representation.
@@ -348,7 +345,7 @@ class ChebyshevTExpansion(ComplexL0Sequence):
             raise ValueError("Only a coefficient vector or symmetric Laurent polynomials are allowed.")
         
     def degree(self) -> int:
-        return len(self.coeffs) - 1
+        return self.coeffs.shape[0] - 1
 
     def __call__(self, x: float_type) -> complex_type:
         """Evaluates the Chebyshev expansion at the given number.
@@ -365,7 +362,7 @@ class ChebyshevTExpansion(ComplexL0Sequence):
     
     def to_laurent(self):
         """Returns the Laurent polynomial `P(z) = self((z + z^(-1))/2)`."""
-        P = Polynomial(np.concat([np.flipud(self.coeffs), self.coeffs[1:]]), support_start=-len(self.coeffs)+1)
+        P = Polynomial(np.concat([np.flipud(self.coeffs), self.coeffs[1:]]), support_start=-self.coeffs.shape[0]+1)
         P[0] *= 2
         return P/2
     

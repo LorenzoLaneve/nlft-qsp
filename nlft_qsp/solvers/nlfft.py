@@ -48,6 +48,5 @@ def inlft(a: Polynomial, b: Polynomial):
     sup_start = b.support_start
     b = b.shift(-sup_start)
 
-    n = len(a.support())
     F, _, _ = nlfft_recurse(a.conjugate(), b)
     return NonLinearFourierSequence(F.coeffs, support_start=sup_start)
