@@ -75,5 +75,5 @@ Same as above, but for analytic $Y$-constrained QSP.
 - `qsp.yqsp_solve_laurent(P: Polynomial) -> YQSPPhaseFactors`\
 Same as above, but for Laurent $Y$-constrained QSP.
 
-- `qsp.chebqsp_solve(c: list[generic_complex] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors`\
+- `qsp.chebqsp_solve(c: list[complex_type] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors`\
 Computes the phase factors for a Chebyshev QSP protocol (Theorem 9 of [arXiv:2105.02859](https://arxiv.org/abs/2105.02859)), given the coefficients of $P(x) = \sum_{k = 0}^n c_k T_k(x)$.

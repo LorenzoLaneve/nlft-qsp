@@ -1,5 +1,4 @@
-
-from .. import numerics as bd
+import numpy as np
 
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
@@ -12,7 +11,7 @@ def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSe
     
     if n == 1:
         F0 = b[0]/a_star[0]
-        r = bd.sqrt(1 + bd.abs2(F0))
+        r = np.sqrt(1 + F0 * np.conj(F0))
         return NonLinearFourierSequence([F0]), Polynomial([F0/r]), Polynomial([1/r])
     
     m = -(-n//2) # ceil(n/2)

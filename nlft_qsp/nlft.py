@@ -1,5 +1,5 @@
 
-from . import numerics as bd
+import numpy as np
 
 from .poly import ComplexL0Sequence, Polynomial
 
@@ -34,11 +34,11 @@ class NonLinearFourierSequence(ComplexL0Sequence):
             tuple[Polynomial, Polynomial]: The SU(2)-NLFT of the subsequence in [inf, sup].
         """
         if sup - inf <= 0:
-            return Polynomial([bd.make_complex(1)]), Polynomial([bd.make_complex(0)])
+            return Polynomial([1]), Polynomial([0])
 
         if sup - inf <= 1:
-            F = bd.make_complex(self[inf])
-            den = bd.sqrt(1 + bd.abs2(F))
+            F = self[inf]
+            den = np.sqrt(1 + F * np.conj(F))
             return Polynomial([1/den]), Polynomial([F/den], inf)  # (1/den, F/den z^inf)
         
         mid = (sup + inf) // 2

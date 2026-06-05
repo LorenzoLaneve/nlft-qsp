@@ -1,7 +1,6 @@
 
 from numbers import Number
 from .nlft import NonLinearFourierSequence
-from . import numerics as bd
 
 from .poly_md import ComplexL0SequenceMD, PolynomialMD, to_poly_md
 
@@ -35,7 +34,7 @@ class StairlikeSequence2D:
             if len(col) == 0:
                 col = [0]
             
-            self.coeffs.append([bd.make_complex(c) for c in col])
+            self.coeffs.append([c for c in col])
             self.m.append(self.m[-1] + len(col) - 1)
 
     def support_x(self):
@@ -52,7 +51,7 @@ class StairlikeSequence2D:
         if x in self.support_x() and (self.m[x] <= y and y <= self.m[x+1]):
             return self.coeffs[x][y - self.m[x]]
         
-        return bd.make_complex(0)
+        return 0
 
     def transform_bounds(self, inf, sup) -> tuple[PolynomialMD, PolynomialMD]:
         """
@@ -66,7 +65,7 @@ class StairlikeSequence2D:
             tuple[Polynomial, Polynomial]: The SU(2)-NLFT of the subsequence in [inf, sup].
         """
         if sup - inf <= 0:
-            return PolynomialMD([[bd.make_complex(1)]], support_start=(0,0)), PolynomialMD([bd.make_complex(0)], support_start=(0,0))
+            return PolynomialMD([[1]], support_start=(0,0)), PolynomialMD([0], support_start=(0,0))
 
         if sup - inf <= 1:
             k = inf - self.support_start[0]

@@ -1,3 +1,5 @@
+import numpy as np
+import scipy as sp
 
 from .. import numerics as bd
 
@@ -20,8 +22,8 @@ def half_cholesky_ldl(u, v):
 
     L_cols = []
     for k in range(n):
-        _, R = bd.qr_decomp(bd.conj_transpose(G))
-        Lk = bd.conj_transpose(R) #Lk @ Q.H = G
+        _, R = sp.linalg.qr(G.conj().T)
+        Lk = R.conj().T #Lk @ Q.H = G
 
         up = [Lk[j, 0] for j in range(n+1-k)]
         vp = [Lk[j, 1] for j in range(n+1-k)]
@@ -30,7 +32,7 @@ def half_cholesky_ldl(u, v):
 
         G = bd.matrix([[uk, vk] for uk, vk in zip(up[:-1], vp[1:])])
 
-    L_cols += [[bd.make_complex(1)]] # last column
+    L_cols += [[1]] # last column
 
     L = bd.zeros(n+1, n+1)
     for k, l in enumerate(L_cols):
@@ -51,12 +53,12 @@ def inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence:
     """
     n = b.effective_degree()
 
-    p = [bd.conj(c[k]) for k in reversed(b.support())]
+    p = [np.conj(c[k]) for k in reversed(b.support())]
 
-    L = half_cholesky_ldl([bd.make_complex(1)] + [bd.make_complex(0)] * n, p) # (e_0, p)
+    L = half_cholesky_ldl([1] + [0] * n, p) # (e_0, p)
 
     F = [0] * (n+1)
     for k in range(n+1): # (F_n^*, ..., F_0^*) = L^{-1} p by Forward substitution
         F[k] = p[k] - sum(L[k, j]*F[j] for j in range(k))
 
-    return NonLinearFourierSequence([bd.conj(f) for f in reversed(F)], b.support_start)
+    return NonLinearFourierSequence([np.conj(f) for f in reversed(F)], b.support_start)

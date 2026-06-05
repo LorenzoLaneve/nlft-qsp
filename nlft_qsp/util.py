@@ -5,6 +5,20 @@ from typing import Iterable
 import csv
 from collections import defaultdict
 
+def coeffs_pad(c: list, N: int):
+    """Pads the list c with zeros so that it results of length N. If len(c) >= N, then the list will be left unchanged.
+
+    Args:
+        c (list[complex]): the list to be padded
+        N (int): The length of the padded list.
+
+    Returns:
+        list[complex]: The original list padded with zeros, such that the total length will be N.
+    """
+    if len(c) < N:
+        return c + [0] * (N - len(c))
+
+    return c
 
 def next_power_of_two(n):
     """Returns the smallest power of two that is `>= n`."""

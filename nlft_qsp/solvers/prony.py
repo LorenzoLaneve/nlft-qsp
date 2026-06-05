@@ -4,8 +4,6 @@
 import numpy as np
 from ..poly import Polynomial
 
-from .. import numerics as bd
-
 from scipy.linalg import hankel
 from numpy.linalg import svd
 
@@ -41,5 +39,5 @@ def complete(b: Polynomial) -> Polynomial:
                         np.array((a * a.conjugate()).eval_at_roots_of_unity(1024))))
     a *= C
     a = a.shift(-n)
-    a *= bd.exp(-1j*bd.arg(a[0])) # we want a[0] > 0
+    a *= np.exp(-1j*np.angle(a[0])) # we want a[0] > 0
     return a
