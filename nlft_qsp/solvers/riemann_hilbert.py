@@ -1,3 +1,4 @@
+import numpy as np
 
 from .. import numerics as bd
 
@@ -38,7 +39,7 @@ def system_matrix(c: Polynomial, k: int):
     for i in range(d+1):
         for j in range(d+1):
             M[i, (d+1)+j] = -T[j, i]
-            M[(d+1)+i, j] = bd.conj(T[i, j])
+            M[(d+1)+i, j] = np.conj(T[i, j])
 
     for i in range(2*d+2):
         M[i, i] = 1
@@ -63,13 +64,13 @@ def factorize(c: Polynomial, k: int, normalize: bool = False):
     d = n - k
 
     A = system_matrix(c, k)
-    x = bd.solve_system(A, [0] * (2*d+1) + [1])
+    x = np.linalg.solve(A, [0] * (2*d+1) + [1])
 
     Ap = Polynomial(x[d+1:2*d+2], support_start=-d)
     Bp = Polynomial(x[0:d+1])
 
     if normalize:
-        a_inf = bd.sqrt(Ap[0])
+        a_inf = np.sqrt(Ap[0])
         Bp /= a_inf
         Ap /= a_inf
     

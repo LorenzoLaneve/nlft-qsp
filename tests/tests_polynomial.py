@@ -1,5 +1,6 @@
-
 import unittest
+
+import numpy as np
 
 import nlft_qsp.numerics as bd
 
@@ -42,7 +43,7 @@ class PolynomialTestCase(unittest.TestCase):
         q = p.conjugate()
 
         for k in range(10):
-            self.assertEqual(q[k], bd.conj(p[-k]))
+            self.assertEqual(q[k], np.conj(p[-k]))
 
     def test_truncate(self):
         p = Polynomial(range(20), support_start=-10)
@@ -56,55 +57,52 @@ class PolynomialTestCase(unittest.TestCase):
                 self.assertEqual(q[k], p[k])
 
     def test_add(self):
-        p = bd.make_complex(1) + Polynomial([1, 2, 3])
-        self.assertEqual(p.coeffs, [2, 2, 3])
+        p = 1 + Polynomial([1, 2, 3])
+        self.assertTrue(np.all(p.coeffs == np.array([2, 2, 3])))
         self.assertEqual(p.support_start, 0)
 
         p = Polynomial([1, 2, 3], support_start=2) - 4
-        self.assertEqual(p.coeffs, [-4, 0, 1, 2, 3])
+        self.assertTrue(np.all(p.coeffs == np.array([-4, 0, 1, 2, 3])))
         self.assertEqual(p.support_start, 0)
 
         p = Polynomial([1, 2, 3], support_start=-3) + 7
-        self.assertEqual(p.coeffs, [1, 2, 3, 7])
+        self.assertTrue(np.all(p.coeffs == np.array([1, 2, 3, 7])))
         self.assertEqual(p.support_start, -3)
 
 
         p = Polynomial([1, 2, 3], support_start=-3)
         q = p - Polynomial([4, 5, 6], support_start=-1)
-        self.assertEqual(q.coeffs, [1, 2, -1, -5, -6])
+        self.assertTrue(np.all(q.coeffs == np.array([1, 2, -1, -5, -6])))
         self.assertEqual(q.support_start, -3)
 
         q = p + Polynomial([4, 5, 6], support_start=-3)
-        self.assertEqual(q.coeffs, [5, 7, 9])
+        self.assertTrue(np.all(q.coeffs == np.array([5, 7, 9])))
         self.assertEqual(q.support_start, -3)
 
         q = p + Polynomial([4, 5, 6], support_start=-4)
-        self.assertEqual(q.coeffs, [4, 6, 8, 3])
+        self.assertTrue(np.all(q.coeffs == np.array([4, 6, 8, 3])))
         self.assertEqual(q.support_start, -4)
 
-    @bd.workdps(30)
     def test_mul(self):
         p = 3 * Polynomial([1, 2, 3], support_start=-10)
-        self.assertEqual(p.coeffs, [3, 6, 9])
+        self.assertTrue(np.all(p.coeffs == np.array([3, 6, 9])))
         self.assertEqual(p.support_start, -10)
 
         p = Polynomial([1, 2, 3], support_start=-1)
         q = p * Polynomial([5, 6, 7, 8], support_start=-5)
 
         for a, b in zip(q.coeffs, [5, 16, 34, 40, 37, 24]):
-            self.assertAlmostEqual(a, b, delta=1e-25)
+            self.assertAlmostEqual(a, b, delta=bd.machine_threshold())
         self.assertEqual(q.support_start, -6)
 
 
-    @bd.workdps(30)
     def test_call(self):
         p = Polynomial([3, 2, 1], support_start=0)
         q = Polynomial([5, -1, 0, 2], support_start=-3)
 
-        self.assertAlmostEqual(p(1+1j), 5+4j, delta=10 * bd.machine_threshold())
-        self.assertAlmostEqual(q(1+1j), 0.75-0.75j, delta=10 * bd.machine_threshold())
+        self.assertAlmostEqual(p(1+1j), 5+4j, delta=bd.machine_threshold())
+        self.assertAlmostEqual(q(1+1j), 0.75-0.75j, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_eval_at_roots_of_unity(self):
         seq = random_sequence(160000, 15)
 
@@ -117,13 +115,13 @@ class PolynomialTestCase(unittest.TestCase):
         cep = [p(z) for z in bd.unitroots(16)]
         ceq = [q(z) for z in bd.unitroots(16)]
         for p1, p2 in zip(ep, cep):
-            self.assertAlmostEqual(p1, p2, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
 
         for z, q1, q2 in zip(bd.unitroots(16), eq, ceq):
-            self.assertAlmostEqual(q1, q2, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(q1, q2, delta=bd.machine_threshold())
 
         for z, a, b in zip(bd.unitroots(16), ep, eq):
-            self.assertAlmostEqual(a * (z ** 2), b, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(a * (z ** 2), b, delta=bd.machine_threshold())
 
 
         ep = p.eval_at_roots_of_unity(8)
@@ -132,18 +130,18 @@ class PolynomialTestCase(unittest.TestCase):
         cep = [p(z) for z in bd.unitroots(8)]
         ceq = [q(z) for z in bd.unitroots(8)]
         for p1, p2 in zip(ep, cep):
-            self.assertAlmostEqual(p1, p2, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
 
         for q1, q2 in zip(eq, ceq):
-            self.assertAlmostEqual(q1, q2, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(q1, q2, delta=bd.machine_threshold())
 
         for z, a, b in zip(bd.unitroots(8), ep, eq):
-            self.assertAlmostEqual(a * (z ** 2), b, delta=10 * bd.machine_threshold())
+            self.assertAlmostEqual(a * (z ** 2), b, delta=bd.machine_threshold())
 
     def test_schwarz_transform(self):
         p = Polynomial([])
         q = p.schwarz_transform()
-        self.assertEqual(q.coeffs, [])
+        self.assertEqual(len(q.coeffs), 0)
 
         p = Polynomial([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], support_start=-5)
         q = p.schwarz_transform()
@@ -161,9 +159,9 @@ class PolynomialTestCase(unittest.TestCase):
         P = T.to_laurent()
 
         for k in range(32):
-            theta = (k * bd.pi()) / 32
-            z = bd.exp(1j * theta)
-            x = bd.cos(theta)
+            theta = (k * np.pi) / 32
+            z = np.exp(1j * theta)
+            x = np.cos(theta)
 
             self.assertAlmostEqual(P(z), T(x), delta=bd.machine_threshold())
 
@@ -173,16 +171,15 @@ class PolynomialTestCase(unittest.TestCase):
         T = ChebyshevTExpansion(P)
 
         for k in range(32):
-            theta = (k * bd.pi()) / 32
-            z = bd.exp(1j * theta)
-            x = bd.cos(theta)
+            theta = (k * np.pi) / 32
+            z = np.exp(1j * theta)
+            x = np.cos(theta)
 
             self.assertAlmostEqual(P(z), T(x), delta=bd.machine_threshold())
 
 
 class NLFTTestCase(unittest.TestCase):
 
-    @bd.workdps(10)
     def test_transform(self):
         nlft = NonLinearFourierSequence([])
         a, b = nlft.transform()
@@ -198,7 +195,7 @@ class NLFTTestCase(unittest.TestCase):
         self.assertEqual(a.support_start, -3)
         self.assertEqual(b.support_start, 0)
 
-        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=10 * bd.machine_threshold())
+        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
         
         for ak, ahk in zip(a.coeffs, [-0.0970143, 0.315296, -0.485071, 0.0242536]):
             self.assertAlmostEqual(ak, ahk, delta=1e-5)
@@ -216,7 +213,7 @@ class NLFTTestCase(unittest.TestCase):
         self.assertEqual(a.support_start, -2)
         self.assertEqual(b.support_start, 1)
 
-        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=10 * bd.machine_threshold())
+        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
 
         for ak, ahk in zip(a.coeffs, [-0.274398, -0.617395, 0.0342997]):
             self.assertAlmostEqual(ak, ahk, delta=1e-5)

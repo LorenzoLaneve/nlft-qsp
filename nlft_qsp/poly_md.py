@@ -1,11 +1,11 @@
+import numpy as np
 
 import itertools
 from math import prod
 from numbers import Number
-from typing import Iterable
 
+from .numerics import complex_type, float_type
 from . import numerics as bd
-from .numerics.backend import generic_complex, generic_real
 
 from .poly import Polynomial
 from .util import flatten, next_power_of_two, sequence_shift
@@ -40,7 +40,7 @@ def deep_truncate(l, lens):
     
     return l[:lens[0]]
 
-def deep_horner_eval(l, z: tuple[generic_complex]):
+def deep_horner_eval(l, z: tuple[complex_type]):
     """Evaluates the multivariate polynomial with coefficients l using Horner's method."""
     if len(z) == 0:
         return l
@@ -98,7 +98,7 @@ def deep_inplace_binary(l1, l2, func):
 
 def zeros(lens):
     if len(lens) == 1:
-        return [bd.make_complex(0)] * (lens[0])
+        return [0] * (lens[0])
     
     zr = []
     for k in range(lens[0]):
@@ -140,7 +140,7 @@ class ComplexL0SequenceMD:
             if not all(isinstance(c, Number) for c in coeffs):
                 raise ValueError("Coefficient list must be of the corresponding dimension.")
             
-            self.coeffs = [bd.make_complex(c) for c in coeffs]
+            self.coeffs = [c for c in coeffs]
         else:
             self.coeffs = []
 
@@ -211,7 +211,7 @@ class ComplexL0SequenceMD:
     def duplicate(self):
         return self.__class__(self.coeff_list(), self.support_start)
     
-    def __getitem__(self, k: int) -> generic_complex:
+    def __getitem__(self, k: int) -> complex_type:
         """Returns the coefficient in position (k1, ..., kd), or zero if the element is outside the support.
         """
         if not isinstance(k, tuple):
@@ -227,19 +227,19 @@ class ComplexL0SequenceMD:
             
             return self.coeffs[x - self._xsupport_start][k[1:]]
         
-        return bd.make_complex(0)
+        return 0
 
-    def __setitem__(self, k: int, c: generic_complex):
+    def __setitem__(self, k: int, c: complex_type):
         """Sets the coefficient of (k1, ..., kd) to be c, allocating space if needed.
         """
         x = k[0]
         if self.dim == 1:
             if self._xsupport_start + len(self.coeffs) <= x:
-                self.coeffs.extend([bd.make_complex(0)] * (x - self._xsupport_start - len(self.coeffs) + 1))
+                self.coeffs.extend([0] * (x - self._xsupport_start - len(self.coeffs) + 1))
             elif self._xsupport_start > x:
-                self.coeffs = [bd.make_complex(0)] * (self._xsupport_start - x) + self.coeffs
+                self.coeffs = [0] * (self._xsupport_start - x) + self.coeffs
                 self._xsupport_start = x
-            self.coeffs[x - self._xsupport_start] = bd.make_complex(c)
+            self.coeffs[x - self._xsupport_start] = c
         else:
             if self._xsupport_start + len(self.coeffs) <= x:
                 for _ in range(x - self._xsupport_start - len(self.coeffs) + 1):
@@ -249,46 +249,46 @@ class ComplexL0SequenceMD:
                     self.coeffs = [self.__class__([], support_start=(0,) * (self.dim-1))] + self.coeffs
                 self._xsupport_start = x
 
-            self.coeffs[x - self._xsupport_start][k[1:]] = bd.make_complex(c)
+            self.coeffs[x - self._xsupport_start][k[1:]] = c
 
-    def l1_norm(self) -> generic_real:
+    def l1_norm(self) -> float_type:
         """Computes the l1 norm of the sequence.
 
         Returns:
             float: The sum of absolute values of coefficients.
         """
         if self.dim == 1:
-            return sum(bd.abs(c) for c in self.coeffs)
+            return sum(np.abs(c) for c in self.coeffs)
         return sum(c.l1_norm() for c in self.coeffs)
 
-    def l2_norm(self) -> generic_real:
+    def l2_norm(self) -> float_type:
         """Computes the l2 norm.
 
         Returns:
             float: The l2 norm.
         """
-        return bd.sqrt(self.l2_squared_norm())
+        return np.sqrt(self.l2_squared_norm())
 
-    def l2_squared_norm(self) -> generic_real:
+    def l2_squared_norm(self) -> float_type:
         """Computes the squared l2 norm.
 
         Returns:
             float: The squared l2 norm, i.e., the sum of the squared absolute values.
         """
         if self.dim == 1:
-            return sum(bd.abs2(c) for c in self.coeffs)
+            return sum(c * np.conj(c) for c in self.coeffs)
         return sum(c.l2_squared_norm() for c in self.coeffs)
     
     def is_real(self) -> bool:
         """Whether the sequence has only real elements."""
         if self.dim == 1:
-            return all(bd.im(F) <= bd.machine_threshold() for F in self.coeffs)
+            return all(np.imag(F) <= bd.machine_threshold() for F in self.coeffs)
         return all(c.is_real() for c in self.coeffs)
     
     def is_imaginary(self) -> bool:
         """Whether the sequence has only imaginary elements."""
         if self.dim == 1:
-            return all(bd.re(F) <= bd.machine_threshold() for F in self.coeffs)
+            return all(np.real(F) <= bd.machine_threshold() for F in self.coeffs)
         return all(c.is_imaginary() for c in self.coeffs)
     
     def _coeffwise_unary(self, func):
@@ -387,7 +387,7 @@ class PolynomialMD(ComplexL0SequenceMD):
             PolynomialMD: The conjugate polynomial.
         """
         cf = self.coeff_list()
-        deep_inplace(cf, lambda x: bd.conj(x), reverse=True)
+        deep_inplace(cf, lambda x: np.conj(x), reverse=True)
 
         return PolynomialMD(cf, tuple(-rng.stop + 1 for rng in self.support()))
     
@@ -423,15 +423,17 @@ class PolynomialMD(ComplexL0SequenceMD):
         rng_b = tuple(range(xb.start, xb.start + next_power_of_two(xc)) for xb, xc in zip(sup_b, len_c))
         # augmented support for a and b so that we can carry out FFT on their coeff_list()
 
-        # TODO use extra precision here
-        cf1 = bd.fft_md(self.coeff_list(rng_a))
-        cf2 = bd.fft_md(other.coeff_list(rng_b))
+        cf1 = np.fft.fftn(self.coeff_list(rng_a)).tolist()
+        cf2 = np.fft.fftn(other.coeff_list(rng_b)).tolist()
 
         # Multiply in the Fourier domain
         deep_inplace_binary(cf1, cf2, lambda x, y: x * y) # cf1 *= cf2
 
+
+        cf1_ft = np.fft.ifftn(cf1, norm='backward').tolist()
+
         # Inverse FFT to get the result, support starts are the sum in each individual variable
-        return PolynomialMD(deep_truncate(bd.ifft_md(cf1), len_c), tuple(x.start + y.start for x, y in zip(sup_a, sup_b)))
+        return PolynomialMD(deep_truncate(cf1_ft, len_c), tuple(x.start + y.start for x, y in zip(sup_a, sup_b)))
     
     def __rmul__(self, other):
         return self * other
@@ -442,7 +444,7 @@ class PolynomialMD(ComplexL0SequenceMD):
         
         raise TypeError("Polynomial division is only possible with scalars.")
     
-    def __call__(self, *z) -> generic_complex:
+    def __call__(self, *z) -> complex_type:
         """Evaluates the polynomial using Horner's method.
 
         Args:
@@ -459,7 +461,7 @@ class PolynomialMD(ComplexL0SequenceMD):
 
         return deep_horner_eval(self.coeff_list(), z) * prod(zk ** nk for zk, nk in zip(z, self.support_start))
 
-    def eval_at_roots_of_unity(self, N: int | tuple) -> list[generic_complex]:
+    def eval_at_roots_of_unity(self, N: int | tuple) -> list[complex_type]:
         """Evaluates the polynomial at the N-th roots of unity using the inverse FFT.
 
         Args:
@@ -485,7 +487,7 @@ class PolynomialMD(ComplexL0SequenceMD):
         coeffs = deep_sequence_shift(coeffs, self.support_start)
         # This has the effect of having everything multiplied by z[k]^s[k] for each k
 
-        evals = bd.ifft_md(coeffs, normalize=False) # M evaluations at the M-th roots of unity
+        evals = np.fft.ifftn(coeffs, norm='forward').tolist() # M evaluations at the M-th roots of unity
         return deep_sequence_skip(evals, tuple(m//n for m, n in zip(M, N)))
     
     def sup_norm(self, N=1024):
@@ -525,7 +527,7 @@ class PolynomialMD(ComplexL0SequenceMD):
             str: The string representation of the polynomial.
         """
         sup_start = self.support_start
-        return ' + '.join(f"{c} z^{tuple(x + y for x, y in zip(k, sup_start))}" for k, c in self.coeff_dict().items() if bd.abs(c) > tol)
+        return ' + '.join(f"{c} z^{tuple(x + y for x, y in zip(k, sup_start))}" for k, c in self.coeff_dict().items() if np.abs(c) > tol)
     
 
 def to_poly_md(p: Polynomial, m: int) -> PolynomialMD:

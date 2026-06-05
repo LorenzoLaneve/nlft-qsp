@@ -2,9 +2,10 @@
 from math import sqrt
 import unittest
 
+import numpy as np
+
 import nlft_qsp.numerics as bd
 
-from nlft_qsp.nlft_md import StairlikeSequence2D
 from nlft_qsp.poly_md import PolynomialMD
 from nlft_qsp.rand import random_complex, random_list, random_sequence, random_stairlike_sequence_2d
 from nlft_qsp.poly import Polynomial
@@ -202,9 +203,9 @@ class PolynomialMDTestCase(unittest.TestCase):
         for i, x in zip(range(8), bd.unitroots(8)):
             for j, y in zip(range(8), bd.unitroots(8)):
                 for k, z in zip(range(16), bd.unitroots(16)):
-                    self.assertAlmostEqual(ep[i][j][k], p(x, y, z), delta=10 * bd.machine_threshold())
-                    self.assertAlmostEqual(eq[i][j][k], q(x, y, z), delta=10 * bd.machine_threshold())
-                    self.assertAlmostEqual(eq[i][j][k], (y ** 2) * z * ep[i][j][k], delta=10 * bd.machine_threshold())
+                    self.assertAlmostEqual(ep[i][j][k], p(x, y, z), delta=bd.machine_threshold())
+                    self.assertAlmostEqual(eq[i][j][k], q(x, y, z), delta=bd.machine_threshold())
+                    self.assertAlmostEqual(eq[i][j][k], (y ** 2) * z * ep[i][j][k], delta=bd.machine_threshold())
 
 class Polynomial1DToMDTestCase(unittest.TestCase):
 
@@ -219,9 +220,9 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
         q = Polynomial(seq, support_start=0)
 
         for z in bd.unitroots(16):
-            self.assertAlmostEqual(p1(w, z), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p2(z, w), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p3(y, w, z), q(z), delta=10*bd.machine_threshold())
+            self.assertAlmostEqual(p1(w, z), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p2(z, w), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p3(y, w, z), q(z), delta=bd.machine_threshold())
 
         p1 = PolynomialMD([seq], support_start=(0,3))
         p2 = PolynomialMD([[c] for c in seq], support_start=(3,0))
@@ -229,9 +230,9 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
         q = Polynomial(seq, support_start=3)
 
         for z in bd.unitroots(16):
-            self.assertAlmostEqual(p1(w, z), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p2(z, w), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p3(y, w, z), q(z), delta=10*bd.machine_threshold())
+            self.assertAlmostEqual(p1(w, z), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p2(z, w), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p3(y, w, z), q(z), delta=bd.machine_threshold())
 
         e1 = p1.eval_at_roots_of_unity(16)
         e2 = p2.eval_at_roots_of_unity(16)
@@ -242,11 +243,11 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
         for k in range(16):
 
             for h in range(16):
-                self.assertAlmostEqual(e1[h][k], eq[k], delta=10*bd.machine_threshold())
-                self.assertAlmostEqual(e2[k][h], eq[k], delta=10*bd.machine_threshold())
+                self.assertAlmostEqual(e1[h][k], eq[k], delta=bd.machine_threshold())
+                self.assertAlmostEqual(e2[k][h], eq[k], delta=bd.machine_threshold())
 
                 for j in range(16):
-                    self.assertAlmostEqual(e3[j][h][k], eq[k], delta=10*bd.machine_threshold())
+                    self.assertAlmostEqual(e3[j][h][k], eq[k], delta=bd.machine_threshold())
 
     def test_eval_at_roots_of_unity(self):
         seq = random_sequence(10, 16)
@@ -259,11 +260,11 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
 
         for k in range(16):
             for h in range(16):
-                self.assertAlmostEqual(e1[h][k], eq[k], delta=10*bd.machine_threshold())
-                self.assertAlmostEqual(e2[k][h], eq[k], delta=10*bd.machine_threshold())
+                self.assertAlmostEqual(e1[h][k], eq[k], delta=bd.machine_threshold())
+                self.assertAlmostEqual(e2[k][h], eq[k], delta=bd.machine_threshold())
 
                 for j in range(16):
-                    self.assertAlmostEqual(e3[j][h][k], eq[k], delta=10*bd.machine_threshold())
+                    self.assertAlmostEqual(e3[j][h][k], eq[k], delta=bd.machine_threshold())
 
     def test_add(self):
         seq1 = random_sequence(10, 16)
@@ -284,8 +285,8 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
 
         w = random_complex(10)
         for z in bd.unitroots(1024):
-            self.assertAlmostEqual(r1_md(w, z), r(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(r2_md(z, w), r(z), delta=10*bd.machine_threshold())
+            self.assertAlmostEqual(r1_md(w, z), r(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(r2_md(z, w), r(z), delta=bd.machine_threshold())
 
     def test_mul(self):
         seq1 = random_sequence(10, 16)
@@ -306,8 +307,8 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
 
         w = random_complex(10)
         for z in bd.unitroots(1024):
-            self.assertAlmostEqual(r1_md(w, z), r(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(r2_md(z, w), r(z), delta=10*bd.machine_threshold())
+            self.assertAlmostEqual(r1_md(w, z), r(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(r2_md(z, w), r(z), delta=bd.machine_threshold())
 
     def test_schwarz_transform(self):
         seq = random_sequence(10, 10)
@@ -320,79 +321,27 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
         q = Polynomial(seq, support_start=0)                        .schwarz_transform()
 
         for z in bd.unitroots(16):
-            self.assertAlmostEqual(p1(w, z), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p2(z, w), q(z), delta=10*bd.machine_threshold())
-            self.assertAlmostEqual(p3(y, w, z), q(z), delta=10*bd.machine_threshold())
+            self.assertAlmostEqual(p1(w, z), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p2(z, w), q(z), delta=bd.machine_threshold())
+            self.assertAlmostEqual(p3(y, w, z), q(z), delta=bd.machine_threshold())
 
 
 
 class StairlikeSequence2DTestCase(unittest.TestCase):
 
-    def test_init_get(self):
-        s = StairlikeSequence2D([[1, 2], [3], [4, 5, 6], [7, 8]])
-
-        self.assertEqual(s.support_x(), range(0, 4))
-        self.assertEqual(s.support_y(), range(0, 5))
-
-        self.assertEqual(s[0,0], 1)
-        self.assertEqual(s[0,1], 2)
-        self.assertEqual(s[1,1], 3)
-        self.assertEqual(s[2,1], 4)
-        self.assertEqual(s[2,2], 5)
-        self.assertEqual(s[2,3], 6)
-        self.assertEqual(s[3,3], 7)
-        self.assertEqual(s[3,4], 8)
-
-        self.assertEqual(s[1,0], 0)
-        self.assertEqual(s[-1,0], 0)
-
-    def test_nlft_transform(self):
-        nlft = StairlikeSequence2D([[1, 2], [3], [4]])
-        a, b = nlft.transform()
-
-        self.assertAlmostEqual(a[0,0],     1/(10*sqrt(17)),  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(a[0,-1],    -1/(5*sqrt(17)),  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(a[-1,0],    -9/(5*sqrt(17)),  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(a[-1,-1],   21/(10*sqrt(17)), delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(a[-2,0],    -4/(5*sqrt(17)),  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(a[-2,-1],   -2/(5*sqrt(17)),  delta=10*bd.machine_threshold())
-
-        self.assertAlmostEqual(b[0,0],     1/(10*sqrt(17)),   delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(b[0,1],     1/(5*sqrt(17)),    delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(b[1,0],     -9/(5*sqrt(17)),   delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(b[1,1],     -21/(10*sqrt(17)), delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(b[2,0],     -4/(5*sqrt(17)),   delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(b[2,1],     2/(5*sqrt(17)),    delta=10*bd.machine_threshold())
-
-        nlft = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)), support_start=(2, 1))
-        a, b = nlft.transform()
-        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=10*bd.machine_threshold())
-
-    def test_random_multiplication(self):
-        nlft1 = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)))
-        nlft2 = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)), support_start=(15, 10))
-
-        a1, b1 = nlft1.transform()
-        a2, b2 = nlft2.transform()
-
-        r = b1 * b2
-
-        z = (random_complex(1), random_complex(1))
-        self.assertAlmostEqual(b1(z) * b2(z), r(z), delta=10 * bd.machine_threshold())
-
     def test_schwarz_transform(self):
         p = PolynomialMD(random_list(1, (3, 3)), support_start=(-1, -1))
         q = p.schwarz_transform()
 
-        self.assertAlmostEqual(p[-1,-1]*2, q[-1,-1], delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(p[-1,0]*2,  q[-1,0],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(0,          q[-1,1],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(p[0,-1]*2,  q[0,-1],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(p[0, 0],    q[0, 0],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(0,          q[1,-1],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(0,          q[0, 1],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(0,          q[1, 0],  delta=10*bd.machine_threshold())
-        self.assertAlmostEqual(0,          q[1, 1],  delta=10*bd.machine_threshold())
+        self.assertAlmostEqual(p[-1,-1]*2, q[-1,-1], delta=bd.machine_threshold())
+        self.assertAlmostEqual(p[-1,0]*2,  q[-1,0],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(0,          q[-1,1],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(p[0,-1]*2,  q[0,-1],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(p[0, 0],    q[0, 0],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(0,          q[1,-1],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(0,          q[0, 1],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(0,          q[1, 0],  delta=bd.machine_threshold())
+        self.assertAlmostEqual(0,          q[1, 1],  delta=bd.machine_threshold())
 
     def test_laurent_approx_md(self):
         N = 16
@@ -400,9 +349,9 @@ class StairlikeSequence2DTestCase(unittest.TestCase):
 
         P = weiss_md.laurent_approximation_md(points, 2)
 
-        self.assertAlmostEqual(max(abs(P(bd.exp(2j*bd.pi()*k/N), bd.exp(2j*bd.pi()*h/N)) - points[k][h])
+        self.assertAlmostEqual(max(abs(P(np.exp(2j*np.pi*k/N), np.exp(2j*np.pi*h/N)) - points[k][h])
                                    for k in range(N) for h in range(N)), 0,
-                                   delta=10*bd.machine_threshold())
+                                   delta=bd.machine_threshold())
 
 
 if __name__ == '__main__':

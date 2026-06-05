@@ -1,5 +1,4 @@
-
-from .. import numerics as bd
+import numpy as np
 
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
@@ -12,7 +11,7 @@ def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSe
     
     if n == 1:
         F0 = b[0]/a_star[0]
-        r = bd.sqrt(1 + bd.abs2(F0))
+        r = np.sqrt(1 + F0 * np.conj(F0))
         return NonLinearFourierSequence([F0]), Polynomial([F0/r]), Polynomial([1/r])
     
     m = -(-n//2) # ceil(n/2)
@@ -29,7 +28,7 @@ def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSe
     xi_n = eta_m.sharp() * xi_mn + xi_m * eta_mn
     eta_n = eta_m * eta_mn - xi_m.sharp() * xi_mn
 
-    return NonLinearFourierSequence(Fup.coeffs + Fdown.coeffs), xi_n, eta_n
+    return NonLinearFourierSequence(np.concat([Fup.coeffs, Fdown.coeffs])), xi_n, eta_n
 
 def inlft(a: Polynomial, b: Polynomial):
     """Computes the Inverse Non-Linear Fourier Transform using the Non-Linear Fast Fourier Transform algorithm (arXiv:2505.12615).
@@ -49,6 +48,5 @@ def inlft(a: Polynomial, b: Polynomial):
     sup_start = b.support_start
     b = b.shift(-sup_start)
 
-    n = len(a.support())
     F, _, _ = nlfft_recurse(a.conjugate(), b)
     return NonLinearFourierSequence(F.coeffs, support_start=sup_start)

@@ -1,3 +1,4 @@
+import numpy as np
 
 from .. import numerics as bd
 
@@ -21,7 +22,7 @@ def laurent_approximation_md(points: list, m: int) -> PolynomialMD:
     N = len(points)
     support_start = (-N//2,) * m
 
-    coeffs = bd.fft_md(points, normalize=True)
+    coeffs = np.fft.fftn(points, norm='forward').tolist()
     coeffs = deep_sequence_shift(coeffs, support_start) # Zero frequency in the middle
     
     return PolynomialMD(coeffs, support_start)
@@ -41,17 +42,17 @@ def complete_md(b: PolynomialMD, verbose=False):
 
     threshold = 1
     attempts = 0
-    while threshold > 100 * bd.machine_eps():
+    while threshold > bd.machine_threshold():
         N *= 2
 
         b_points = b.eval_at_roots_of_unity(N)
-        deep_inplace(b_points, lambda bz: bd.log(1 - bd.abs2(bz))/2)
+        deep_inplace(b_points, lambda bz: np.log(1 - bz * np.conj(bz))/2)
         R = laurent_approximation_md(b_points, m)
 
         G = R.schwarz_transform()
 
         G_points = G.eval_at_roots_of_unity(N)
-        deep_inplace(G_points, lambda gz: bd.exp(gz))
+        deep_inplace(G_points, lambda gz: np.exp(gz))
         a = laurent_approximation_md(G_points, m)
 
         #a = a.truncate(-b.effective_degree(), 0) # a and b must have the same support

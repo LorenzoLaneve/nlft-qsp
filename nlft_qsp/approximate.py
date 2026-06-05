@@ -24,7 +24,7 @@ def chebyshev_approximate(f, N) -> ChebyshevTExpansion:
     F[0]  /= 2
     F[-1] /= 2
 
-    return ChebyshevTExpansion(F.tolist())
+    return ChebyshevTExpansion(F)
 
 def fourier_approximate(f, N) -> Polynomial:
     r"""Computes the Fourier series of the given function `f(z)`

@@ -1,4 +1,3 @@
-
 import unittest
 
 import numpy as np
@@ -13,9 +12,8 @@ from nlft_qsp.rand import random_polynomial, random_real_polynomial, random_real
 
 class QSPTestCase(unittest.TestCase):
 
-    @bd.workdps(30)
     def test_xqsp_phase_factors(self):
-        qsp = XQSPPhaseFactors([bd.pi()/3, bd.pi()/6, bd.pi()/4])
+        qsp = XQSPPhaseFactors([np.pi/3, np.pi/6, np.pi/4])
 
         P, Q = qsp.polynomials()
         for k, c in enumerate([-0.53033, -0.482963, 0.306186]):
@@ -30,9 +28,8 @@ class QSPTestCase(unittest.TestCase):
 
         self.assertAlmostEqual((F - F2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_yqsp_phase_factors(self):
-        qsp = YQSPPhaseFactors([bd.pi()/3, bd.pi()/6, bd.pi()/4])
+        qsp = YQSPPhaseFactors([np.pi/3, np.pi/6, np.pi/4])
 
         P, Q = qsp.polynomials()
         for k, c in enumerate([-0.53033, -0.482963, 0.306186]):
@@ -47,7 +44,6 @@ class QSPTestCase(unittest.TestCase):
 
         self.assertAlmostEqual((F - F2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_gqsp_phase_factors(self):
         F = NonLinearFourierSequence(random_sequence(1000, 10))
         qsp = GQSPPhaseFactors.from_nlfs(F)
@@ -55,9 +51,8 @@ class QSPTestCase(unittest.TestCase):
 
         self.assertAlmostEqual((F - F2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_chebqsp_phase_factors(self):
-        qsp = ChebyshevQSPPhaseFactors([bd.pi()/3, bd.pi()/6, bd.pi()/4])
+        qsp = ChebyshevQSPPhaseFactors([np.pi/3, np.pi/6, np.pi/4])
 
         P, Q = qsp.polynomials(mode='laurent')
         for k, c in enumerate([-0.112072+0.418258j, 0, -0.482963-0.12941j, 0, -0.112072+0.418258j]):
@@ -66,7 +61,6 @@ class QSPTestCase(unittest.TestCase):
         for k, c in enumerate([-0.418258-0.112072j, 0, 0, 0, 0.418258+0.112072j]):
             self.assertAlmostEqual(Q[k - 2], c, delta=10e-7)
 
-    @bd.workdps(30)
     def test_gqsp_polynomials(self):
         nlft = NonLinearFourierSequence(random_sequence(1000000, 16))
         qsp = GQSPPhaseFactors.from_nlfs(nlft)
@@ -79,10 +73,9 @@ class QSPTestCase(unittest.TestCase):
 
         qsp2 = GQSPPhaseFactors.from_nlfs(nlft, alpha=1)
         P2, Q2 = qsp2.polynomials()
-        self.assertAlmostEqual((P2 - P * bd.exp(1j)).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((P2 - P * np.exp(1j)).l2_norm(), 0, delta=bd.machine_threshold())
         self.assertAlmostEqual((Q2 - Q).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_qsp_polynomial_laurent_analytic(self):
         nlft = NonLinearFourierSequence(random_sequence(100, 17))
         qsp = GQSPPhaseFactors.from_nlfs(nlft)
@@ -102,7 +95,6 @@ class QSPTestCase(unittest.TestCase):
             self.assertAlmostEqual(Pl[2*k - n + 1], 0, delta=bd.machine_threshold())
             self.assertAlmostEqual(Ql[2*k - n + 1], 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_gqsp_solver(self):
         P = random_polynomial(16, eta=0.5)
 
@@ -111,7 +103,6 @@ class QSPTestCase(unittest.TestCase):
 
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_gqsp_solver_ix(self):
         P = random_polynomial(1024, eta=0.5)
 
@@ -125,7 +116,6 @@ class QSPTestCase(unittest.TestCase):
 
         self.assertAlmostEqual((1j*Q1 - Q2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_xqsp_solver(self):
         P = random_real_polynomial(16, eta=0.5)
 
@@ -137,7 +127,6 @@ class QSPTestCase(unittest.TestCase):
         P2, Q2 = qsp.polynomials()
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_yqsp_solver(self):
         P = random_real_polynomial(16, eta=0.5)
 
@@ -149,7 +138,6 @@ class QSPTestCase(unittest.TestCase):
         P2, Q2 = qsp.polynomials()
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_chebqsp_solve(self):
         coef_odd = [0, 0.1, 0, -0.3, 0, 0.2, 0, 0.14]
         coef_even = [0.3, 0, -0.2, 0, 0.1, 0, 0.19]
@@ -163,21 +151,21 @@ class QSPTestCase(unittest.TestCase):
             
             # Phase factor symmetry
             phi = list(phase_factors.phi)
-            phi[-1] -= bd.pi()/2
+            phi[-1] -= np.pi/2
             for p1, p2 in zip(phi, phi[::-1]):
                 self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
 
             # Polynomial relationships
             for alpha in np.linspace(0, 2*np.pi, 100):
-                z = bd.exp(1j*alpha)
-                x = bd.cos(alpha)
-                self.assertAlmostEqual(bd.re(P(z)), T(x), delta=bd.machine_threshold())
+                z = np.exp(1j*alpha)
+                x = np.cos(alpha)
+                self.assertAlmostEqual(np.real(P(z)), T(x), delta=bd.machine_threshold())
 
     def test_qsvt_polynomials(self):
-        phi = [bd.pi()/3, bd.pi()/6, bd.pi()/4]
+        phi = [np.pi/3, np.pi/6, np.pi/4]
 
         #Expected polynomial = e^(5 i \pi/12) + e^(i \pi/4) (i - e^(i \pi/6)) x^2
-        Texp = ChebyshevTExpansion.from_polynomial(Polynomial([bd.exp(1j*5*bd.pi()/12), 0, bd.exp(1j*bd.pi()/4)*(1j - bd.exp(1j*bd.pi()/6))]))
+        Texp = ChebyshevTExpansion.from_polynomial(Polynomial([np.exp(1j*5*np.pi/12), 0, np.exp(1j*np.pi/4)*(1j - np.exp(1j*np.pi/6))]))
 
         qsp = QSVTPhaseFactors(phi)
         P, _ = qsp.polynomials(mode='laurent')
@@ -199,13 +187,12 @@ class QSPTestCase(unittest.TestCase):
             
             # Polynomial relationships
             for alpha in np.linspace(0, 2*np.pi, 100):
-                z = bd.exp(1j*alpha)
-                x = bd.cos(alpha)
-                self.assertAlmostEqual(bd.re(P(z)), T(x), delta=bd.machine_threshold())
+                z = np.exp(1j*alpha)
+                x = np.cos(alpha)
+                self.assertAlmostEqual(np.real(P(z)), T(x), delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_chebqsp_to_qsvt(self):
-        seq = random_real_sequence(2*bd.pi(), 12)
+        seq = random_real_sequence(2*np.pi, 12)
         qsp = ChebyshevQSPPhaseFactors(seq)
         qsvt = QSVTPhaseFactors.from_chebqsp(qsp)
         
@@ -215,9 +202,8 @@ class QSPTestCase(unittest.TestCase):
         self.assertAlmostEqual((P1 - P2).l2_norm(), 0, delta=bd.machine_threshold())
         self.assertAlmostEqual((Q1 - Q2).l2_norm(), 0, delta=bd.machine_threshold())
 
-    @bd.workdps(30)
     def test_qsvt_to_chebqsp(self):
-        seq = random_real_sequence(2*bd.pi(), 12)
+        seq = random_real_sequence(2*np.pi, 12)
         qsvt = QSVTPhaseFactors(seq)
         qsp = qsvt.to_chebqsp()
         
