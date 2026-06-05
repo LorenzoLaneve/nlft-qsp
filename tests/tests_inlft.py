@@ -35,8 +35,8 @@ class RHWTestCase(unittest.TestCase):
         nlft = riemann_hilbert.inlft(b, c)
         a2, b2 = nlft.transform()
 
-        self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=100 * bd.machine_eps())
-        self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=100 * bd.machine_eps())
+        self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=bd.machine_threshold())
 
     def test_half_cholesky_ldl(self):
         c = random_polynomial(16, eta=1)
@@ -62,8 +62,8 @@ class RHWTestCase(unittest.TestCase):
         nlft = half_cholesky.inlft(b, c)
         a2, b2 = nlft.transform()
 
-        self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=100 * bd.machine_eps())
-        self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=100 * bd.machine_eps())
+        self.assertAlmostEqual((a - a2).l2_norm(), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual((b - b2).l2_norm(), 0, delta=bd.machine_threshold())
 
     def test_inlft_nlfft(self):
         b = random_polynomial(1600, eta=0.5)

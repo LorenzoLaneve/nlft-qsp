@@ -42,7 +42,7 @@ def complete_md(b: PolynomialMD, verbose=False):
 
     threshold = 1
     attempts = 0
-    while threshold > 100 * bd.machine_eps():
+    while threshold > bd.machine_threshold():
         N *= 2
 
         b_points = b.eval_at_roots_of_unity(N)
