@@ -23,7 +23,11 @@ class ComplexL0Sequence:
             coeffs: List of complex numbers as coefficients.
             support_start (optional): Index of the first element of the sequence. Defaults to 0.
         """
-        self.coeffs = [c for c in coeffs]
+        if any(not isinstance(ck, Number) for ck in coeffs):
+            raise ValueError(f"The list of coefficients must be a single list or np.ndarray of complex values. Got {coeffs}.")
+
+        self.coeffs = bd.matrix(coeffs)
+        #self.coeffs = [c for c in coeffs]
         self.support_start = support_start
 
     def support(self) -> range:
@@ -58,9 +62,9 @@ class ComplexL0Sequence:
             c (complex): The coefficient to set.
         """
         if self.support_start + len(self.coeffs) <= k:
-            self.coeffs.extend([0] * (k - self.support_start - len(self.coeffs) + 1))
+            self.coeffs = np.pad(self.coeffs, (0, k - self.support_start - len(self.coeffs) + 1))
         elif self.support_start > k:
-            self.coeffs = [0] * (self.support_start - k) + self.coeffs
+            self.coeffs = np.pad(self.coeffs, (self.support_start - k, 0))
             self.support_start = k
         self.coeffs[k - self.support_start] = c
 
@@ -228,7 +232,9 @@ class Polynomial(ComplexL0Sequence):
             raise TypeError("Polynomial addition admits only other polynomials or scalars.")
         len_c = len(self.coeffs) + len(other.coeffs) - 1
 
-        coeffs_a = np.fft.fft(coeffs_pad(self.coeffs, len_c))
+        cof_bb = coeffs_pad(self.coeffs, len_c)
+
+        coeffs_a = np.fft.fft(cof_bb)
         coeffs_b = np.fft.fft(coeffs_pad(other.coeffs, len_c))
 
         # Multiply in the Fourier domain
@@ -359,7 +365,7 @@ class ChebyshevTExpansion(ComplexL0Sequence):
     
     def to_laurent(self):
         """Returns the Laurent polynomial `P(z) = self((z + z^(-1))/2)`."""
-        P = Polynomial(list(reversed(self.coeffs)) + self.coeffs[1:], support_start=-len(self.coeffs)+1)
+        P = Polynomial(np.concat([np.flipud(self.coeffs), self.coeffs[1:]]), support_start=-len(self.coeffs)+1)
         P[0] *= 2
         return P/2
     

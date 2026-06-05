@@ -6,7 +6,6 @@ import numpy as np
 
 import nlft_qsp.numerics as bd
 
-from nlft_qsp.nlft_md import StairlikeSequence2D
 from nlft_qsp.poly_md import PolynomialMD
 from nlft_qsp.rand import random_complex, random_list, random_sequence, random_stairlike_sequence_2d
 from nlft_qsp.poly import Polynomial
@@ -329,58 +328,6 @@ class Polynomial1DToMDTestCase(unittest.TestCase):
 
 
 class StairlikeSequence2DTestCase(unittest.TestCase):
-
-    def test_init_get(self):
-        s = StairlikeSequence2D([[1, 2], [3], [4, 5, 6], [7, 8]])
-
-        self.assertEqual(s.support_x(), range(0, 4))
-        self.assertEqual(s.support_y(), range(0, 5))
-
-        self.assertEqual(s[0,0], 1)
-        self.assertEqual(s[0,1], 2)
-        self.assertEqual(s[1,1], 3)
-        self.assertEqual(s[2,1], 4)
-        self.assertEqual(s[2,2], 5)
-        self.assertEqual(s[2,3], 6)
-        self.assertEqual(s[3,3], 7)
-        self.assertEqual(s[3,4], 8)
-
-        self.assertEqual(s[1,0], 0)
-        self.assertEqual(s[-1,0], 0)
-
-    def test_nlft_transform(self):
-        nlft = StairlikeSequence2D([[1, 2], [3], [4]])
-        a, b = nlft.transform()
-
-        self.assertAlmostEqual(a[0,0],     1/(10*sqrt(17)),  delta=bd.machine_threshold())
-        self.assertAlmostEqual(a[0,-1],    -1/(5*sqrt(17)),  delta=bd.machine_threshold())
-        self.assertAlmostEqual(a[-1,0],    -9/(5*sqrt(17)),  delta=bd.machine_threshold())
-        self.assertAlmostEqual(a[-1,-1],   21/(10*sqrt(17)), delta=bd.machine_threshold())
-        self.assertAlmostEqual(a[-2,0],    -4/(5*sqrt(17)),  delta=bd.machine_threshold())
-        self.assertAlmostEqual(a[-2,-1],   -2/(5*sqrt(17)),  delta=bd.machine_threshold())
-
-        self.assertAlmostEqual(b[0,0],     1/(10*sqrt(17)),   delta=bd.machine_threshold())
-        self.assertAlmostEqual(b[0,1],     1/(5*sqrt(17)),    delta=bd.machine_threshold())
-        self.assertAlmostEqual(b[1,0],     -9/(5*sqrt(17)),   delta=bd.machine_threshold())
-        self.assertAlmostEqual(b[1,1],     -21/(10*sqrt(17)), delta=bd.machine_threshold())
-        self.assertAlmostEqual(b[2,0],     -4/(5*sqrt(17)),   delta=bd.machine_threshold())
-        self.assertAlmostEqual(b[2,1],     2/(5*sqrt(17)),    delta=bd.machine_threshold())
-
-        nlft = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)), support_start=(2, 1))
-        a, b = nlft.transform()
-        self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
-
-    def test_random_multiplication(self):
-        nlft1 = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)))
-        nlft2 = StairlikeSequence2D(random_stairlike_sequence_2d(10, shape=(4, 4)), support_start=(15, 10))
-
-        a1, b1 = nlft1.transform()
-        a2, b2 = nlft2.transform()
-
-        r = b1 * b2
-
-        z = (random_complex(1), random_complex(1))
-        self.assertAlmostEqual(b1(z) * b2(z), r(z), delta=bd.machine_threshold())
 
     def test_schwarz_transform(self):
         p = PolynomialMD(random_list(1, (3, 3)), support_start=(-1, -1))

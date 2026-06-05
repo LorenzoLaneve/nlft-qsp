@@ -43,10 +43,10 @@ class RHWTestCase(unittest.TestCase):
         e0 = [1] + [0] * 15
 
         L = half_cholesky.half_cholesky_ldl(e0, reversed(c.coeffs))
-        L = np.array(L.tolist(), dtype=np.complex128)
+        L = np.array(L, dtype=np.complex128)
 
-        B = np.array(riemann_hilbert.toeplitz(c, 0).tolist(), dtype=np.complex128)
-        K = np.eye(16) + B @ np.transpose(np.conjugate(B))
+        B = riemann_hilbert.toeplitz(c, 0)
+        K = np.eye(16) + B @ B.conj().T
         for k in range(16): # just to suppress the annoying ComplexWarning
             K[k, k] = np.real(K[k, k])
 

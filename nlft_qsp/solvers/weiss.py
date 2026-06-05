@@ -28,7 +28,7 @@ def laurent_approximation(points: list) -> Polynomial:
     """
     N = len(points)
 
-    coeffs = np.fft.fft(points, norm='forward').tolist() # tolist() seems to be needed by sequence_shift
+    coeffs = np.fft.fft(points, norm='forward')
     coeffs = sequence_shift(coeffs, -N//2) # Zero frequency in the middle
 
     return Polynomial(coeffs, support_start=-N//2)

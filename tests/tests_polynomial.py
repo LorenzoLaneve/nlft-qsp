@@ -58,34 +58,34 @@ class PolynomialTestCase(unittest.TestCase):
 
     def test_add(self):
         p = 1 + Polynomial([1, 2, 3])
-        self.assertEqual(p.coeffs, [2, 2, 3])
+        self.assertTrue(np.all(p.coeffs == np.array([2, 2, 3])))
         self.assertEqual(p.support_start, 0)
 
         p = Polynomial([1, 2, 3], support_start=2) - 4
-        self.assertEqual(p.coeffs, [-4, 0, 1, 2, 3])
+        self.assertTrue(np.all(p.coeffs == np.array([-4, 0, 1, 2, 3])))
         self.assertEqual(p.support_start, 0)
 
         p = Polynomial([1, 2, 3], support_start=-3) + 7
-        self.assertEqual(p.coeffs, [1, 2, 3, 7])
+        self.assertTrue(np.all(p.coeffs == np.array([1, 2, 3, 7])))
         self.assertEqual(p.support_start, -3)
 
 
         p = Polynomial([1, 2, 3], support_start=-3)
         q = p - Polynomial([4, 5, 6], support_start=-1)
-        self.assertEqual(q.coeffs, [1, 2, -1, -5, -6])
+        self.assertTrue(np.all(q.coeffs == np.array([1, 2, -1, -5, -6])))
         self.assertEqual(q.support_start, -3)
 
         q = p + Polynomial([4, 5, 6], support_start=-3)
-        self.assertEqual(q.coeffs, [5, 7, 9])
+        self.assertTrue(np.all(q.coeffs == np.array([5, 7, 9])))
         self.assertEqual(q.support_start, -3)
 
         q = p + Polynomial([4, 5, 6], support_start=-4)
-        self.assertEqual(q.coeffs, [4, 6, 8, 3])
+        self.assertTrue(np.all(q.coeffs == np.array([4, 6, 8, 3])))
         self.assertEqual(q.support_start, -4)
 
     def test_mul(self):
         p = 3 * Polynomial([1, 2, 3], support_start=-10)
-        self.assertEqual(p.coeffs, [3, 6, 9])
+        self.assertTrue(np.all(p.coeffs == np.array([3, 6, 9])))
         self.assertEqual(p.support_start, -10)
 
         p = Polynomial([1, 2, 3], support_start=-1)
@@ -141,7 +141,7 @@ class PolynomialTestCase(unittest.TestCase):
     def test_schwarz_transform(self):
         p = Polynomial([])
         q = p.schwarz_transform()
-        self.assertEqual(q.coeffs, [])
+        self.assertEqual(len(q.coeffs), 0)
 
         p = Polynomial([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], support_start=-5)
         q = p.schwarz_transform()

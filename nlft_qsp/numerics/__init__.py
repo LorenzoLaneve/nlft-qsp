@@ -32,14 +32,3 @@ def zeros(m: int, n: int):
 def eye(n: int):
     """Constructs the `n x n` identity matrix."""
     return np.eye(n, dtype=complex_type)
-
-    
-def poly2cheb(p):
-    """Returns a list of coefficients corresponding to the
-    Chebyshev expansion of the polynomial `p`, given as a python list of coefficients."""
-    return np.polynomial.chebyshev.poly2cheb(p).tolist()
-
-def cheb2poly(c):
-    """Returns a list of coefficients corresponding to the
-    polynomial of the Chebyshev expansion `c`, given as a python list of coefficients."""
-    return np.polynomial.chebyshev.cheb2poly(c).tolist()

@@ -28,7 +28,7 @@ def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSe
     xi_n = eta_m.sharp() * xi_mn + xi_m * eta_mn
     eta_n = eta_m * eta_mn - xi_m.sharp() * xi_mn
 
-    return NonLinearFourierSequence(Fup.coeffs + Fdown.coeffs), xi_n, eta_n
+    return NonLinearFourierSequence(np.concat([Fup.coeffs, Fdown.coeffs])), xi_n, eta_n
 
 def inlft(a: Polynomial, b: Polynomial):
     """Computes the Inverse Non-Linear Fourier Transform using the Non-Linear Fast Fourier Transform algorithm (arXiv:2505.12615).
