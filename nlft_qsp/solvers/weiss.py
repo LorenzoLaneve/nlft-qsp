@@ -47,7 +47,7 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
     """
     d = b.effective_degree()
     if eps < 0:
-        eps = bd.machine_threshold()
+        eps = bd.machine_threshold() * 10e-3
 
     eta = 1 - b.sup_norm(max(4000, 4*d))
 
