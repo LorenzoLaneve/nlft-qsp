@@ -440,14 +440,14 @@ class Polynomial(ComplexL0Sequence):
         
         return Polynomial(np.array([self[k] for k in range(m, n+1)], dtype=complex_type), m)
     
-    def only_positive_degrees(self):
+    def analytic_part(self):
         """Discards all the negative degrees, keeping only the non-negative ones.
         
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
         return self.truncate(0, self.support_start + self.coeffs.shape[0] - 1)
     
-    def only_negative_degrees(self):
+    def anti_analytic_part(self):
         """Discards all the positive degrees, keeping only the non-positive ones.
         
         Returns:

@@ -19,15 +19,17 @@ def scalar_spectral_phase(f_evals: list[complex]) -> list[complex]:
     return [bd.exp(iHlog_fk) for iHlog_fk in log_f.hilbert_transform().eval_at_roots_of_unity(N)]
 
 def scalar_spectral_factor_from_evals(f_evals: list[complex]) -> Polynomial:
-    p = laurent_approximation([bd.abs(f_eval) * eiHlog_fk for f_eval, eiHlog_fk in zip(f_evals, scalar_spectral_phase(f_evals))])
-    return p.only_positive_degrees()
+    """Returns a polynomial approximation to the outer function q(z) satisfying |q|^2 = f, given its vector of evaluations. Its degree will be len(f_evals)//2"""
+    p = laurent_approximation([np.abs(f_eval) * eiHlog_fk for f_eval, eiHlog_fk in zip(f_evals, scalar_spectral_phase(f_evals))])
+    return p.analytic_part()
 
 def scalar_spectral_factor(f: Polynomial, N: int) -> Polynomial:
+    """Returns a polynomial approximation to the outer function q(z) satisfying |q|^2 = f, with degree N//2."""
     return scalar_spectral_factor_from_evals(f.eval_at_roots_of_unity(N))
 
 def inverse_polynomial(f: Polynomial, N: int) -> Polynomial:
-    """Given f (assumed to be outer) returns the Laurent polynomial approximation for 1/f."""
-    return laurent_approximation([1/fk for fk in f.eval_at_roots_of_unity(N)]).only_positive_degrees()
+    """Given f (assumed to be outer), returns the Taylor approximation for 1/f up to order N//2."""
+    return laurent_approximation([1/fk for fk in f.eval_at_roots_of_unity(N)]).analytic_part()
 
 def matrix_inverse_polynomial(F: Polynomial, N: int) -> Polynomial:
     inverse_points = [np.linalg.inv(Fk) for Fk in F.eval_at_roots_of_unity(N)]
@@ -183,9 +185,9 @@ def janashia_lagvilava_unitary(M: Polynomial, N: int, d_min:int = 0, d_max:int =
     U_1 = janashia_lagvilava_unitary(M_1, N // 2)
     U_2 = janashia_lagvilava_unitary(M_2, N // 2)
 
-    #S_1 = (M_1 * U_1).only_positive_degrees()
-    S_2 = (M_2 * U_2).only_positive_degrees()
-    Zeta = (L * U_1).anti_analytic_part()
+    #S_1 = (M_1 * U_1).analytic_part()
+    S_2 = (M_2 @ U_2).analytic_part()
+    Zeta = (L @ U_1).anti_analytic_part()
 
     Finv = matrix_inverse_polynomial(S_2, N)
 
