@@ -49,10 +49,6 @@ class ComplexL0Sequence:
         if isinstance(coeffs, np.ndarray):
             if coeffs.ndim == 0:
                 raise ValueError(f"There must be at least one coefficient. Got {coeffs}.")
-            
-            # if coeffs is an array of scalars reshape it
-            if all(k == 1 for k in coeffs.shape[1:]):
-                coeffs = coeffs.reshape(-1)
 
             self.coeffs = np.array(coeffs, dtype=complex_type)
             self.shape = coeffs.shape[1:]
