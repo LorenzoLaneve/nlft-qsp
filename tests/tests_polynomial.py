@@ -56,6 +56,32 @@ class PolynomialTestCase(unittest.TestCase):
             else:
                 self.assertEqual(q[k], p[k])
 
+    def test_slice(self):
+        p = Polynomial(list(range(20)), support_start=-10)
+
+        q1 = p[-5:5]
+        q2 = p[-5:]
+        q3 = p[:4]
+        q4 = p[:]
+
+        for k in range(-10, 10):
+            if k in range(-5, 5):
+                self.assertEqual(q1[k], p[k])
+            else:
+                self.assertEqual(q1[k], 0)
+
+            if k in range(-5, 10):
+                self.assertEqual(q2[k], p[k])
+            else:
+                self.assertEqual(q2[k], 0)
+            
+            if k in range(-10, 4):
+                self.assertEqual(q3[k], p[k])
+            else:
+                self.assertEqual(q3[k], 0)
+            
+            self.assertEqual(q4[k], p[k])
+
     def test_add(self):
         p = 1 + Polynomial([1, 2, 3])
         self.assertTrue(np.all(p.coeffs == np.array([2, 2, 3])))

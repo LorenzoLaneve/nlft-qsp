@@ -5,7 +5,7 @@ from numbers import Number
 from . import numerics as bd
 from .numerics import complex_type, float_type
 
-from .util import coeffs_pad, next_power_of_two, sequence_shift
+from .util import next_power_of_two
 
 
 class ComplexL0Sequence:
@@ -78,10 +78,17 @@ class ComplexL0Sequence:
 
         Note: in case of matrix sequence, numpy slices can be used on the coefficients.
         """
-        if isinstance(k, int):
+        if not isinstance(k, tuple):
             k = (k,)
 
-        if k[0] in self.support():
+        supp = self.support()
+        if isinstance(k[0], slice):
+            sl1 = max(k[0].start, supp.start) - self.support_start if k[0].start else 0
+            sl2 = min(k[0].stop, supp.stop) - self.support_start if k[0].stop else self.coeffs.shape[0]
+        
+            return Polynomial(self.coeffs[sl1:sl2:k[0].step, *k[1:]], support_start=supp.start + sl1)
+
+        if k[0] in supp:
             return self.coeffs[k[0] - self.support_start, *k[1:]]
         return 0
 

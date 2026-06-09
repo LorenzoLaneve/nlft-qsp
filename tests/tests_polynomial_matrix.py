@@ -204,6 +204,16 @@ class MatrixPolynomialTestCase(unittest.TestCase):
         self.assertEqual(M2[0, 0, 0], 2)
         self.assertEqual(M2[2, 0, 0], 0)
 
+    def test_slice(self):
+        p = Polynomial(np.random.random_sample((20, 3, 4)), support_start=-10)
+        q = p[-5:5, 0:2, 1:3]
+
+        for k in range(-10, 10):
+            if k in range(-5, 5):
+                self.assertTrue(np.all(q[k] == p[k][0:2, 1:3]))
+            else:
+                self.assertTrue(np.all(q[k] == 0))
+
     def test_shape_validation(self):
         """Test shape validation."""
         M1 = Polynomial(shape=(2, 3))
