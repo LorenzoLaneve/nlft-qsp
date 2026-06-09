@@ -46,7 +46,7 @@ class PolynomialTestCase(unittest.TestCase):
             self.assertEqual(q[k], np.conj(p[-k]))
 
     def test_truncate(self):
-        p = Polynomial(range(20), support_start=-10)
+        p = Polynomial(list(range(20)), support_start=-10)
 
         q = p.truncate(-5, 5)
 

@@ -251,16 +251,6 @@ class ComplexL0SequenceMD:
 
             self.coeffs[x - self._xsupport_start][k[1:]] = c
 
-    def l1_norm(self) -> float_type:
-        """Computes the l1 norm of the sequence.
-
-        Returns:
-            float: The sum of absolute values of coefficients.
-        """
-        if self.dim == 1:
-            return sum(np.abs(c) for c in self.coeffs)
-        return sum(c.l1_norm() for c in self.coeffs)
-
     def l2_norm(self) -> float_type:
         """Computes the l2 norm.
 
