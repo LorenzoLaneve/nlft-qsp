@@ -1,10 +1,10 @@
 import numpy as np
 
-from .. import numerics as bd
+from ... import numerics as bd
 
-from ..solvers.weiss import WEISS_MAX_ATTEMPTS, WeissConvergenceError
-from ..util import next_power_of_two
-from ..poly_md import PolynomialMD, deep_inplace, deep_sequence_shift
+from .weiss import WEISS_MAX_ATTEMPTS, WeissConvergenceError
+from ...util import next_power_of_two
+from ...poly_md import PolynomialMD, deep_inplace, deep_sequence_shift
 
 def laurent_approximation_md(points: list, m: int) -> PolynomialMD:
     r"""Returns a Laurent polynomial passing through the given points.

@@ -2,7 +2,7 @@
 
 
 import numpy as np
-from ..poly import Polynomial
+from ...poly import Polynomial
 
 from scipy.linalg import hankel
 from numpy.linalg import svd

@@ -1,9 +1,9 @@
 import numpy as np
 
-from .. import numerics as bd
+from ... import numerics as bd
 
-from ..poly import Polynomial
-from ..util import next_power_of_two, sequence_shift
+from ...poly import Polynomial
+from ...util import next_power_of_two, sequence_shift
 
 WEISS_MAX_ATTEMPTS = 3
 

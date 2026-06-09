@@ -2,11 +2,10 @@
 import numpy as np
 from scipy.linalg import cholesky
 
-from ..util import next_power_of_two
+from ...util import next_power_of_two
 
-from .. import numerics as bd
-from ..poly import Polynomial
-from ..poly_matrix import MatrixPolynomial
+from ... import numerics as bd
+from ...poly import Polynomial
 
 from .weiss import WEISS_MAX_ATTEMPTS, WeissConvergenceError, laurent_approximation
 
@@ -30,10 +29,10 @@ def inverse_polynomial(f: Polynomial, N: int) -> Polynomial:
     """Given f (assumed to be outer) returns the Laurent polynomial approximation for 1/f."""
     return laurent_approximation([1/fk for fk in f.eval_at_roots_of_unity(N)]).only_positive_degrees()
 
-def matrix_inverse_polynomial(F: MatrixPolynomial, N: int) -> MatrixPolynomial:
+def matrix_inverse_polynomial(F: Polynomial, N: int) -> Polynomial:
     inverse_points = [np.linalg.inv(Fk) for Fk in F.eval_at_roots_of_unity(N)]
 
-    Finv = MatrixPolynomial(F.shape)
+    Finv = Polynomial(shape=F.shape)
     for k in range(F.shape[0]):
         for h in range(F.shape[1]):
             Finv[k, h] = laurent_approximation([inverse_points[j][k, h] for j in range(N)]).only_positive_degrees()
@@ -41,7 +40,7 @@ def matrix_inverse_polynomial(F: MatrixPolynomial, N: int) -> MatrixPolynomial:
     return Finv
 
 
-def block_hankel_blocks(Zeta: MatrixPolynomial) -> np.ndarray:
+def block_hankel_blocks(Zeta: Polynomial) -> np.ndarray:
     """Returns the block Hankel tensor associated to Zeta.
 
     If Zeta.shape = (d1, d2), returns an array of shape (deg+1, deg+1, d1, d2),
@@ -100,7 +99,7 @@ def block_transpose(bvec, N: int):
         result[i * d2:(i + 1) * d2, :d1] = np.transpose(block)
     return result
 
-def matrix_polynomial_from_block_tensor(bten: np.ndarray) -> MatrixPolynomial:
+def matrix_polynomial_from_block_tensor(bten: np.ndarray) -> Polynomial:
     r"""Given a tensor of d1 x d2 blocks with shape (N+1, d1, d2), returns
     the associated matrix polynomial of shape (d1, d2) and support [0, N].
     """
@@ -108,7 +107,7 @@ def matrix_polynomial_from_block_tensor(bten: np.ndarray) -> MatrixPolynomial:
     d1 = bten.shape[1]
     d2 = bten.shape[2]
 
-    MP = MatrixPolynomial((d1, d2))
+    MP = Polynomial((d1, d2))
     for i in range(d1):
         for j in range(d2):
             MP[i, j] = Polynomial([bten[k, i, j] for k in range(N + 1)])
@@ -153,17 +152,17 @@ def solve_jl_system(Zeta):
     v_12 = matrix_polynomial_from_block_tensor(V_12_blocks)
     v_22 = matrix_polynomial_from_block_tensor(V_22_blocks)
 
-    V = MatrixPolynomial.block_matrix([
+    V = Polynomial.block_matrix([
         [v_11,             v_21],
         [v_12.conjugate(), v_22.conjugate()]
         ])
 
-    U = V * MatrixPolynomial.from_constant_matrix(np.linalg.inv(np.array(V(1))))
+    U = V * Polynomial.from_constant_matrix(np.linalg.inv(np.array(V(1))))
 
     return U
 
 
-def janashia_lagvilava_unitary(M: MatrixPolynomial, N: int, d_min:int = 0, d_max:int = -1) -> MatrixPolynomial:
+def janashia_lagvilava_unitary(M: Polynomial, N: int, d_min:int = 0, d_max:int = -1) -> Polynomial:
     """Returns an (approximate) unitary matrix U such that Mx * U is outer.
     Mx here is the submatrix M[d_min : d_max, d_min : d_max] (d_min included, d_max excluded).
 
@@ -175,7 +174,7 @@ def janashia_lagvilava_unitary(M: MatrixPolynomial, N: int, d_min:int = 0, d_max
         d_max = M.shape[0]
 
     if d_max - d_min <= 1:
-        return MatrixPolynomial.from_constant_matrix([[1]])
+        return Polynomial.from_constant_matrix([[1]])
 
     M_1 = M[d_min : d_max // 2, d_min : d_max // 2]
     M_2 = M[d_max // 2 : d_max, d_max // 2 : d_max]
@@ -192,11 +191,11 @@ def janashia_lagvilava_unitary(M: MatrixPolynomial, N: int, d_min:int = 0, d_max
 
     U = solve_jl_system(Finv * Zeta)
 
-    UD = MatrixPolynomial.diagonal_block_matrix([U_1, U_2])
+    UD = Polynomial.diagonal_block_matrix([U_1, U_2])
     return UD * U
 
 
-def spectral_factor(P: MatrixPolynomial, eta: float, eps: float=1e-10, verbose: bool=False):
+def spectral_factor(P: Polynomial, eta: float, eps: float=1e-10, verbose: bool=False):
     # Pointwise Cholesky factorization of S
 
     if P.shape[0] != P.shape[1]:
@@ -224,7 +223,7 @@ def spectral_factor(P: MatrixPolynomial, eta: float, eps: float=1e-10, verbose: 
 
         Mp_evals = [np.dot(M_evals[j], np.diag([fplus_phase_evals[k][j] for k in range(d)])) for j in range(N)]
 
-        M = MatrixPolynomial((d, d))
+        M = Polynomial((d, d))
 
         for k in range(d):
             for h in range(d):
