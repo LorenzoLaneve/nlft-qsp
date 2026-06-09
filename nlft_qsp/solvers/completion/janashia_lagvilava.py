@@ -6,6 +6,8 @@ from ...util import next_power_of_two
 
 from ... import numerics as bd
 from ...poly import Polynomial
+from ...numerics import complex_type
+from ...approximate import laurent_approximation
 
 from .weiss import WEISS_MAX_ATTEMPTS, WeissConvergenceError, laurent_approximation
 

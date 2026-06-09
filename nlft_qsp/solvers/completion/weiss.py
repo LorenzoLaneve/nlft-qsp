@@ -3,7 +3,8 @@ import numpy as np
 from ... import numerics as bd
 
 from ...poly import Polynomial
-from ...util import next_power_of_two, sequence_shift
+from ...util import next_power_of_two
+from ...approximate import laurent_approximation
 
 WEISS_MAX_ATTEMPTS = 3
 
@@ -13,25 +14,6 @@ class WeissConvergenceError(Exception):
 
     def __init__(self, *args):
         super().__init__(*args)
-
-def laurent_approximation(points: list) -> Polynomial:
-    r"""Returns a Laurent polynomial passing through the given points.
-
-    Note:
-        `N = len(points)` is assumed to be a power of two.
-
-    Args:
-        points (list[complex]): list of values, where the k-th element is considered to be :math:`f(e^{2\pi i k/N})`.
-
-    Returns:
-        Polynomial: The unique Laurent polynomial `P(z)` of degree `N = len(points)` satisfying :math:`P(e^{2\pi i k/N}) = f(e^{2\pi i k/N})`, up to working precision, whose frequencies are shifted to be in :math:`[-N/2, N/2)`
-    """
-    N = len(points)
-
-    coeffs = np.fft.fft(points, norm='forward')
-    coeffs = sequence_shift(coeffs, -N//2) # Zero frequency in the middle
-
-    return Polynomial(coeffs, support_start=-N//2)
 
 def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=False):
     """Internal function for Weiss' algorithm. The user should call `weiss.complete`, or `weiss.ratio`.
