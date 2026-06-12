@@ -231,6 +231,32 @@ class MatrixPolynomialTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             M1 * M2
+        
+    def test_polynomial_block_matrix(self):
+        P1 = Polynomial(np.random.random_sample((10, 2, 2)))
+        P2 = Polynomial(np.random.random_sample((10, 2, 3)), support_start=-5)
+        P3 = Polynomial(np.random.random_sample((10, 3, 2)), support_start=4)
+        P4 = Polynomial(np.random.random_sample((10, 3, 3)), support_start=-1)
+
+        M = Polynomial.block_matrix([[P1, P2], [P3, P4]])
+        self.assertEqual(M.shape, (5, 5))
+
+        self.assertEqual((M[:, 0:2, 0:2] - P1).l2_norm(), 0)
+        self.assertEqual((M[:, 0:2, 2:5] - P2).l2_norm(), 0)
+        self.assertEqual((M[:, 2:5, 0:2] - P3).l2_norm(), 0)
+        self.assertEqual((M[:, 2:5, 2:5] - P4).l2_norm(), 0)
+
+    def test_polynomial_block_diagonal(self):
+        P1 = Polynomial(np.random.random_sample((10, 2, 2)))
+        P2 = Polynomial(np.random.random_sample((10, 3, 3)), support_start=-3)
+
+        M = Polynomial.diagonal_block_matrix([P1, P2])
+        self.assertEqual(M.shape, (5, 5))
+
+        self.assertEqual((M[:, 0:2, 0:2] - P1).l2_norm(), 0)
+        self.assertEqual(M[:, 0:2, 2:5].l2_norm(), 0)
+        self.assertEqual(M[:, 2:5, 0:2].l2_norm(), 0)
+        self.assertEqual((M[:, 2:5, 2:5] - P2).l2_norm(), 0)
 
         
 

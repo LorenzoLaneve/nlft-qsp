@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 from numbers import Number
 
@@ -6,7 +7,6 @@ from . import numerics as bd
 from .numerics import complex_type, float_type
 
 from .util import next_power_of_two
-
 
 class ComplexL0Sequence:
     """Represents a sequence of complex numbers or complex matrices index by Z, whose support is finite.
@@ -472,6 +472,33 @@ class Polynomial(ComplexL0Sequence):
             str: The string representation of the polynomial.
         """
         return ' + '.join(f"{c} z^{self.support_start + k}" for k, c in enumerate(self.coeffs))
+    
+    @classmethod
+    def block_matrix(cls, blocks: list[list["Polynomial"]]):
+        """Returns a matrix polynomial containing the given polynomials/constants as blocks.
+        
+        Raises: ValueError if the block shapes do not match."""
+        joint_support = range(min(min(p.support().start for p in l) for l in blocks),
+                              max(max(p.support().stop for p in l) for l in blocks))
+        
+        coeffs = []
+        for k in joint_support:
+            coeffs.append(np.block([[p[k] for p in l] for l in blocks]))
+
+        return Polynomial(np.array(coeffs, dtype=complex_type), support_start=joint_support.start)
+    
+    @classmethod
+    def diagonal_block_matrix(cls, blocks: list["Polynomial"]):
+        """Returns a matrix polynomial containing the given polynomials/constants as blocks along the diagonal.
+        
+        Raises: ValueError if the block shapes do not match."""
+        joint_support = range(min(p.support().start for p in blocks), max(p.support().stop for p in blocks))
+        
+        coeffs = []
+        for k in joint_support:
+            coeffs.append(sp.linalg.block_diag(*[p[k] for p in blocks]))
+
+        return Polynomial(np.array(coeffs, dtype=complex_type), support_start=joint_support.start)
     
 
 class ChebyshevTExpansion(ComplexL0Sequence):
