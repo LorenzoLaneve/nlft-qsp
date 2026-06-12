@@ -90,6 +90,10 @@ class ComplexL0Sequence:
 
         if k[0] in supp:
             return self.coeffs[k[0] - self.support_start, *k[1:]]
+        
+        if self.shape != ():
+            return np.zeros(self.shape, dtype=complex_type)[*k[1:]]
+
         return 0
 
     def __setitem__(self, k: int, c: complex_type | np.ndarray):
