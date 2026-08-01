@@ -1,8 +1,7 @@
+import numpy as np
 
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
-
-from .. import numerics as bd
 
 def inlft(a: Polynomial, b: Polynomial):
     """Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.
@@ -30,8 +29,8 @@ def inlft(a: Polynomial, b: Polynomial):
         Fk = b[0]/a_star[0]
         F.append(Fk)
 
-        s = bd.sqrt(1 + bd.abs2(Fk))
-        a_star, b = (a_star + bd.conj(Fk) * b).truncate(0, n-k)/s, \
+        s = np.sqrt(1 + Fk * np.conj(Fk))
+        a_star, b = (a_star + np.conj(Fk) * b).truncate(0, n-k)/s, \
                     (b - Fk * a_star).truncate(b.support_start+1, b.support_start+n-k)/s
 
         b.support_start -= 1 # divide by z

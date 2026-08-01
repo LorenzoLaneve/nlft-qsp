@@ -1,10 +1,12 @@
 
-from . import weiss, prony
+from .completion import weiss, prony, janashia_lagvilava
 from . import riemann_hilbert, half_cholesky, layer_stripping, nlfft
 
 __all__ = [
     "weiss",
     "prony",
+    "janashia_lagvilava",
+
     "riemann_hilbert",
     "half_cholesky",
     "layer_stripping",

@@ -1,9 +1,10 @@
+import numpy as np
 
 from . import numerics as bd
 
 from .poly import ChebyshevTExpansion, Polynomial
 from .nlft import NonLinearFourierSequence
-from .numerics.backend import generic_real, generic_complex
+from .numerics import complex_type, float_type
 from .approximate import chebyshev_approximate
 
 from .solvers import nlfft, weiss
@@ -14,7 +15,7 @@ def is_definite_parity(P: Polynomial, n: int = -1) -> bool:
         n = P.support().stop - 1
 
     for k in P.support():
-        if (k - n) % 2 != 0 and abs(P[k]) > bd.machine_threshold():
+        if (k - n) % 2 != 0 and np.abs(P[k]) > bd.machine_threshold():
             return False
 
     return True
@@ -45,22 +46,22 @@ def laurent_to_analytic(P: Polynomial, n: int = -1) -> Polynomial:
     
     return Polynomial([P[2*k - n] for k in range(n+1)])
 
-def chebyshev_to_laurent(c: list[generic_complex]) -> Polynomial:
+def chebyshev_to_laurent(c: list[complex_type]) -> Polynomial:
     """Returns the Laurent polynomial equivalent to the Chebyshev expansion."""
     P = Polynomial(c)
     return (P + P.conjugate())/2
 
 
-def phase_prefactor(F: generic_complex) -> generic_real:
+def phase_prefactor(F: complex_type) -> float_type:
     """Computes the phase prefactor for the Fourier sequence coefficient F."""
 
-    if bd.abs(F) < bd.machine_threshold():
+    if np.abs(F) < bd.machine_threshold():
         return 0
     
-    if bd.abs(bd.im(F)) < bd.machine_threshold():
-        return -(bd.pi()/4)
+    if np.abs(np.imag(F)) < bd.machine_threshold():
+        return -(np.pi/4)
 
-    return -bd.arctan(bd.re(F)/bd.im(F))/2
+    return -np.arctan(np.real(F)/np.imag(F))/2
 
 class PhaseFactors:
     """Set of phase factors for a general Quantum Signal Processing protocol.
@@ -130,7 +131,7 @@ class PhaseFactors:
         Note:
             We use the Laurent picture to compute, so that we can use `Polynomial.conjugate()`."""
         if sup - inf < 0:
-            return Polynomial([bd.make_complex(1)]), Polynomial([bd.make_complex(0)])
+            return Polynomial([1]), Polynomial([0])
         if sup - inf <= 0:
             p, q = self.processing_operator(inf)
             p, q = self.processing_operator_conjugation(p, q)
@@ -177,25 +178,25 @@ class XQSPPhaseFactors(PhaseFactors):
     Signal operator: `W(z) = diag(z, z^(-1))`,
     
     Processing operators: `A[k] = exp(I*phi[k]*X)`."""
-    def __init__(self, phi: list[generic_real]):
+    def __init__(self, phi: list[float_type]):
         self.phi = list(phi)
 
     def duplicate(self):
         return XQSPPhaseFactors(self.phi)
     
     def processing_operator(self, k: int): # exp(i phi[k] X)
-        return bd.cos(self.phi[k]), 1j*bd.sin(self.phi[k])
+        return np.cos(self.phi[k]), 1j*np.sin(self.phi[k])
     
     def degree(self):
         return len(self.phi) - 1
 
     def iX(self):
         pf = self.duplicate()
-        pf.phi[-1] += bd.pi()/2
+        pf.phi[-1] += np.pi/2
         return pf
     
     def to_nlfs(self) -> NonLinearFourierSequence:
-        return NonLinearFourierSequence([1j*bd.tan(phik) for phik in self.phi])
+        return NonLinearFourierSequence([1j*np.tan(phik) for phik in self.phi])
     
     @classmethod
     def from_nlfs(cls, F: NonLinearFourierSequence) -> PhaseFactors:
@@ -213,7 +214,7 @@ class XQSPPhaseFactors(PhaseFactors):
         if not F.is_imaginary():
             raise ValueError("The Non-Linear Fourier sequence must be imaginary in order to be turned into a XQSP protocol.")
 
-        return XQSPPhaseFactors([bd.arctan(bd.im(Fk)) for Fk in F.coeffs])
+        return XQSPPhaseFactors([np.arctan(np.imag(Fk)) for Fk in F.coeffs])
     
 class YQSPPhaseFactors(PhaseFactors):
     """Phase factors for a Y-constrained QSP protocol.
@@ -221,25 +222,25 @@ class YQSPPhaseFactors(PhaseFactors):
     Signal operator: `W(z) = diag(z, z^(-1))`,
     
     Processing operators: `A[k] = exp(I*phi[k]*Y)`."""
-    def __init__(self, phi: list[generic_real]):
+    def __init__(self, phi: list[float_type]):
         self.phi = list(phi)
 
     def duplicate(self):
         return YQSPPhaseFactors(self.phi)
     
     def processing_operator(self, k: int): # exp(i phi[k] Y)
-        return bd.cos(self.phi[k]), bd.sin(self.phi[k])
+        return np.cos(self.phi[k]), np.sin(self.phi[k])
     
     def degree(self):
         return len(self.phi) - 1
 
     def iY(self):
         pf = self.duplicate()
-        pf.phi[-1] += bd.pi()/2
+        pf.phi[-1] += np.pi/2
         return pf
     
     def to_nlfs(self) -> NonLinearFourierSequence:
-        return NonLinearFourierSequence([bd.tan(phik) for phik in self.phi])
+        return NonLinearFourierSequence([np.tan(phik) for phik in self.phi])
     
     @classmethod
     def from_nlfs(cls, F: NonLinearFourierSequence) -> PhaseFactors:
@@ -257,7 +258,7 @@ class YQSPPhaseFactors(PhaseFactors):
         if not F.is_real():
             raise ValueError("The Non-Linear Fourier sequence must be real in order to be turned into a YQSP protocol.")
 
-        return YQSPPhaseFactors([bd.arctan(bd.re(Fk)) for Fk in F.coeffs])
+        return YQSPPhaseFactors([np.arctan(np.real(Fk)) for Fk in F.coeffs])
 
 class GQSPPhaseFactors(PhaseFactors):
     """Phase factors for a GQSP protocol.
@@ -268,7 +269,7 @@ class GQSPPhaseFactors(PhaseFactors):
     
     Note:
         This class follows the convention of arXiv:2503.03026, Theorem 2, which is different from the original GQSP convention. If the convention of arXiv:2308.01501 Theorem 3 is desired, then one should use the `to_mw_gqsp()` method."""
-    def __init__(self, phi: list[generic_real], lbd: generic_real=0, theta: list[generic_real]=None):
+    def __init__(self, phi: list[float_type], lbd: float_type=0, theta: list[float_type]=None):
         self.lbd = lbd
         self.phi = list(phi)
 
@@ -288,10 +289,10 @@ class GQSPPhaseFactors(PhaseFactors):
     
     def processing_operator(self, k: int):
         if k == 0: # exp(i lbd Z) exp(i phi X) exp(i theta Z)
-            return bd.exp(1j*(self.lbd + self.theta[k]))*bd.cos(self.phi[k]), \
-                1j*bd.exp(1j*(self.lbd - self.theta[k]))*bd.sin(self.phi[k])
+            return np.exp(1j*(self.lbd + self.theta[k]))*np.cos(self.phi[k]), \
+                1j*np.exp(1j*(self.lbd - self.theta[k]))*np.sin(self.phi[k])
         else: # exp(i phi X) exp(i theta Z)
-            return bd.exp(1j*self.theta[k])*bd.cos(self.phi[k]), 1j*bd.exp(-1j*self.theta[k])*bd.sin(self.phi[k])
+            return np.exp(1j*self.theta[k])*np.cos(self.phi[k]), 1j*np.exp(-1j*self.theta[k])*np.sin(self.phi[k])
     
     def degree(self):
         return len(self.phi) - 1
@@ -299,7 +300,7 @@ class GQSPPhaseFactors(PhaseFactors):
     def iX(self):
         pf = self.duplicate()
         pf.theta[-1] = -pf.theta[-1]
-        pf.phi[-1] += bd.pi()/2
+        pf.phi[-1] += np.pi/2
         return pf
     
     def iY(self):
@@ -307,10 +308,10 @@ class GQSPPhaseFactors(PhaseFactors):
     
     def iZ(self):
         pf = self.duplicate()
-        pf.theta[-1] += bd.pi()/2
+        pf.theta[-1] += np.pi/2
         return pf
     
-    def phase_offset(self) -> generic_real:
+    def phase_offset(self) -> float_type:
         """Returns the phase of the leading coefficient of P, where (P, Q) is the pair of polynomials generated by this set."""
         return self.lbd + sum(self.theta)
     
@@ -340,17 +341,17 @@ class GQSPPhaseFactors(PhaseFactors):
         n = self.degree()
         alpha = self.phase_offset() # phase of the leading coefficient of P
 
-        psi = [bd.make_float(0)] * (n+1) # prefactors
+        psi = [0] * (n+1) # prefactors
 
         psi[0] = self.lbd - alpha/2
         for k in range(n):
             psi[k+1] = self.theta[k] + psi[k]
 
         phi = self.phi
-        return NonLinearFourierSequence([1j*bd.tan(phik)*bd.exp(2j*psik) for phik, psik in zip(phi, psi)])
+        return NonLinearFourierSequence([1j*np.tan(phik)*np.exp(2j*psik) for phik, psik in zip(phi, psi)])
     
     @classmethod
-    def from_nlfs(cls, F: NonLinearFourierSequence, alpha: generic_real = 0) -> PhaseFactors:
+    def from_nlfs(cls, F: NonLinearFourierSequence, alpha: float_type = 0) -> PhaseFactors:
         """Computes the GQSP phase factors for a given NLFT sequence.
         If `NLFT(F) = (a, b)`, then the returned phase factors will implement `(exp(i alpha) z^n a, b)` in the analytic picture.
     
@@ -364,16 +365,16 @@ class GQSPPhaseFactors(PhaseFactors):
         psi = [phase_prefactor(Fk) for Fk in F.coeffs]
         lbd = psi[0]
 
-        phi = [bd.arctan(bd.im(Fk * bd.exp(-2j * psik))) for Fk, psik in zip(F, psi)]
+        phi = [np.arctan(np.imag(Fk * np.exp(-2j * psik))) for Fk, psik in zip(F, psi)]
 
-        psi += [bd.make_float(0)] # we add psi[n+1] to compute theta
+        psi += [0] # we add psi[n+1] to compute theta
         theta = [psi[k+1] - psi[k] for k in range(len(phi))]
 
         lbd += alpha/2
         theta[-1] += alpha/2
         return GQSPPhaseFactors(phi, lbd, theta)
     
-    def to_mw_gqsp(self) -> tuple[list[generic_real], list[generic_real], generic_real]:
+    def to_mw_gqsp(self) -> tuple[list[float_type], list[float_type], float_type]:
         """Converts the GQSP phase factors to the convention of arXiv:2308.01501 Theorem 3.
 
         In particular, a protocol should be constructed so that `A[k] = R(theta[k], phi[k], 0)` for k < n and `A[n] = R(theta[n], phi[n], lbd)` where `R(theta, phi, lbd)` is as given in arXiv:2308.01501.
@@ -382,11 +383,11 @@ class GQSPPhaseFactors(PhaseFactors):
             The phase factors theta[k], phi[k] (as lists) and lbd, in this order."""
         n = self.degree()
 
-        alpha = - self.lbd - sum(self.theta) - (n+1) * bd.pi() # needed to counterbalance the global phase
+        alpha = - self.lbd - sum(self.theta) - (n+1) * np.pi # needed to counterbalance the global phase
 
         mw_theta = [self.phi[k] for k in range(n+1)]
-        mw_phi = [2 * self.lbd - bd.pi()/2 + alpha] + [2 * self.theta[k-1] - bd.pi() for k in range(1, n+1)]
-        mw_lbd = 2 * self.theta[n] - bd.pi()/2 + alpha
+        mw_phi = [2 * self.lbd - np.pi/2 + alpha] + [2 * self.theta[k-1] - np.pi for k in range(1, n+1)]
+        mw_lbd = 2 * self.theta[n] - np.pi/2 + alpha
 
         return mw_theta, mw_phi, mw_lbd
 
@@ -402,13 +403,13 @@ class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
         This is the ansatz of Theorem 9 arXiv:2105.02859, but the polynomial
         construction is implemented by conjugating XQSP with a Hadamard gate."""
     def processing_operator(self, k: int): # exp(i phi[k] Z)
-        return bd.exp(1j*self.phi[k]), bd.make_complex(0)
+        return np.exp(1j*self.phi[k]), 0
 
     def protocol_conjugation(self, P, Q): # Return the polynomials (P', Q') = H (P, Q) H
         return ((P + P.conjugate()) + (Q - Q.conjugate()))/2, ((P - P.conjugate()) - (Q + Q.conjugate()))/2
     
     def processing_operator_conjugation(self, a, b):
-        return bd.re(a) + 1j*bd.im(b), 1j*bd.im(a) - bd.re(b)
+        return np.real(a) + 1j*np.imag(b), 1j*np.imag(a) - np.real(b)
 
     def duplicate(self):
         return ChebyshevQSPPhaseFactors(self.phi)
@@ -436,7 +437,7 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
     
     def processing_operator_conjugation(self, a, b):
         a *= 1j # R(x) = -I*exp(I*pi*Z/4)*W(x)*exp(I*pi*Z/4)
-        return bd.re(a) + 1j*bd.im(b), 1j*bd.im(a) - bd.re(b)
+        return np.real(a) + 1j*np.imag(b), 1j*np.imag(a) - np.real(b)
 
     def duplicate(self):
         return QSVTPhaseFactors(self.phi)
@@ -447,10 +448,10 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
         d = pf.degree()
         phi = [0] * (d+1)
 
-        phi[0] = pf.phi[0] + (2*d - 1)*bd.pi()/4
+        phi[0] = pf.phi[0] + (2*d - 1)*np.pi/4
         for k in range(1, d):
-            phi[k] = pf.phi[k] - bd.pi()/2
-        phi[d] = pf.phi[d] - bd.pi()/4
+            phi[k] = pf.phi[k] - np.pi/2
+        phi[d] = pf.phi[d] - np.pi/4
 
         return QSVTPhaseFactors(phi)
 
@@ -459,10 +460,10 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
         d = self.degree()
         phi = [0] * (d+1)
 
-        phi[0] = self.phi[0] - (2*d - 1)*bd.pi()/4
+        phi[0] = self.phi[0] - (2*d - 1)*np.pi/4
         for k in range(1, d):
-            phi[k] = self.phi[k] + bd.pi()/2
-        phi[d] = self.phi[d] + bd.pi()/4
+            phi[k] = self.phi[k] + np.pi/2
+        phi[d] = self.phi[d] + np.pi/4
 
         return ChebyshevQSPPhaseFactors(phi)
 
@@ -604,7 +605,7 @@ def yqsp_solve_laurent(P: Polynomial, mode='qsp') -> YQSPPhaseFactors:
     
     return yqsp_solve(laurent_to_analytic(P), mode=mode)
 
-def chebqsp_solve(T: list[generic_complex] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors:
+def chebqsp_solve(T: list[complex_type] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors:
     """Returns the set of phase factors for a Chebyshev QSP protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
 
     The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
@@ -631,7 +632,7 @@ def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
     Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
     return chebqsp_solve(chebyshev_approximate(f, deg))
 
-def qsvt_solve(T: list[generic_complex] | ChebyshevTExpansion) -> QSVTPhaseFactors:
+def qsvt_solve(T: list[complex_type] | ChebyshevTExpansion) -> QSVTPhaseFactors:
     """Returns the set of phase factors for a reflection QSP/QSVT protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
 
     The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.

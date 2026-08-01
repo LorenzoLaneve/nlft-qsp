@@ -1,10 +1,29 @@
 # Utility functions
 
+import numpy as np
+
 from typing import Iterable
 
 import csv
 from collections import defaultdict
 
+def coeffs_pad(c: np.ndarray | list, N: int):
+    """Pads the list c with zeros so that it results of length N. If len(c) >= N, then the list will be left unchanged.
+
+    Args:
+        c (list[complex]): the list to be padded
+        N (int): The length of the padded list.
+
+    Returns:
+        list[complex]: The original list padded with zeros, such that the total length will be N.
+    """
+    if isinstance(c, np.ndarray):
+        return np.pad(c, pad_width=(0, N - c.shape[0]))
+
+    if len(c) < N:
+        return c + [0] * (N - len(c))
+
+    return c
 
 def next_power_of_two(n):
     """Returns the smallest power of two that is `>= n`."""
@@ -13,6 +32,9 @@ def next_power_of_two(n):
 def sequence_shift(c, s):
     """Shifts the coefficients in the given list by s to the right,
     so that the returned vector `r` satisfies `r[k + s] = c[k]`."""
+    if isinstance(c, np.ndarray):
+        return np.roll(c, s, axis=0)
+
     s %= len(c)
     return c[-s:] + c[:-s]
 

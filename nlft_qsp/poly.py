@@ -1,30 +1,60 @@
+import numpy as np
+import scipy as sp
 
 from numbers import Number
 
 from . import numerics as bd
-from .numerics import coeffs_pad
-from .numerics.backend import generic_complex, generic_real
+from .numerics import complex_type, float_type
 
-from .util import next_power_of_two, sequence_shift
-
+from .util import next_power_of_two
 
 class ComplexL0Sequence:
-    """Represents a sequence of complex numbers index by Z, whose support is finite.
+    """Represents a sequence of complex numbers or complex matrices index by Z, whose support is finite.
     
     Attributes:
-        coeffs (list[generic_complex]): List of complex coefficients.
+        coeffs (list[complex_type]): List of complex coefficients.
         support_start (int): Index of the first element of the sequence.
+        shape (tuple[int]): The shape of the coefficients. This is always () for polynomials, but is used for matrix polynomials.
     """
 
-    def __init__(self, coeffs: list[generic_complex], support_start: int = 0):
+    def __init__(self, coeffs: list[complex_type] | np.ndarray = None, support_start: int = 0, shape: tuple[int] = None):
         """Initializes a complex sequence.
 
         Args:
-            coeffs: List of complex numbers as coefficients.
+            coeffs: List of complex numbers as coefficients. coeffs[k, :] will be the coefficient of z^(support_start + k).
+            shape: The shape of the sequence. If it is none, then the shape of coeffs is taken. This is only used for matrix sequences, and is ignored otherwise.
             support_start (optional): Index of the first element of the sequence. Defaults to 0.
+
+        Note:
+            Please provide exactly one of coeffs or shape.
         """
-        self.coeffs = [bd.make_complex(c) for c in coeffs]
+        if coeffs is not None and shape is not None or coeffs is None and shape is None:
+            raise ValueError("Please provide exactly one between coeffs or shape.")
+        
         self.support_start = support_start
+        
+        if shape is not None:
+            self.coeffs = np.zeros((1, *shape), dtype=complex_type)
+            self.shape = shape
+            return
+
+        if isinstance(coeffs, list):
+            if any(not isinstance(ck, Number) for ck in coeffs):
+                raise ValueError(f"The list of coefficients must be a single list or np.ndarray of complex values. Got {coeffs}. If you want to create a matrix sequence, please provide a np.ndarray of shape (num_coeffs, *shape) or specify the shape argument.")
+            
+            self.coeffs = np.array(coeffs, dtype=complex_type)
+            self.shape = ()
+            return
+        
+        if isinstance(coeffs, np.ndarray):
+            if coeffs.ndim == 0:
+                raise ValueError(f"There must be at least one coefficient. Got {coeffs}.")
+
+            self.coeffs = np.array(coeffs, dtype=complex_type)
+            self.shape = coeffs.shape[1:]
+            return
+
+        raise ValueError(f"Coefficients must be provided as a list or np.ndarray. Got {coeffs}.")
 
     def support(self) -> range:
         """Returns the range in Z where the sequence is non-zero.
@@ -35,73 +65,99 @@ class ComplexL0Sequence:
         Returns:
             range: The support of the sequence.
         """
-        return range(self.support_start, self.support_start + len(self.coeffs))
+        return range(self.support_start, self.support_start + self.coeffs.shape[0])
     
-    def __getitem__(self, k: int) -> generic_complex:
+    def __getitem__(self, k: int | tuple) -> complex_type | np.ndarray:
         """Returns the k-th element of the sequence, i.e., F_k.
 
         Args:
             k (int): The index of the sequence.
 
         Returns:
-            complex: The coefficient of F_k, or 0 if k is out of the support.
-        """
-        if k in self.support():
-            return self.coeffs[k - self.support_start]
-        return bd.make_complex(0)
+            complex_type | np.ndarray: The coefficient of F_k, or 0 if k is out of the support.
 
-    def __setitem__(self, k: int, c: generic_complex):
+        Note: in case of matrix sequence, numpy slices can be used on the coefficients.
+        """
+        if not isinstance(k, tuple):
+            k = (k,)
+
+        supp = self.support()
+        if isinstance(k[0], slice):
+            sl1 = max(k[0].start, supp.start) - self.support_start if k[0].start else 0
+            sl2 = min(k[0].stop, supp.stop) - self.support_start if k[0].stop else self.coeffs.shape[0]
+        
+            return Polynomial(self.coeffs[sl1:sl2:k[0].step, *k[1:]], support_start=supp.start + sl1)
+
+        if k[0] in supp:
+            return self.coeffs[k[0] - self.support_start, *k[1:]]
+        
+        if self.shape != ():
+            return np.zeros(self.shape, dtype=complex_type)[*k[1:]]
+
+        return 0
+
+    def __setitem__(self, k: int, c: complex_type | np.ndarray):
         """Sets the coefficient of z^k to be c, allocating space if needed.
 
         Args:
             k (int): The exponent of z.
             c (complex): The coefficient to set.
         """
-        if self.support_start + len(self.coeffs) <= k:
-            self.coeffs.extend([bd.make_complex(0)] * (k - self.support_start - len(self.coeffs) + 1))
-        elif self.support_start > k:
-            self.coeffs = [bd.make_complex(0)] * (self.support_start - k) + self.coeffs
-            self.support_start = k
-        self.coeffs[k - self.support_start] = bd.make_complex(c)
+        if isinstance(k, int):
+            k = (k,)
 
-    def l1_norm(self) -> generic_real:
-        """Computes the l1 norm of the sequence.
+        if self.support_start + self.coeffs.shape[0] <= k[0]:
+            pad_width = [(0, k[0] - self.support_start - self.coeffs.shape[0] + 1)] + [(0, 0)] * (self.coeffs.ndim - 1)
+            self.coeffs = np.pad(self.coeffs, pad_width)
+        elif self.support_start > k[0]:
+            pad_width = [(self.support_start - k[0], 0)] + [(0, 0)] * (self.coeffs.ndim - 1)
+            self.coeffs = np.pad(self.coeffs, pad_width)
+            self.support_start = k[0]
 
-        Returns:
-            float: The sum of absolute values of coefficients.
-        """
-        return sum(bd.abs(c) for c in self.coeffs)
+        self.coeffs[k[0] - self.support_start, *k[1:]] = c
 
-    def l2_norm(self) -> generic_real:
+    def l2_norm(self) -> float_type:
         """Computes the l2 norm.
 
         Returns:
             float: The l2 norm.
         """
-        return bd.sqrt(self.l2_squared_norm())
+        return np.sqrt(self.l2_squared_norm())
 
-    def l2_squared_norm(self) -> generic_real:
+    def l2_squared_norm(self) -> float_type:
         """Computes the squared l2 norm.
 
         Returns:
             float: The squared l2 norm, i.e., the sum of the squared absolute values.
+
+        Note:
+            For matrix sequences, this is the sum of the squared Frobenius norms of the coefficients.
         """
-        return sum(bd.abs2(c) for c in self.coeffs)
+        if self.shape == ():
+            return sum(c * np.conj(c) for c in self.coeffs)
+        
+        return sum(np.linalg.norm(c)**2 for c in self.coeffs)
     
     def is_real(self) -> bool:
         """Whether the sequence has only real elements."""
-        return all(bd.im(F) <= bd.machine_threshold() for F in self.coeffs)
+        if self.shape == ():
+            return all(np.abs(np.imag(F)) <= bd.machine_threshold() for F in self.coeffs)
+        
+        return all(np.abs(np.imag(F)) <= bd.machine_threshold() for F in self.coeffs.flatten())
     
     def is_imaginary(self) -> bool:
         """Whether the sequence has only imaginary elements."""
-        return all(bd.re(F) <= bd.machine_threshold() for F in self.coeffs)
+        if self.shape == ():
+            return all(np.abs(np.real(F)) <= bd.machine_threshold() for F in self.coeffs)
+        
+        return all(np.abs(np.real(F)) <= bd.machine_threshold() for F in self.coeffs.flatten())
     
     def is_symmetric(self) -> bool:
         """Whether the sequence satisfies F[k] = F[-k]."""
-        for k in self.support():
-            if abs(self[k] - self[-k]) > bd.machine_threshold():
-                return False
-        return True
+        if self.shape == ():
+            return all(np.abs(self[k] - self[-k]) <= bd.machine_threshold() for k in self.support())
+        
+        return all(np.linalg.norm(self[k] - self[-k]) <= bd.machine_threshold() for k in self.support())
     
     def __add__(self, other):
         if isinstance(other, Number):
@@ -109,18 +165,26 @@ class ComplexL0Sequence:
             q[0] += other
 
             return q
-        elif not isinstance(other, Polynomial):
-            raise TypeError("Polynomial addition admits only other polynomials or scalars.")
+        elif isinstance(other, np.ndarray):
+            if other.shape != self.shape:
+                raise ValueError(f"The shape of the given matrix {other.shape} does not match the expected shape {self.shape}.")
+
+            q = self.duplicate()
+            q[0] += other
+
+            return q
+        elif not isinstance(other, ComplexL0Sequence):
+            raise TypeError("Sequence addition admits only other sequences or scalars.")
                 
-        self_end = self.support_start + len(self.coeffs)
-        other_end = other.support_start + len(other.coeffs)
+        self_end = self.support_start + self.coeffs.shape[0]
+        other_end = other.support_start + other.coeffs.shape[0]
         
         sum_start = min(self.support_start, other.support_start)
         sum_end = max(self_end, other_end)
 
         sum_coeffs = []
         for k in range(sum_start, sum_end):
-            res = bd.make_complex(0)
+            res = 0
             
             if self.support_start <= k and k < self_end:
                 res += self.coeffs[k - self.support_start]
@@ -130,13 +194,13 @@ class ComplexL0Sequence:
 
             sum_coeffs.append(res)
             
-        return Polynomial(sum_coeffs, sum_start)
+        return Polynomial(np.array(sum_coeffs, dtype=complex_type), sum_start) # TODO This should return the lowest class between self and other.
     
     def __radd__(self, other):
         return self + other
     
     def __neg__(self):
-        return Polynomial([-c for c in self.coeffs], self.support_start)
+        return type(self)(-self.coeffs, self.support_start)
     
     def __sub__(self, other):
         return self + (-other)
@@ -149,18 +213,23 @@ class Polynomial(ComplexL0Sequence):
     """Represents a general Laurent polynomial of one complex variable.
 
     Attributes:
-        coeffs (list[generic_complex]): List of complex coefficients.
+        coeffs (list[complex_type]): List of complex coefficients.
+        shape (tuple): The shape of the coefficients. This is always () for polynomials, but is used for matrix polynomials.
         support_start (int): Minimum degree that appears in the polynomial.
     """
 
-    def __init__(self, coeffs: list[generic_complex], support_start: int = 0):
+    def __init__(self, coeffs: list[complex_type] | np.ndarray = None, support_start: int = 0, shape: tuple[int] = None):
         """Initializes a Polynomial instance.
 
         Args:
             coeffs: List of complex numbers as coefficients.
+            shape (optional): Shape of the coefficient array.
             support_start (optional): Minimum degree in the polynomial. Defaults to 0.
+
+        Note:
+            Please provide exactly one of coeffs or shape.
         """
-        super().__init__(coeffs, support_start)
+        super().__init__(coeffs, support_start, shape)
 
     def duplicate(self):
         """Creates a duplicate of the current polynomial.
@@ -168,11 +237,11 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             Polynomial: A new Polynomial instance with the same coefficients and support.
         """
-        return Polynomial(self.coeffs, self.support_start)
+        return type(self)(self.coeffs, self.support_start)
     
     def shift(self, k: int):
         """Creates a new polynomial equal to the current one, multiplied by `z^k`."""
-        return Polynomial(self.coeffs, self.support_start + k)
+        return type(self)(self.coeffs, self.support_start + k)
 
     def effective_degree(self) -> int:
         """Returns the size of the support of the polynomial minus 1 (max degree - min degree).
@@ -183,16 +252,23 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             int: The effective degree of the polynomial.
         """
-        return len(self.coeffs) - 1
+        return self.coeffs.shape[0] - 1
 
     def conjugate(self):
         r"""Returns the conjugate polynomial on the unit circle. If :math:`p(z) = \sum_k p_k z^k`, then its conjugate is defined as :math:`p^*(z) = \sum_k p_k^* z^{-k}`
 
         Returns:
             Polynomial: The conjugate polynomial.
+
+        Note: for a matrix polynomial, each coefficient is conjugate-transposed.
         """
-        conj_coeffs = [bd.conj(x) for x in reversed(self.coeffs)]
-        return Polynomial(conj_coeffs, -(self.support_start + len(self.coeffs) - 1))
+        if self.shape == ():
+            conj_coeffs = np.flip(np.conj(self.coeffs), axis=0)
+        else:
+            axes = [0] + list(range(1, self.coeffs.ndim))[::-1] # transpose = reverse the order of the axes except the first one, which is the index of the coefficient
+            conj_coeffs = np.flip(np.transpose(np.conj(self.coeffs), axes=axes), axis=0)
+        
+        return Polynomial(conj_coeffs, -(self.support_start + self.coeffs.shape[0] - 1))
     
     def sharp(self):
         r"""Same as `conjugate()`, but the support_start is left unchanged.
@@ -219,38 +295,103 @@ class Polynomial(ComplexL0Sequence):
             elif k == 0:
                 schwarz_coeffs.append(self[k])
 
-        return Polynomial(schwarz_coeffs, self.support_start)
+        return Polynomial(np.array(schwarz_coeffs, dtype=complex_type), self.support_start)
+    
+    def hilbert_transform(self):
+        r"""Returns the polynomial P such that P + self yields an analytic polynomial.
+
+        Note: This is actually i H[self], i.e., the Hilbert transform as returned is already multiplied by i.
+        
+        Returns:
+            Polynomial: The Hilbert transform of the polynomial.
+        """
+        hilbert_coeffs = []
+        for k in self.support():
+            if k < 0:
+                hilbert_coeffs.append(-self[k])
+            elif k > 0:
+                hilbert_coeffs.append(self[k])
+            else:
+                hilbert_coeffs.append(0)
+
+        return Polynomial(np.array(hilbert_coeffs, dtype=complex_type), self.support_start)
 
     def __mul__(self, other):
         if isinstance(other, Number):
-            return Polynomial([other * c for c in self.coeffs], self.support_start)
-        elif not isinstance(other, Polynomial):
-            raise TypeError("Polynomial addition admits only other polynomials or scalars.")
-        len_c = len(self.coeffs) + len(other.coeffs) - 1
+            return Polynomial(self.coeffs * other, self.support_start)
+        elif isinstance(other, np.ndarray):
+            if other.shape != self.shape:
+                raise ValueError(f"The shape of the given matrix {other.shape} does not match the expected shape {self.shape}.")
 
-        # TODO use extra precision here
-        coeffs_a = bd.fft(coeffs_pad(self.coeffs, next_power_of_two(len_c)))
-        coeffs_b = bd.fft(coeffs_pad(other.coeffs, next_power_of_two(len_c)))
+            return Polynomial(self.coeffs * other, self.support_start)
+        elif not isinstance(other, Polynomial):
+            raise TypeError("Polynomial multiplication admits only other polynomials or constants with compatible shape.")
+
+        # Pad so they end up with the same length
+        target_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
+        pad_a = [(0, target_len - self.coeffs.shape[0])] + [(0, 0)] * (self.coeffs.ndim - 1)
+        pad_b = [(0, target_len - other.coeffs.shape[0])] + [(0, 0)] * (other.coeffs.ndim - 1)
+
+        coeffs_a = np.fft.fft(np.pad(self.coeffs, pad_width=pad_a), axis=0)
+        coeffs_b = np.fft.fft(np.pad(other.coeffs, pad_width=pad_b), axis=0)
 
         # Multiply in the Fourier domain
         coeffs_c = [a * b for a, b in zip(coeffs_a, coeffs_b)]
 
         # Inverse FFT to get the result
-        new_coeffs = bd.ifft(coeffs_c)
+        new_coeffs = np.fft.ifft(coeffs_c, axis=0)
         support_start = self.support_start + other.support_start  # Lowest degree of the new poly
 
-        return Polynomial(new_coeffs[0:len_c], support_start)
+        return Polynomial(new_coeffs, support_start)
     
     def __rmul__(self, other):
         return self * other
     
     def __truediv__(self, other):
         if isinstance(other, Number):
-            return Polynomial([c / other for c in self.coeffs], self.support_start)
+            return Polynomial(self.coeffs / other, self.support_start)
         
         raise TypeError("Polynomial division is only possible with scalars.")
+    
+    def __matmul__(self, other):
+        if isinstance(other, np.ndarray):
+            if self.coeffs.shape[-1] != other.shape[-2]:
+                raise ValueError(f"Incompatible shapes: {self.shape} vs {other.shape}.")
 
-    def __call__(self, z) -> generic_complex:
+            return Polynomial(self.coeffs @ other, self.support_start)
+        elif not isinstance(other, Polynomial):
+            raise TypeError("Polynomial multiplication admits only other polynomials or constants with compatible shape.")
+
+        if self.coeffs.shape[-1] != other.shape[-2]:
+            raise ValueError(f"Incompatible shapes: {self.shape} vs {other.shape}.")
+
+        # Pad so they end up with the same length
+        target_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
+        pad_a = [(0, target_len - self.coeffs.shape[0])] + [(0, 0)] * (self.coeffs.ndim - 1)
+        pad_b = [(0, target_len - other.coeffs.shape[0])] + [(0, 0)] * (other.coeffs.ndim - 1)
+
+        coeffs_a = np.fft.fft(np.pad(self.coeffs, pad_width=pad_a), axis=0)
+        coeffs_b = np.fft.fft(np.pad(other.coeffs, pad_width=pad_b), axis=0)
+
+        # Multiply in the Fourier domain
+        coeffs_c = [a @ b for a, b in zip(coeffs_a, coeffs_b)]
+
+        # Inverse FFT to get the result
+        new_coeffs = np.fft.ifft(coeffs_c, axis=0)
+        support_start = self.support_start + other.support_start  # Lowest degree of the new poly
+
+        return Polynomial(new_coeffs, support_start)
+    
+    def __rmatmul__(self, other):
+        if isinstance(other, np.ndarray):
+            if other.shape[-1] != self.coeffs.shape[-2]:
+                raise ValueError(f"The shape of the given matrix {other.shape} does not match the expected shape {self.shape}.")
+
+            return Polynomial(other @ self.coeffs, self.support_start)
+
+        raise TypeError("Polynomial multiplication admits only other polynomials or constants with compatible shape.")
+
+    def __call__(self, z) -> complex_type | np.ndarray:
         """Evaluates the polynomial using Horner's method.
 
         Args:
@@ -260,11 +401,11 @@ class Polynomial(ComplexL0Sequence):
             complex: The evaluated result.
         """
         res = self.coeffs[-1]
-        for k in reversed(range(len(self.coeffs) - 1)):
+        for k in reversed(range(self.coeffs.shape[0] - 1)):
             res = res * z + self.coeffs[k]
         return res * (z ** self.support_start)
 
-    def eval_at_roots_of_unity(self, N: int) -> list[generic_complex]:
+    def eval_at_roots_of_unity(self, N: int) -> list[complex_type]: # TODO remove power-of-two assumption
         """Evaluates the polynomial at the N-th roots of unity using the inverse FFT.
 
         Args:
@@ -275,13 +416,14 @@ class Polynomial(ComplexL0Sequence):
             The k-th element will be `self[w^k]`, where `w` is the main N-th root of unity.
         """
         N = next_power_of_two(N)
-        M = next_power_of_two(max(N, len(self.coeffs)))
+        M = next_power_of_two(max(N, self.coeffs.shape[0]))
 
-        coeffs = coeffs_pad(self.coeffs, M)
-        coeffs = sequence_shift(coeffs, self.support_start)
+        pad_width = [(0, M - self.coeffs.shape[0])] + [(0, 0)] * (self.coeffs.ndim - 1)
+        coeffs = np.pad(self.coeffs, pad_width=pad_width)
+        coeffs = np.roll(coeffs, self.support_start, axis=0)
         # This has the effect of having everything multiplied by z^s
 
-        evals = bd.ifft(coeffs, normalize=False) # M evaluations at the M-th roots of unity
+        evals = np.fft.ifft(coeffs, norm='forward', axis=0) # M evaluations at the M-th roots of unity
         return evals[::M//N]
     
     def sup_norm(self, N=1024):
@@ -293,26 +435,35 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             float: An estimate for the supremum norm of the polynomial over the unit circle.
         """
-        return max([abs(sample) for sample in self.eval_at_roots_of_unity(N)])
+        if self.shape == ():
+            return np.max([np.abs(sample) for sample in self.eval_at_roots_of_unity(N)])
+        
+        return np.max([np.linalg.norm(sample, ord=2) for sample in self.eval_at_roots_of_unity(N)])
     
     def truncate(self, m: int, n: int):
         """Keeps only the coefficients in [m, n], discarding the others.
 
-        Args:
-            m (int): Lower bound of degree.
-            n (int): Upper bound of degree.
-
         Returns:
             Polynomial: A new, truncated polynomial.
         """
-        return Polynomial([self[k] for k in range(m, n+1)], m)
+        if self.shape == ():
+            return Polynomial([self[k] for k in range(m, n+1)], m)
+        
+        return Polynomial(np.array([self[k] for k in range(m, n+1)], dtype=complex_type), m)
     
-    def only_positive_degrees(self):
+    def analytic_part(self):
         """Discards all the negative degrees, keeping only the non-negative ones.
         
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
-        return self.truncate(0, self.support_start + len(self.coeffs) - 1)
+        return self.truncate(0, self.support_start + self.coeffs.shape[0] - 1)
+    
+    def anti_analytic_part(self):
+        """Discards all the positive degrees, keeping only the non-positive ones.
+        
+        Returns:
+            Polynomial: A new polynomial containing only the negative-degree coefficients."""
+        return self.truncate(self.support_start, 0)
 
     def __str__(self):
         """Converts the polynomial to a human-readable string representation.
@@ -322,6 +473,33 @@ class Polynomial(ComplexL0Sequence):
         """
         return ' + '.join(f"{c} z^{self.support_start + k}" for k, c in enumerate(self.coeffs))
     
+    @classmethod
+    def block_matrix(cls, blocks: list[list["Polynomial"]]):
+        """Returns a matrix polynomial containing the given polynomials/constants as blocks.
+        
+        Raises: ValueError if the block shapes do not match."""
+        joint_support = range(min(min(p.support().start for p in l) for l in blocks),
+                              max(max(p.support().stop for p in l) for l in blocks))
+        
+        coeffs = []
+        for k in joint_support:
+            coeffs.append(np.block([[p[k] for p in l] for l in blocks]))
+
+        return Polynomial(np.array(coeffs, dtype=complex_type), support_start=joint_support.start)
+    
+    @classmethod
+    def diagonal_block_matrix(cls, blocks: list["Polynomial"]):
+        """Returns a matrix polynomial containing the given polynomials/constants as blocks along the diagonal.
+        
+        Raises: ValueError if the block shapes do not match."""
+        joint_support = range(min(p.support().start for p in blocks), max(p.support().stop for p in blocks))
+        
+        coeffs = []
+        for k in joint_support:
+            coeffs.append(sp.linalg.block_diag(*[p[k] for p in blocks]))
+
+        return Polynomial(np.array(coeffs, dtype=complex_type), support_start=joint_support.start)
+    
 
 class ChebyshevTExpansion(ComplexL0Sequence):
     """Linear combination of Chebyshev polynomials of the first kind.
@@ -329,8 +507,8 @@ class ChebyshevTExpansion(ComplexL0Sequence):
     Args:
         c: Either the coefficients of the linear combination, or the symmetric Laurent polynomial `P(z)` which are equal up to the change of variable `x = (z + z^(-1))/2`.
     """
-    def __init__(self, c: list[generic_complex] | Polynomial):
-        if isinstance(c, list):
+    def __init__(self, c: list[complex_type] | Polynomial):
+        if isinstance(c, list) or isinstance(c, np.ndarray):
             super().__init__(c, support_start=0)
         elif isinstance(c, Polynomial):
             if not c.is_symmetric():
@@ -343,9 +521,9 @@ class ChebyshevTExpansion(ComplexL0Sequence):
             raise ValueError("Only a coefficient vector or symmetric Laurent polynomials are allowed.")
         
     def degree(self) -> int:
-        return len(self.coeffs) - 1
+        return self.coeffs.shape[0] - 1
 
-    def __call__(self, x: generic_real) -> generic_complex:
+    def __call__(self, x: float_type) -> complex_type:
         """Evaluates the Chebyshev expansion at the given number.
 
         Args:
@@ -354,20 +532,20 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         Returns:
             complex: The evaluated result.
         """
-        theta = bd.arccos(x)
+        theta = np.arccos(x)
 
-        return sum(self[k] * bd.cos(k * theta) for k in self.support())
+        return sum(self[k] * np.cos(k * theta) for k in self.support())
     
     def to_laurent(self):
         """Returns the Laurent polynomial `P(z) = self((z + z^(-1))/2)`."""
-        P = Polynomial(list(reversed(self.coeffs)) + self.coeffs[1:], support_start=-len(self.coeffs)+1)
+        P = Polynomial(np.concat([np.flipud(self.coeffs), self.coeffs[1:]]), support_start=-self.coeffs.shape[0]+1)
         P[0] *= 2
         return P/2
     
     @classmethod
     def from_polynomial(cls, P: Polynomial):
         """Returns the Chebyshev expansion `T` satisfying `T(x) = P(x)`."""
-        return ChebyshevTExpansion(bd.poly2cheb(P.coeffs))
+        return ChebyshevTExpansion(np.polynomial.chebyshev.poly2cheb(P.coeffs))
     
     @classmethod
     def from_laurent_polynomial(cls, P: Polynomial):
@@ -384,4 +562,4 @@ class ChebyshevTExpansion(ComplexL0Sequence):
     
     def to_polynomial(self) -> Polynomial:
         """Returns the polynomial `P` satisfying `P(x) = T(x)`."""
-        return Polynomial(bd.cheb2poly(self.coeffs))
+        return Polynomial(np.polynomial.chebyshev.cheb2poly(self.coeffs))

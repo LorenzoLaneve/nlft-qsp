@@ -1,16 +1,15 @@
 
 import random
 from numbers import Number
-import mpmath as mp
+import numpy as np
 
-from . import numerics as bd
 from .poly import Polynomial
 
 def random_real(c):
-    return bd.make_float(c*mp.rand())
+    return c*np.random.rand()
 
 def random_complex(c):
-    return bd.make_complex(c*mp.rand() + c*1j*mp.rand())
+    return c*np.random.rand() + c*1j*np.random.rand()
 
 def random_sequence(c, N):
     if isinstance(N, Number):
@@ -20,7 +19,7 @@ def random_sequence(c, N):
         return [random_complex(c) for _ in range(N[0])]
     
     l = []
-    for k in range(N[0]):
+    for _ in range(N[0]):
         l.append(random_sequence(c, N[1:]))
 
     return l
@@ -34,7 +33,7 @@ def random_polynomial(N, eta):
     return b
 
 def random_real_sequence(c, N):
-    return [bd.make_complex(c*mp.rand()) for _ in range(N)]
+    return [random_real(c) for _ in range(N)]
 
 def random_real_polynomial(N, eta):
     b = Polynomial(random_real_sequence(10000, N))

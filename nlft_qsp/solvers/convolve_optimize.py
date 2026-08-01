@@ -2,6 +2,8 @@
 
 # NOTE: this optional module uses torch (~=2.7.1), which is not included in the package requirements.
 
+import numpy as np
+
 import torch
 from torchaudio.transforms import FFTConvolve
 
@@ -97,5 +99,5 @@ def complete(b: Polynomial) -> Polynomial:
 
     a = Polynomial(torch.complex(real, imag).tolist())
     a = a.shift(-b.effective_degree())
-    a *= bd.exp(-1j*bd.arg(a[0])) # we want a[0] > 0
+    a *= np.exp(-1j*np.angle(a[0])) # we want a[0] > 0
     return a

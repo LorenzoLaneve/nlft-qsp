@@ -1,7 +1,10 @@
-from .. import numerics as bd
+import numpy as np
 
-from ..poly import Polynomial
-from ..util import next_power_of_two, sequence_shift
+from ... import numerics as bd
+
+from ...poly import Polynomial
+from ...util import next_power_of_two
+from ...approximate import laurent_approximation
 
 WEISS_MAX_ATTEMPTS = 3
 
@@ -11,25 +14,6 @@ class WeissConvergenceError(Exception):
 
     def __init__(self, *args):
         super().__init__(*args)
-
-def laurent_approximation(points: list) -> Polynomial:
-    r"""Returns a Laurent polynomial passing through the given points.
-
-    Note:
-        `N = len(points)` is assumed to be a power of two.
-
-    Args:
-        points (list[complex]): list of values, where the k-th element is considered to be :math:`f(e^{2\pi i k/N})`.
-
-    Returns:
-        Polynomial: The unique Laurent polynomial `P(z)` of degree `N = len(points)` satisfying :math:`P(e^{2\pi i k/N}) = f(e^{2\pi i k/N})`, up to working precision, whose frequencies are shifted to be in :math:`[-N/2, N/2)`
-    """
-    N = len(points)
-
-    coeffs = bd.fft(points, normalize=True)
-    coeffs = sequence_shift(coeffs, -N//2) # Zero frequency in the middle
-
-    return Polynomial(coeffs, support_start=-N//2)
 
 def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=False):
     """Internal function for Weiss' algorithm. The user should call `weiss.complete`, or `weiss.ratio`.
@@ -45,7 +29,7 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
     """
     d = b.effective_degree()
     if eps < 0:
-        eps = 100 * bd.machine_eps()
+        eps = bd.machine_threshold() * 10e-3
 
     eta = 1 - b.sup_norm(max(4000, 4*d))
 
@@ -59,12 +43,12 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
 
         b_points = b.eval_at_roots_of_unity(N)
 
-        R = laurent_approximation([bd.log(1 - bd.abs2(bz))/2 for bz in b_points])
+        R = laurent_approximation([np.log(1 - bz * np.conj(bz))/2 for bz in b_points])
 
         G = R.schwarz_transform()
         G_points = G.eval_at_roots_of_unity(N)
 
-        a = laurent_approximation([bd.exp(gz) for gz in G_points])
+        a = laurent_approximation([np.exp(gz) for gz in G_points])
         a = a.truncate(-b.effective_degree(), 0) # a and b must have the same support
 
         new_thr = (a * a.conjugate() + b * b.conjugate() - 1).l2_norm()
@@ -80,7 +64,7 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
             attempts = 0
 
     if compute_ratio:
-        c = laurent_approximation([bz * bd.exp(-gz) for bz, gz in zip(b_points, G_points)])
+        c = laurent_approximation([bz * np.exp(-gz) for bz, gz in zip(b_points, G_points)])
         return a, c.truncate(c.support_start, b.support().stop - 1)
     else:
         return a
