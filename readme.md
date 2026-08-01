@@ -1,6 +1,6 @@
 ## NLFT/QSP solver
 
-[![tests](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/tests.yml/badge.svg)](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/test.yml)
+[![tests](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/tests.yml/badge.svg)](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/tests.yml)
 [![Last Release](https://img.shields.io/github/v/release/LorenzoLaneve/nlft-qsp?logo=github&label=latest)](https://github.com/LorenzoLaneve/nlft-qsp/releases)
 [![Python Versions](https://img.shields.io/pypi/pyversions/nlft-qsp.svg)](https://pypi.org/project/nlft-qsp/)
 
