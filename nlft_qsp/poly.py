@@ -86,13 +86,13 @@ class ComplexL0Sequence:
             sl1 = max(k[0].start, supp.start) - self.support_start if k[0].start else 0
             sl2 = min(k[0].stop, supp.stop) - self.support_start if k[0].stop else self.coeffs.shape[0]
         
-            return Polynomial(self.coeffs[sl1:sl2:k[0].step, *k[1:]], support_start=supp.start + sl1)
+            return Polynomial(self.coeffs[(slice(sl1, sl2, k[0].step), *k[1:])], support_start=supp.start + sl1)
 
         if k[0] in supp:
-            return self.coeffs[k[0] - self.support_start, *k[1:]]
+            return self.coeffs[(k[0] - self.support_start, *k[1:])]
         
         if self.shape != ():
-            return np.zeros(self.shape, dtype=complex_type)[*k[1:]]
+            return np.zeros(self.shape, dtype=complex_type)[k[1:]]
 
         return 0
 
@@ -114,7 +114,7 @@ class ComplexL0Sequence:
             self.coeffs = np.pad(self.coeffs, pad_width)
             self.support_start = k[0]
 
-        self.coeffs[k[0] - self.support_start, *k[1:]] = c
+        self.coeffs[(k[0] - self.support_start, *k[1:])] = c
 
     def l2_norm(self) -> float_type:
         """Computes the l2 norm.
