@@ -5,6 +5,8 @@ This Python package numerically computes the inverse Non-Linear Fourier Transfor
 - Michel Alexis, Gevorg Mnatsakanyan, and Christoph Thiele. *Quantum signal processing
 and nonlinear Fourier analysis*. [Revista Matemática Complutense 37, 655–694](https://dx.doi.org/10.1007/s13163-024-00494-5) (2024)
 
+- Bjorn Berntson & Christoph Sünderhauf. *Complementary Polynomials in Quantum Signal Processing* [Communications in Mathematical Physics 406, 161](https://doi.org/10.1007/s00220-025-05302-9)
+
 - Michel Alexis, Lin Lin, Gevorg Mnatsakanyan, Christoph Thiele, and Jiasu Wang. *Infinite
 quantum signal processing for arbitrary Szegö functions*, [arXiv:2407.05634](https://arxiv.org/abs/2407.05634)
 
