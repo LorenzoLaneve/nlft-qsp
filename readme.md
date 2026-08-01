@@ -1,5 +1,9 @@
 ## NLFT/QSP solver
 
+[![tests](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/tests.yml/badge.svg)](https://github.com/LorenzoLaneve/nlft-qsp/actions/workflows/test.yml)
+[![Last Release](https://img.shields.io/github/v/release/LorenzoLaneve/nlft-qsp?logo=github&label=latest)](https://github.com/LorenzoLaneve/nlft-qsp/releases)
+[![Python Versions](https://img.shields.io/pypi/pyversions/nlft-qsp.svg)](https://pypi.org/project/nlft-qsp/)
+
 This Python package numerically computes the inverse Non-Linear Fourier Transform and Generalized Quantum Signal Processing phase factors using techniques from recent papers:
 
 - Michel Alexis, Gevorg Mnatsakanyan, and Christoph Thiele. *Quantum signal processing
