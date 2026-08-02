@@ -4,21 +4,7 @@
 [![Last Release](https://img.shields.io/github/v/release/LorenzoLaneve/nlft-qsp?logo=github&label=latest)](https://github.com/LorenzoLaneve/nlft-qsp/releases)
 [![Python Versions](https://img.shields.io/pypi/pyversions/nlft-qsp.svg)](https://pypi.org/project/nlft-qsp/)
 
-This Python package numerically computes the inverse Non-Linear Fourier Transform and Generalized Quantum Signal Processing phase factors using techniques from recent papers:
-
-- Michel Alexis, Gevorg Mnatsakanyan, and Christoph Thiele. *Quantum signal processing
-and nonlinear Fourier analysis*. [Revista Matemática Complutense 37, 655–694](https://dx.doi.org/10.1007/s13163-024-00494-5) (2024)
-
-- Bjorn Berntson & Christoph Sünderhauf. *Complementary Polynomials in Quantum Signal Processing* [Communications in Mathematical Physics 406, 161](https://doi.org/10.1007/s00220-025-05302-9)
-
-- Michel Alexis, Lin Lin, Gevorg Mnatsakanyan, Christoph Thiele, and Jiasu Wang. *Infinite
-quantum signal processing for arbitrary Szegö functions*, [arXiv:2407.05634](https://arxiv.org/abs/2407.05634)
-
-- Hongkang Ni and Lexing Ying. *Fast Phase Factor Finding for Quantum Signal Processing* (2024), [arXiv:2410.06409](https://arxiv.org/abs/2410.06409).
-
-- Lorenzo Laneve. *Generalized Quantum Signal Processing and Non-Linear Fourier Transform are equivalent*, [arXiv:2503.03026](https://arxiv.org/abs/2503.03026).
-
-- Hongkang Ni, Rahul Sarkar, Lexing Ying, Lin Lin. *Inverse nonlinear fast Fourier transform on SU(2) with applications to quantum signal processing*, [arXiv:2505.12615](https://arxiv.org/abs/2505.12615).
+This Python package numerically computes the inverse Non-Linear Fourier transform and (generalized) quantum signal processing phase factors.
 
 
 ## Examples

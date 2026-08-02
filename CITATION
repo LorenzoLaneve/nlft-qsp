@@ -1,0 +1,88 @@
+@article{alexisInfiniteQuantumSignal2026,
+  title = {Infinite Quantum Signal Processing for Arbitrary {{Szeg\"o}} Functions},
+  author = {Alexis, Michel and Lin, Lin and Mnatsakanyan, Gevorg and Thiele, Christoph and Wang, Jiasu},
+  year = 2026,
+  month = jan,
+  journal = {Communications on Pure and Applied Mathematics},
+  volume = {79},
+  number = {1},
+  pages = {123--174},
+  publisher = {John Wiley \& Sons, Ltd},
+  issn = {1097-0312},
+  doi = {10.1002/cpa.70007},
+  urldate = {2026-03-04}
+}
+
+@article{alexisQuantumSignalProcessing2024,
+  title = {Quantum Signal Processing and Nonlinear {{Fourier}} Analysis},
+  author = {Alexis, Michel and Mnatsakanyan, Gevorg and Thiele, Christoph},
+  year = 2024,
+  month = sep,
+  journal = {Revista Matem\'atica Complutense},
+  volume = {37},
+  number = {3},
+  pages = {655--694},
+  issn = {1988-2807},
+  doi = {10.1007/s13163-024-00494-5},
+  urldate = {2025-02-10}
+}
+
+@article{berntsonComplementaryPolynomialsQuantum2025,
+  title = {Complementary {{Polynomials}} in {{Quantum Signal Processing}}},
+  author = {Berntson, Bjorn K. and S{\"u}nderhauf, Christoph},
+  year = 2025,
+  month = jun,
+  journal = {Communications in Mathematical Physics},
+  volume = {406},
+  number = {7},
+  pages = {161},
+  issn = {1432-0916},
+  doi = {10.1007/s00220-025-05302-9},
+  urldate = {2025-06-25},
+  keywords = {Computational Mathematics and Numerical Analysis,Field Theory and Polynomials,Fourier Analysis,Functions of a Complex Variable,Linear Algebra,Special Functions}
+}
+
+@misc{laneveGeneralizedQuantumSignal2025,
+  title = {Generalized {{Quantum Signal Processing}} and {{Non-Linear Fourier Transform}} Are Equivalent},
+  author = {Laneve, Lorenzo},
+  year = 2025,
+  month = mar,
+  number = {arXiv:2503.03026},
+  eprint = {2503.03026},
+  primaryclass = {quant-ph},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2503.03026},
+  urldate = {2025-03-24},
+  archiveprefix = {arXiv},
+  keywords = {Quantum Physics}
+}
+
+@misc{niFastPhaseFactor2024,
+  title = {Fast {{Phase Factor Finding}} for {{Quantum Signal Processing}}},
+  author = {Ni, Hongkang and Ying, Lexing},
+  year = 2024,
+  month = oct,
+  number = {arXiv:2410.06409},
+  eprint = {2410.06409},
+  primaryclass = {quant-ph},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2410.06409},
+  urldate = {2024-10-14},
+  archiveprefix = {arXiv},
+  keywords = {Mathematics - Numerical Analysis,Quantum Physics}
+}
+
+@misc{niInverseNonlinearFast2025,
+  title = {Inverse Nonlinear Fast {{Fourier}} Transform on {{SU}}(2) with Applications to Quantum Signal Processing},
+  author = {Ni, Hongkang and Sarkar, Rahul and Ying, Lexing and Lin, Lin},
+  year = 2025,
+  month = may,
+  number = {arXiv:2505.12615},
+  eprint = {2505.12615},
+  primaryclass = {quant-ph},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2505.12615},
+  urldate = {2025-06-13},
+  archiveprefix = {arXiv},
+  keywords = {Computer Science - Numerical Analysis,Mathematics - Numerical Analysis,Quantum Physics}
+}
