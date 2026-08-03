@@ -535,6 +535,14 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         theta = np.arccos(x)
 
         return sum(self[k] * np.cos(k * theta) for k in self.support())
+
+    def __str__(self):
+        """Converts the expansion to a human-readable string representation.
+
+        Returns:
+            str: The string representation of the expansion.
+        """
+        return ' + '.join(f"{c} T_{self.support_start + k}(x)" for k, c in enumerate(self.coeffs))
     
     def to_laurent(self):
         """Returns the Laurent polynomial `P(z) = self((z + z^(-1))/2)`."""
