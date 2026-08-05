@@ -8,6 +8,8 @@ from .qsp import xqsp_solve, xqsp_solve_laurent, yqsp_solve, yqsp_solve_laurent,
 
 from .plot import plot_chebyshev, plot_fourier
 
+from . import solvers
+
 __all__ = [
     # Basic classes
     "Polynomial",
@@ -38,5 +40,7 @@ __all__ = [
 
     # Plot utilities
     "plot_chebyshev",
-    "plot_fourier"
+    "plot_fourier",
+
+    "solvers"
 ]
