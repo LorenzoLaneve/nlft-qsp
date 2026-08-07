@@ -1,0 +1,56 @@
+name: Build docs
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+# Grant write permissions to update the gh-pages branch
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history needed for mike to commit to gh-pages branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+          pip install mkdocs mkdocs-material mike mkdocstrings[python] mkdocs-api-autonav markdown-exec
+          
+          pip install -e .
+
+      - name: Configure Git Credentials
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Deploy documentation with Mike (Tag Release)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Extract version tag (e.g. v1.0.0 -> 1.0.0 or v1.0.0)
+          VERSION=${GITHUB_REF#refs/tags/}
+          
+          # Deploy versioned docs and update the 'latest' alias
+          mike deploy --push --update-aliases $VERSION latest
+          mike set-default --push latest
+
+      - name: Deploy documentation with Mike (Development / Main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Deploy latest commits from main to the 'dev' version track
+          mike deploy --push dev
