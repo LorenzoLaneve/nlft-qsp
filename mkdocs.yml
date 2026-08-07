@@ -1,0 +1,143 @@
+site_name: nlft-qsp
+site_description: Python package for computing QSP/QSVT phase factors
+
+repo_name: LorenzoLaneve/nlft-qsp
+repo_url: https://github.com/LorenzoLaneve/nlft-qsp
+
+copyright: Copyright &copy; 2025 - 2026 Lorenzo Laneve
+
+nav:
+  - Getting started: index.md
+  - Further reading: papers.md
+
+  - Manipulating polynomials:
+    - polynomials/index.md
+    - Basic operations: polynomials/operations.md
+    - Norms: polynomials/norms.md
+    - Chebyshev expansions: polynomials/chebyshev-expansions.md
+#   - Matrix polynomials: polynomials/matrix-polynomials.md
+
+  - Polynomial completion:
+    - completion/index.md
+
+  - Computing QSP phase factors:
+    - phase-factors/index.md
+    - Generalized QSP: phase-factors/gqsp.md
+    - Chebyshev QSP and QSVT: phase-factors/qsvt.md
+    - Implementing Python functions and interpolations with QSP: phase-factors/python-functions.md
+
+  - API Reference
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: light blue
+      accent: cyan
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: cyan
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - navigation.sections
+    - navigation.path
+    - navigation.tracking
+    - navigation.footer
+    - navigation.indexes
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+
+plugins:
+  - search
+  - api-autonav:
+      modules: ['nlft_qsp']
+      module_options:
+        package.submodule:
+          docstring_style: google
+          show_signature: true
+        ".*":
+          heading_level: 1
+          show_symbol_type_heading: true
+          show_signature_annotations: true
+          show_signature_type_parameters: true
+          summary: true
+      nav_section_title: API Reference
+  - mkdocstrings
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: python
+          class: python
+          validator: !!python/name:markdown_exec.validator
+          format: !!python/name:markdown_exec.formatter
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/LorenzoLaneve
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/nlft-qsp/
+  api_ref_url: /reference
+
+extra_javascript:
+  - js/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
