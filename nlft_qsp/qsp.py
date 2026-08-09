@@ -6,6 +6,7 @@ from .poly import ChebyshevTExpansion, Polynomial
 from .nlft import NonLinearFourierSequence
 from .numerics import complex_type, float_type
 from .approximate import chebyshev_approximate
+from .file import serializable
 
 from .solvers import nlfft, weiss
 
@@ -171,7 +172,11 @@ class PhaseFactors:
         so that it becomes real and positive, and (z^{-n} P, Q) is in the image of the NLFT."""
         raise NotImplementedError()
     
-    
+
+@serializable(
+    type_tag="@qspx/phase_factors/xqsp",
+    fields={"phi": "phi"}
+)
 class XQSPPhaseFactors(PhaseFactors):
     """Phase factors for a X-constrained QSP protocol.
     
@@ -215,7 +220,11 @@ class XQSPPhaseFactors(PhaseFactors):
             raise ValueError("The Non-Linear Fourier sequence must be imaginary in order to be turned into a XQSP protocol.")
 
         return XQSPPhaseFactors([np.arctan(np.imag(Fk)) for Fk in F.coeffs])
-    
+
+@serializable(
+    type_tag="@qspx/phase_factors/yqsp",
+    fields={"phi": "phi"}
+)
 class YQSPPhaseFactors(PhaseFactors):
     """Phase factors for a Y-constrained QSP protocol.
 
@@ -260,6 +269,10 @@ class YQSPPhaseFactors(PhaseFactors):
 
         return YQSPPhaseFactors([np.arctan(np.real(Fk)) for Fk in F.coeffs])
 
+@serializable(
+    type_tag="@qspx/phase_factors/gqsp",
+    fields={"phi": "phi", "lbd": "lbd", "theta": "theta"}
+)
 class GQSPPhaseFactors(PhaseFactors):
     """Phase factors for a GQSP protocol.
     
@@ -391,7 +404,11 @@ class GQSPPhaseFactors(PhaseFactors):
 
         return mw_theta, mw_phi, mw_lbd
 
-    
+
+@serializable(
+    type_tag="@qspx/phase_factors/chebqsp",
+    fields={"phi": "phi"}
+)
 class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     """Phase factors for a Chebyshev QSP protocol.
 
@@ -419,7 +436,12 @@ class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     
     def iZ(self):
         return super.iX() # applying iZ is equivalent to applying iX, by the Hadamard conjugation
-    
+
+
+@serializable(
+    type_tag="@qspx/phase_factors/qsvt",
+    fields={"phi": "phi"}
+)
 class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
     """Phase factors for a QSVT/Reflection QSP protocol.
 

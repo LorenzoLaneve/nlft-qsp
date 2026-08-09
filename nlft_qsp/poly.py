@@ -3,10 +3,13 @@ import scipy as sp
 
 from numbers import Number
 
+
 from . import numerics as bd
 from .numerics import complex_type, float_type
 
 from .util import next_power_of_two
+from .file import serializable
+
 
 class ComplexL0Sequence:
     """Represents a sequence of complex numbers or complex matrices index by Z, whose support is finite.
@@ -209,6 +212,13 @@ class ComplexL0Sequence:
         return self + (-other)
 
 
+@serializable(
+    type_tag="@qspx/polynomial",
+    fields={
+        "support_start": "support_start",
+        "coeffs": "coeffs"
+    }
+)
 class Polynomial(ComplexL0Sequence):
     """Represents a general Laurent polynomial of one complex variable.
 
@@ -501,20 +511,26 @@ class Polynomial(ComplexL0Sequence):
         return Polynomial(np.array(coeffs, dtype=complex_type), support_start=joint_support.start)
     
 
+@serializable(
+    type_tag="@qspx/chebyshev_t",
+    fields={
+        "coeffs": "coeffs"
+    }
+)
 class ChebyshevTExpansion(ComplexL0Sequence):
     """Linear combination of Chebyshev polynomials of the first kind.
     
     Args:
-        c: Either the coefficients of the linear combination, or the symmetric Laurent polynomial `P(z)` which are equal up to the change of variable `x = (z + z^(-1))/2`.
+        coeffs: Either the coefficients of the linear combination, or the symmetric Laurent polynomial `P(z)` which are equal up to the change of variable `x = (z + z^(-1))/2`.
     """
-    def __init__(self, c: list[complex_type] | Polynomial):
-        if isinstance(c, list) or isinstance(c, np.ndarray):
-            super().__init__(c, support_start=0)
-        elif isinstance(c, Polynomial):
-            if not c.is_symmetric():
+    def __init__(self, coeffs: list[complex_type] | Polynomial):
+        if isinstance(coeffs, list) or isinstance(coeffs, np.ndarray):
+            super().__init__(coeffs, support_start=0)
+        elif isinstance(coeffs, Polynomial):
+            if not coeffs.is_symmetric():
                 raise ValueError("The given Laurent polynomial is not symmetric.")
 
-            coeffs = [2*c[k] for k in range(c.support().stop)]
+            coeffs = [2*coeffs[k] for k in range(coeffs.support().stop)]
             coeffs[0] /= 2
             super().__init__(coeffs, support_start=0)
         else:
