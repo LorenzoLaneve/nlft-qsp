@@ -16,12 +16,13 @@ T = TypeVar("T")
 
 VARIANTS_REGISTRY = {}
 
-def qsp_variant(variant_tag: str, modes: list):
+def qsp_variant(variant_tag: str, modes: list, display_name: str):
     """Class decorator to register QSP variants. Modes are [a]nalytic, [l]aurent, [c]hebyshev."""
 
     def decorator(cls: Type[T]) -> Type[T]:
         cls._variant_tag = variant_tag
         cls._variant_modes = modes
+        cls._variant_display_name = display_name
         VARIANTS_REGISTRY[variant_tag] = cls
         return cls
 
@@ -201,7 +202,7 @@ class PhaseFactors:
     type_tag="@qspx/phase_factors/xqsp",
     fields={"phi": "phi"}
 )
-@qsp_variant('x', modes=['l', 'a'])
+@qsp_variant('x', modes=['l', 'a'], display_name='XQSP')
 class XQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a XQSP protocol.
 
@@ -305,7 +306,7 @@ class XQSPPhaseFactors(PhaseFactors):
     type_tag="@qspx/phase_factors/yqsp",
     fields={"phi": "phi"}
 )
-@qsp_variant('y', modes=['l', 'a'])
+@qsp_variant('y', modes=['l', 'a'], display_name='YQSP')
 class YQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a YQSP protocol.
     
@@ -408,7 +409,7 @@ class YQSPPhaseFactors(PhaseFactors):
     type_tag="@qspx/phase_factors/gqsp",
     fields={"phi": "phi", "lbd": "lbd", "theta": "theta"}
 )
-@qsp_variant('g', modes=['l', 'a'])
+@qsp_variant('g', modes=['l', 'a'], display_name='Generalized QSP')
 class GQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a Generalized QSP protocol.
     
@@ -594,7 +595,7 @@ class GQSPPhaseFactors(PhaseFactors):
     type_tag="@qspx/phase_factors/chebqsp",
     fields={"phi": "phi"}
 )
-@qsp_variant('cheb', modes=['c'])
+@qsp_variant('cheb', modes=['c'], display_name='Chebyshev QSP')
 class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     """Phase factors for a Chebyshev QSP protocol.
 
@@ -660,7 +661,7 @@ class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     type_tag="@qspx/phase_factors/qsvt",
     fields={"phi": "phi"}
 )
-@qsp_variant('qsvt', modes=['c'])
+@qsp_variant('qsvt', modes=['c'], display_name='QSVT')
 class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
     """Phase factors for a QSVT/Reflection QSP protocol.
 
