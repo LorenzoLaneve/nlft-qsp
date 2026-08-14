@@ -23,7 +23,7 @@ By a change of variables $x = \frac{z + z^{-1}}{2}$, we can rewrite $P$ as a Lau
 
 $$ P(z) = \sum_{k = 0}^n c_k \frac{z^k + z^{-k}}{2} $$
 
-and reduce Chebyshev QSP to [Laurent XQSP](gqsp.md#xqsp). This is exactly what the [`chebqsp_solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.chebqsp_solve) function does: it takes the list $\{ c_k \}_k$, either as a Python list or as a `ChebyshevTExpansion` object (see [here](../polynomials/chebyshev-expansions.md) for more info).
+and reduce Chebyshev QSP to [Laurent XQSP](gqsp.md#xqsp). This is exactly what the [`ChebyshevQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.ChebyshevQSPPhaseFactors.solve) function does: it takes the list $\{ c_k \}_k$, either as a Python list or as a `ChebyshevTExpansion` object (see [here](../polynomials/chebyshev-expansions.md) for more info).
 
 
 ```python exec="on" source="block" result="text"
@@ -32,7 +32,7 @@ import numpy as np
 
 T = ChebyshevTExpansion([0.2, 0, 0.4, 0, 0.1])
 
-qsp = chebqsp_solve(T)
+qsp = ChebyshevQSPPhaseFactors.solve(T)
 
 P, Q = qsp.polynomials(mode='laurent')
 
@@ -60,7 +60,7 @@ import numpy as np
 
 P = Polynomial([0.2, 0, 0.4, 0, 0.1]) # 0.2 + 0.4 x^2 + 0.1 x^4
 
-qsp = chebqsp_solve(ChebyshevTExpansion.from_polynomial(P))
+qsp = ChebyshevQSPPhaseFactors.solve(ChebyshevTExpansion.from_polynomial(P))
 
 P_qsp, Q = qsp.polynomials(mode='laurent')
 
@@ -87,7 +87,7 @@ where this time the signal operator $\tilde{r}$ is a reflection:
 
 $$ \tilde{r} = \begin{pmatrix} x & \sqrt{1 - x^2} \\ \sqrt{1 - x^2} & -x \end{pmatrix} $$
 
-In order to solve for QSVT phase factors we can simply use `qsvt_solve()` in the same way you would use `chebqsp_solve()` for Chebyshev QSP:
+In order to solve for QSVT phase factors we can simply use `QSVTPhaseFactors.solve()` in the same way you would use `ChebyshevQSPPhaseFactors.solve()` for Chebyshev QSP:
 
 ```python exec="on" source="block" result="text"
 from nlft_qsp import *
@@ -95,7 +95,7 @@ import numpy as np
 
 P = Polynomial([0.2, 0, 0.4, 0, 0.1]) # 0.2 + 0.4 x^2 + 0.1 x^4
 
-qsvt = qsvt_solve(ChebyshevTExpansion.from_polynomial(P))
+qsvt = QSVTPhaseFactors.solve(ChebyshevTExpansion.from_polynomial(P))
 
 P_qsvt, Q = qsvt.polynomials(mode='laurent')
 

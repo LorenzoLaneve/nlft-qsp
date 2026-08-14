@@ -19,7 +19,7 @@ While it is possible to specify polynomials, it is also possible to directly app
 
 ## Direct implementation of Python functions
 
-It is possible to use [`chebqsp_approximate`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.chebqsp_approximate) and [`qsvt_approximate`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.qsvt_approximate) to this for Chebyshev QSP and QSVT respectively. They take the Python function as well as the degree `deg` of the approximating polynomial to compute.
+It is possible to use [`ChebyshevQSPPhaseFactors.approximate`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.ChebyshevQSPPhaseFactors.approximate) and [`QSVTPhaseFactors.approximate`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.QSVTPhaseFactors.approximate) to this for Chebyshev QSP and QSVT respectively. They take the Python function as well as the degree `deg` of the approximating polynomial to compute.
 
 ```python exec="on" session="plt" html="true" source="block"
 from nlft_qsp import *
@@ -28,7 +28,7 @@ import numpy as np
 def f(x):
     return 0.7 * np.exp(-3 * np.cos(5*x) ** 2)
 
-qsp = chebqsp_approximate(f, deg=28)
+qsp = ChebyshevQSPPhaseFactors.approximate(f, deg=28)
 
 P, Q = qsp.polynomials(mode='laurent')
 

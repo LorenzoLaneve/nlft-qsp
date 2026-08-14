@@ -54,14 +54,14 @@ print(Q)
 
 ## Using the GQSP solver
 
-Computing the phase factors for a desired `Polynomial` $P(z)$ can be done using the [`gqsp_solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.gqsp_solve) function. Note that $P(z)$ is assumed to be a polynomial with non-negative frequencies.
+Computing the phase factors for a desired `Polynomial` $P(z)$ can be done using the [`GQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.GQSPPhaseFactors.solve) function. Note that $P(z)$ is assumed to be a polynomial with non-negative frequencies.
 
 ```python exec="on" source="block" result="text"
 from nlft_qsp import *
 
 P = Polynomial([1/3, 1/7, 1/5])
 
-qsp = gqsp_solve(P)
+qsp = GQSPPhaseFactors.solve(P)
 
 P2, _ = qsp.polynomials()
 
@@ -87,12 +87,12 @@ Both are special cases of GQSP where we set $\lambda = \theta_k = 0$ for XQSP an
 
 `nlft-qsp` provides the `XQSPPhaseFactor` and `YQSPPhaseFactor` classes, as well as the solvers:
 
-- [`xqsp_solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.xqsp_solve)
-- [`yqsp_solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.yqsp_solve)
-- [`xqsp_solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.xqsp_solve_laurent)
-- [`yqsp_solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.yqsp_solve_laurent)
+- [`XQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.XQSPPhaseFactors.solve)
+- [`YQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.YQSPPhaseFactors.solve)
+- [`XQSPPhaseFactors.solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.XQSPPhaseFactors.solve_laurent)
+- [`YQSPPhaseFactors.solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.YQSPPhaseFactors.solve_laurent)
 
-The first two functions work exactly like `gqsp_solve`, while `*qsp_solve_laurent` are the counterparts for Laurent QSP, expecting a definite-parity Laurent polynomial $P(z)$ with frequencies in $\{ -n, -n+2, \ldots, n-2, n \}$.
+The first two functions work exactly like `GQSPPhaseFactors.solve`, while `*qsp_solve_laurent` are the counterparts for Laurent QSP, expecting a definite-parity Laurent polynomial $P(z)$ with frequencies in $\{ -n, -n+2, \ldots, n-2, n \}$.
 
 
 ## Original GQSP ansatz { #mw-gqsp }

@@ -31,7 +31,7 @@ quantum signal processing for arbitrary Szegö functions*.
 Lorenzo Laneve. *Generalized Quantum Signal Processing and Non-Linear Fourier Transform are equivalent*.
 [arXiv:2503.03026](https://arxiv.org/abs/2503.03026) (2025)
 
-**Implementation:** [`gqsp_solve`](reference/nlft_qsp/qsp.md#nlft_qsp.qsp.gqsp_solve), [`GQSPPhaseFactors`](reference/nlft_qsp/qsp.md#nlft_qsp.qsp.GQSPPhaseFactors)
+**Implementation:** [`GQSPPhaseFactors.solve`](reference/nlft_qsp/qsp.md#nlft_qsp.qsp.GQSPPhaseFactors.solve), [`GQSPPhaseFactors`](reference/nlft_qsp/qsp.md#nlft_qsp.qsp.GQSPPhaseFactors)
 
 ---
 

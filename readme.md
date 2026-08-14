@@ -51,21 +51,24 @@ Computes the inverse NLFT of $(a, b)$ using the Inverse Non-Linear Fast Fourier 
 
 ### QSP solvers
 
-- `qsp.gqsp_solve(P: Polynomial) -> GQSPPhaseFactors`\
+- `GQSPPhaseFactors.solve(P: Polynomial) -> GQSPPhaseFactors`\
 Computes the GQSP phase factors implementing $(P, Q)$, for a complementary $Q$ computed with Weiss' algorithm.
 **Note**: This GQSP solver follows the convention of [arXiv:2503.03026](https://arxiv.org/abs/2503.03026). In order to obtain the phase factors for the convention of [arXiv:2308.01501](https://arxiv.org/abs/2308.01501), use the `to_mw_gqsp()` method provided by the `GQSPPhaseFactors` class.
 
-- `qsp.xqsp_solve(P: Polynomial) -> XQSPPhaseFactors`\
+- `XQSPPhaseFactors.solve(P: Polynomial) -> XQSPPhaseFactors`\
 Same as above, but for analytic $X$-constrained QSP.
 
-- `qsp.xqsp_solve_laurent(P: Polynomial) -> XQSPPhaseFactors`\
+- `XQSPPhaseFactors.solve_laurent(P: Polynomial) -> XQSPPhaseFactors`\
 Same as above, but for Laurent $X$-constrained QSP.
 
-- `qsp.yqsp_solve(P: Polynomial) -> YQSPPhaseFactors`\
+- `YQSPPhaseFactors.solve(P: Polynomial) -> YQSPPhaseFactors`\
 Same as above, but for analytic $Y$-constrained QSP.
 
-- `qsp.yqsp_solve_laurent(P: Polynomial) -> YQSPPhaseFactors`\
+- `YQSPPhaseFactors.solve_laurent(P: Polynomial) -> YQSPPhaseFactors`\
 Same as above, but for Laurent $Y$-constrained QSP.
 
-- `qsp.chebqsp_solve(c: list[complex_type] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors`\
-Computes the phase factors for a Chebyshev QSP protocol (Theorem 9 of [arXiv:2105.02859](https://arxiv.org/abs/2105.02859)), given the coefficients of $P(x) = \sum_{k = 0}^n c_k T_k(x)$.
+- `ChebyshevQSPPhaseFactors.solve(c: list[complex_type] | Polynomial ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors`\
+Computes the phase factors for a Chebyshev QSP protocol (Theorem 9 of [arXiv:2105.02859](https://arxiv.org/abs/2105.02859)), given the coefficients of $P(x) = \sum_{k = 0}^n c_k T_k(x)$ or a `Polynomial` object $P(x) = p_k x^k$.
+
+- `QSVTPhaseFactors.solve(c: list[complex_type] | Polynomial | ChebyshevTExpansion) -> QSVTPhaseFactors`\
+Same as above, but for QSVT.

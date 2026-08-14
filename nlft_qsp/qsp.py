@@ -27,6 +27,12 @@ def qsp_variant(variant_tag: str, modes: list):
 
     return decorator
 
+def get_qsp_variant_class(variant_tag: str):
+    if variant_tag not in VARIANTS_REGISTRY:
+        raise ValueError(f'Unknown QSP variant {variant_tag}.')
+
+    return VARIANTS_REGISTRY[variant_tag]
+
 
 def is_definite_parity(P: Polynomial, n: int = -1) -> bool:
     """Returns whether the polynomial has the parity of n. If n is not defined, then n = index of last coefficient of P."""
@@ -256,7 +262,7 @@ class XQSPPhaseFactors(PhaseFactors):
                 The sup norm of P should be bounded by :math:`1 - \eta < 1`.
                 The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
                 
-                The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent XQSP, use `xqsp_solve_laurent`."""
+                The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent XQSP, use `XQSPPhaseFactors.solve_laurent`."""
         if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
             raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
         
@@ -360,7 +366,7 @@ class YQSPPhaseFactors(PhaseFactors):
             The sup norm of P should be bounded by :math:`1 - \eta < 1`.
             The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
             
-            The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent YQSP, use `yqsp_solve_laurent`."""
+            The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent YQSP, use `YQSPPhaseFactors.solve_laurent`."""
         if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
             raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
         

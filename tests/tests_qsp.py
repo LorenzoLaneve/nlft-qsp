@@ -98,7 +98,7 @@ class QSPTestCase(unittest.TestCase):
     def test_gqsp_solver(self):
         P = random_polynomial(16, eta=0.5)
 
-        qsp = gqsp_solve(P, mode='nlft')
+        qsp = GQSPPhaseFactors.solve(P, convention='nlft')
         Q2, P2 = qsp.polynomials()
 
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
@@ -106,8 +106,8 @@ class QSPTestCase(unittest.TestCase):
     def test_gqsp_solver_ix(self):
         P = random_polynomial(1024, eta=0.5)
 
-        qsp1 = gqsp_solve(P, mode='nlft')
-        qsp2 = gqsp_solve(P)
+        qsp1 = GQSPPhaseFactors.solve(P, convention='nlft')
+        qsp2 = GQSPPhaseFactors.solve(P)
         Q1, P1 = qsp1.polynomials() # (Q, P)
         P2, Q2 = qsp2.polynomials() # (P, iQ)
 
@@ -119,22 +119,22 @@ class QSPTestCase(unittest.TestCase):
     def test_xqsp_solver(self):
         P = random_real_polynomial(16, eta=0.5)
 
-        qsp = xqsp_solve(1j*P, mode='nlft')
+        qsp = XQSPPhaseFactors.solve(1j*P, convention='nlft')
         Q2, P2 = qsp.polynomials()
         self.assertAlmostEqual((1j*P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
-        qsp = xqsp_solve(P)
+        qsp = XQSPPhaseFactors.solve(P)
         P2, Q2 = qsp.polynomials()
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
     def test_yqsp_solver(self):
         P = random_real_polynomial(16, eta=0.5)
 
-        qsp = yqsp_solve(P, mode='nlft')
+        qsp = YQSPPhaseFactors.solve(P, convention='nlft')
         Q2, P2 = qsp.polynomials()
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
-        qsp = yqsp_solve(P)
+        qsp = YQSPPhaseFactors.solve(P)
         P2, Q2 = qsp.polynomials()
         self.assertAlmostEqual((P - P2).l2_norm(), 0, delta=bd.machine_threshold())
 
@@ -143,7 +143,7 @@ class QSPTestCase(unittest.TestCase):
         coef_even = [0.3, 0, -0.2, 0, 0.1, 0, 0.19]
         for coef in (coef_odd, coef_even):
             T = ChebyshevTExpansion(coef)
-            phase_factors = chebqsp_solve(T)
+            phase_factors = ChebyshevQSPPhaseFactors.solve(T)
             P, Q = phase_factors.polynomials(mode="laurent")
 
             # Degree
@@ -179,7 +179,7 @@ class QSPTestCase(unittest.TestCase):
         coef_even = [0.3, 0, -0.2, 0, 0.1, 0, 0.19]
         for coef in (coef_odd, coef_even):
             T = ChebyshevTExpansion(coef)
-            phase_factors = qsvt_solve(T)
+            phase_factors = QSVTPhaseFactors.solve(T)
             P, Q = phase_factors.polynomials(mode="laurent")
 
             # Degree
