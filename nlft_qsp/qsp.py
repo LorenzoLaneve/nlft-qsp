@@ -618,23 +618,26 @@ class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
         return super.iX() # applying iZ is equivalent to applying iX, by the Hadamard conjugation
 
     @classmethod
-    def solve(cls, T: list[complex_type] | ChebyshevTExpansion) -> "ChebyshevQSPPhaseFactors":
+    def solve(cls, T: list[complex_type] | Polynomial | ChebyshevTExpansion) -> "ChebyshevQSPPhaseFactors":
         """Returns the set of phase factors for a Chebyshev QSP protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
 
         The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
         
         Args:
-            c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
+            c: the list of coefficients of `P(x)` in the Chebyshev basis, a ChebyshevTExpansion object or a Polynomial P(x) that will be converted to the Chebyshev basis.
             
         Raises:
             ValueError: If the target polynomial does not have definite parity or is not real."""
         if isinstance(T, list):
             T = ChebyshevTExpansion(T)
 
+        if isinstance(T, Polynomial):
+            T = ChebyshevTExpansion.from_polynomial(T)
+
         if not T.is_real():
             raise ValueError("Only real polynomials are supported.")
 
-        xqsp = xqsp_solve_laurent(T.to_laurent())
+        xqsp = XQSPPhaseFactors.solve_laurent(T.to_laurent())
         return ChebyshevQSPPhaseFactors(xqsp.phi)
 
     @classmethod
@@ -700,17 +703,17 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
         return ChebyshevQSPPhaseFactors(phi)
 
     @classmethod
-    def solve(cls, T: list[complex_type] | ChebyshevTExpansion) -> "QSVTPhaseFactors":
+    def solve(cls, T: list[complex_type] | Polynomial | ChebyshevTExpansion) -> "QSVTPhaseFactors":
         """Returns the set of phase factors for a reflection QSP/QSVT protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
 
         The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
         
         Args:
-            c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
+            c: the list of coefficients of `P(x)` in the Chebyshev basis, a ChebyshevTExpansion object or a Polynomial P(x) that will be converted to the Chebyshev basis.
         
         Raises:
             ValueError: If the target polynomial does not have definite parity or is not real."""
-        return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
+        return QSVTPhaseFactors.from_chebqsp(ChebyshevQSPPhaseFactors.solve(T))
 
     @classmethod
     def approximate(cls, f: Callable, deg: int) -> "QSVTPhaseFactors":
