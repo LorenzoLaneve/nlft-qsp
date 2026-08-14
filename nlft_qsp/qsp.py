@@ -1,3 +1,5 @@
+from typing import Callable, Type, TypeVar
+
 import numpy as np
 
 from . import numerics as bd
@@ -9,6 +11,22 @@ from .approximate import chebyshev_approximate
 from .file import serializable
 
 from .solvers import nlfft, weiss
+
+T = TypeVar("T")
+
+VARIANTS_REGISTRY = {}
+
+def qsp_variant(variant_tag: str, modes: list):
+    """Class decorator to register QSP variants. Modes are [a]nalytic, [l]aurent, [c]hebyshev."""
+
+    def decorator(cls: Type[T]) -> Type[T]:
+        cls._variant_tag = variant_tag
+        cls._variant_modes = modes
+        VARIANTS_REGISTRY[variant_tag] = cls
+        return cls
+
+    return decorator
+
 
 def is_definite_parity(P: Polynomial, n: int = -1) -> bool:
     """Returns whether the polynomial has the parity of n. If n is not defined, then n = index of last coefficient of P."""
@@ -177,6 +195,7 @@ class PhaseFactors:
     type_tag="@qspx/phase_factors/xqsp",
     fields={"phi": "phi"}
 )
+@qsp_variant('x', modes=['l', 'a'])
 class XQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a XQSP protocol.
 
@@ -222,10 +241,65 @@ class XQSPPhaseFactors(PhaseFactors):
 
         return XQSPPhaseFactors([np.arctan(np.imag(Fk)) for Fk in F.coeffs])
 
+    @classmethod
+    def solve(cls, P: Polynomial, convention='qsp') -> "XQSPPhaseFactors":
+        r"""Returns the set of phase factors for a X-constrained QSP protocol producing the given polynomial.
+            A complementary Q will be computed with Weiss' algorithm.
+        
+            Args:
+                mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+        
+            Raises:
+                ValueError: If P does not lie in the X-constrained subalgebra.
+            
+            Note:
+                The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+                The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+                
+                The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent XQSP, use `xqsp_solve_laurent`."""
+        if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
+            raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
+        
+        match convention:
+            case "qsp":
+                P = -1j * Polynomial(P.coeffs, 0) # (Q, -iP) -> (P, iQ)
+            case "nlft":
+                P = Polynomial(P.coeffs, 0)
+            case _:
+                raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
+        
+        F = _riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
+    
+        if convention != "qsp":
+            return XQSPPhaseFactors.from_nlfs(F)
+        return XQSPPhaseFactors.from_nlfs(F).iX()
+
+    @classmethod
+    def solve_laurent(cls, P: Polynomial, convention='qsp') -> "XQSPPhaseFactors":
+        r"""Returns the set of phase factors for a X-constrained QSP protocol producing the given definite-parity polynomial. A complementary Q will be computed with Weiss' algorithm.
+
+        Args:
+            mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+
+        Raises:
+            ValueError: If P does not lie in the X-constrained subalgebra or P has not definite-parity.
+        
+        Note:
+            The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+            The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+            
+            The support_start of P will be ignored. In order to obtain phase factors for Laurent XQSP, first convert the polynomial into analytic form."""
+        if not is_definite_parity(P):
+            raise ValueError("Laurent polynomial is not of definite parity.")
+    
+        return cls.solve(laurent_to_analytic(P), convention)
+
+
 @serializable(
     type_tag="@qspx/phase_factors/yqsp",
     fields={"phi": "phi"}
 )
+@qsp_variant('y', modes=['l', 'a'])
 class YQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a YQSP protocol.
     
@@ -271,10 +345,64 @@ class YQSPPhaseFactors(PhaseFactors):
 
         return YQSPPhaseFactors([np.arctan(np.real(Fk)) for Fk in F.coeffs])
 
+    @classmethod
+    def solve(cls, P: Polynomial, convention='qsp') -> "YQSPPhaseFactors":
+        r"""Returns the set of phase factors for a Y-constrained QSP protocol producing the given polynomial.
+        A complementary Q will be computed with Weiss' algorithm.
+
+        Args:
+            mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+
+        Raises:
+            ValueError: If P does not lie in the Y-constrained subalgebra.
+        
+        Note:
+            The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+            The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+            
+            The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent YQSP, use `yqsp_solve_laurent`."""
+        if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
+            raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
+        
+        match convention:
+            case "qsp":
+                P = -Polynomial(P.coeffs, 0) # (Q, -P) -> (P, Q)
+            case "nlft":
+                P = Polynomial(P.coeffs, 0)
+            case _:
+                raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
+        
+        F = _riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
+
+        if convention != "qsp":
+            return YQSPPhaseFactors.from_nlfs(F)
+        return YQSPPhaseFactors.from_nlfs(F).iY()
+
+    @classmethod
+    def solve_laurent(cls, P: Polynomial, convention='qsp') -> "YQSPPhaseFactors":
+        r"""Returns the set of phase factors for a Y-constrained QSP protocol producing the given definite-parity polynomial. A complementary Q will be computed with Weiss' algorithm.
+
+        Args:
+            mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+
+        Raises:
+            ValueError: If P does not lie in the Y-constrained subalgebra or P has not definite-parity.
+        
+        Note:
+            The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+            The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+            """
+        if not is_definite_parity(P):
+            raise ValueError("Laurent polynomial is not of definite parity.")
+        
+        return cls.solve(laurent_to_analytic(P), convention)
+
+
 @serializable(
     type_tag="@qspx/phase_factors/gqsp",
     fields={"phi": "phi", "lbd": "lbd", "theta": "theta"}
 )
+@qsp_variant('g', modes=['l', 'a'])
 class GQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a Generalized QSP protocol.
     
@@ -406,11 +534,61 @@ class GQSPPhaseFactors(PhaseFactors):
 
         return mw_theta, mw_phi, mw_lbd
 
+    @classmethod
+    def solve(cls, P: Polynomial, convention='qsp') -> "GQSPPhaseFactors":
+        r"""Returns the set of phase factors for a Generalized QSP protocol producing the given polynomial.
+        A complementary Q will be computed with Weiss' algorithm.
+
+        Args:
+            convention (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+        
+        Note:
+            The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+            The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+            
+            The support_start of P will be ignored."""
+        if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
+            raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
+    
+        match convention:
+            case "qsp":
+                P = -1j * Polynomial(P.coeffs, 0) # (Q, -iP) -> (P, iQ)
+            case "nlft":
+                P = Polynomial(P.coeffs, 0)
+            case _:
+                raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
+    
+        F = _riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
+
+        if convention != "qsp":
+            return GQSPPhaseFactors.from_nlfs(F)
+        return GQSPPhaseFactors.from_nlfs(F).iX()
+
+    @classmethod
+    def solve_laurent(cls, P: Polynomial, convention='qsp') -> "GQSPPhaseFactors":
+        r"""Returns the set of phase factors for a Generalized QSP protocol producing the given definite-parity polynomial. A complementary Q will be computed with Weiss' algorithm.
+
+        Args:
+            mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
+
+        Raises:
+            ValueError: If P does not have definite parity.
+        
+        Note:
+            The sup norm of P should be bounded by :math:`1 - \eta < 1`.
+            The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
+            """
+        if not is_definite_parity(P):
+            raise ValueError("Laurent polynomial is not of definite parity.")
+        
+        return cls.solve(laurent_to_analytic(P), convention)
+
 
 @serializable(
     type_tag="@qspx/phase_factors/chebqsp",
     fields={"phi": "phi"}
 )
+@qsp_variant('cheb', modes=['c'])
 class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     """Phase factors for a Chebyshev QSP protocol.
 
@@ -439,11 +617,41 @@ class ChebyshevQSPPhaseFactors(XQSPPhaseFactors):
     def iZ(self):
         return super.iX() # applying iZ is equivalent to applying iX, by the Hadamard conjugation
 
+    @classmethod
+    def solve(cls, T: list[complex_type] | ChebyshevTExpansion) -> "ChebyshevQSPPhaseFactors":
+        """Returns the set of phase factors for a Chebyshev QSP protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+
+        The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
+        
+        Args:
+            c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
+            
+        Raises:
+            ValueError: If the target polynomial does not have definite parity or is not real."""
+        if isinstance(T, list):
+            T = ChebyshevTExpansion(T)
+
+        if not T.is_real():
+            raise ValueError("Only real polynomials are supported.")
+
+        xqsp = xqsp_solve_laurent(T.to_laurent())
+        return ChebyshevQSPPhaseFactors(xqsp.phi)
+
+    @classmethod
+    def approximate(cls, f: Callable, deg: int) -> "ChebyshevQSPPhaseFactors":
+        r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+        and returns the Chebyshev QSP phase factors implementing an approximating polynomial of degree `deg`
+        (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+        
+        Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
+        return cls.solve(chebyshev_approximate(f, deg))
+
 
 @serializable(
     type_tag="@qspx/phase_factors/qsvt",
     fields={"phi": "phi"}
 )
+@qsp_variant('qsvt', modes=['c'])
 class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
     """Phase factors for a QSVT/Reflection QSP protocol.
 
@@ -491,187 +699,65 @@ class QSVTPhaseFactors(ChebyshevQSPPhaseFactors):
 
         return ChebyshevQSPPhaseFactors(phi)
 
+    @classmethod
+    def solve(cls, T: list[complex_type] | ChebyshevTExpansion) -> "QSVTPhaseFactors":
+        """Returns the set of phase factors for a reflection QSP/QSVT protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
 
-#### QSP SOLVERS
+        The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
+        
+        Args:
+            c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
+        
+        Raises:
+            ValueError: If the target polynomial does not have definite parity or is not real."""
+        return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
 
-def __riemann_hilbert_weiss(P: Polynomial) -> NonLinearFourierSequence:
+    @classmethod
+    def approximate(cls, f: Callable, deg: int) -> "QSVTPhaseFactors":
+        r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
+        and returns the reflection QSP (a.k.a. QSVT) phase factors implementing an approximating polynomial of degree `deg`
+        (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
+        
+        Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
+        return cls.solve(chebyshev_approximate(f, deg))
+
+
+def _riemann_hilbert_weiss(P: Polynomial) -> NonLinearFourierSequence:
     Q = weiss.complete(P)
     return nlfft.inlft(Q, P) # NLFT(F) = (Q, P)
 
 def gqsp_solve(P: Polynomial, mode='qsp') -> GQSPPhaseFactors:
-    r"""Returns the set of phase factors for a Generalized QSP protocol producing the given polynomial.
-    A complementary Q will be computed with Weiss' algorithm.
-
-    Args:
-        mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
-    
-    Note:
-        The sup norm of P should be bounded by :math:`1 - \eta < 1`.
-        The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
-        
-        The support_start of P will be ignored."""
-    if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
-        raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
-    
-    match mode:
-        case "qsp":
-            P = -1j * Polynomial(P.coeffs, 0) # (Q, -iP) -> (P, iQ)
-        case "nlft":
-            P = Polynomial(P.coeffs, 0)
-        case _:
-            raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
-    
-    F = __riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
-
-    if mode != "qsp":
-        return GQSPPhaseFactors.from_nlfs(F)
-    return GQSPPhaseFactors.from_nlfs(F).iX()
+    r"""DEPRECATED: use GQSPPhaseFactors.solve() instead."""
+    return GQSPPhaseFactors.solve(P, mode)
 
 def xqsp_solve(P: Polynomial, mode='qsp') -> XQSPPhaseFactors:
-    r"""Returns the set of phase factors for a X-constrained QSP protocol producing the given polynomial.
-    A complementary Q will be computed with Weiss' algorithm.
-
-    Args:
-        mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
-
-    Raises:
-        ValueError: If P does not lie in the X-constrained subalgebra.
-    
-    Note:
-        The sup norm of P should be bounded by :math:`1 - \eta < 1`.
-        The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
-        
-        The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent XQSP, use `xqsp_solve_laurent`."""
-    if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
-        raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
-    
-    match mode:
-        case "qsp":
-            P = -1j * Polynomial(P.coeffs, 0) # (Q, -iP) -> (P, iQ)
-        case "nlft":
-            P = Polynomial(P.coeffs, 0)
-        case _:
-            raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
-    
-    F = __riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
-
-    if mode != "qsp":
-        return XQSPPhaseFactors.from_nlfs(F)
-    return XQSPPhaseFactors.from_nlfs(F).iX()
+    r"""DEPRECATED: use XQSPPhaseFactors.solve() instead."""
+    return XQSPPhaseFactors.solve(P, mode)
 
 def xqsp_solve_laurent(P: Polynomial, mode='qsp') -> XQSPPhaseFactors:
-    r"""Returns the set of phase factors for a X-constrained QSP protocol producing the given definite-parity polynomial. A complementary Q will be computed with Weiss' algorithm.
-
-    Args:
-        mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
-
-    Raises:
-        ValueError: If P does not lie in the X-constrained subalgebra or P has not definite-parity.
-    
-    Note:
-        The sup norm of P should be bounded by :math:`1 - \eta < 1`.
-        The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
-        
-        The support_start of P will be ignored. In order to obtain phase factors for Laurent XQSP, first convert the polynomial into analytic form."""
-    if not is_definite_parity(P):
-        raise ValueError("Laurent polynomial is not of definite parity.")
-    
-    return xqsp_solve(laurent_to_analytic(P), mode=mode)
+    r"""DEPRECATED: use XQSPPhaseFactors.solve_laurent() instead."""
+    return XQSPPhaseFactors.solve_laurent(P, mode)
 
 def yqsp_solve(P: Polynomial, mode='qsp') -> YQSPPhaseFactors:
-    r"""Returns the set of phase factors for a Y-constrained QSP protocol producing the given polynomial.
-    A complementary Q will be computed with Weiss' algorithm.
-
-    Args:
-        mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
-
-    Raises:
-        ValueError: If P does not lie in the Y-constrained subalgebra.
-    
-    Note:
-        The sup norm of P should be bounded by :math:`1 - \eta < 1`.
-        The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
-        
-        The support_start of P will be ignored. This is a solver for analytic QSP. In order to obtain phase factors for Laurent YQSP, use `yqsp_solve_laurent`."""
-    if 1 - P.sup_norm(4*P.effective_degree()) < bd.machine_threshold():
-        raise ValueError("The given polynomial cannot be too close to or larger than one on the unit circle.")
-    
-    match mode:
-        case "qsp":
-            P = -Polynomial(P.coeffs, 0) # (Q, -P) -> (P, Q)
-        case "nlft":
-            P = Polynomial(P.coeffs, 0)
-        case _:
-            raise ValueError("The given mode does not exist. Only modes available are 'qsp', 'nlft'.")
-    
-    F = __riemann_hilbert_weiss(P) # NLFT(F) = (Q, P)
-
-    if mode != "qsp":
-        return YQSPPhaseFactors.from_nlfs(F)
-    return YQSPPhaseFactors.from_nlfs(F).iY()
+    r"""DEPRECATED: use YQSPPhaseFactors.solve() instead."""
+    return YQSPPhaseFactors.solve(P, mode)
 
 def yqsp_solve_laurent(P: Polynomial, mode='qsp') -> YQSPPhaseFactors:
-    r"""Returns the set of phase factors for a Y-constrained QSP protocol producing the given definite-parity polynomial. A complementary Q will be computed with Weiss' algorithm.
-
-    Args:
-        mode (str): Whether the phase factors should produce (P, Q) (`'qsp'`), or (Q, P) (`'nlft'`).
-
-    Raises:
-        ValueError: If P does not lie in the X-constrained subalgebra or P has not definite-parity.
-    
-    Note:
-        The sup norm of P should be bounded by :math:`1 - \eta < 1`.
-        The time required by the algorithm to compute the phase factors will scale with :math:`1/\eta`.
-        
-        The support_start of P will be ignored. In order to obtain phase factors for Laurent YQSP, first convert the polynomial into analytic form."""
-    if not is_definite_parity(P):
-        raise ValueError("Laurent polynomial is not of definite parity.")
-    
-    return yqsp_solve(laurent_to_analytic(P), mode=mode)
+    r"""DEPRECATED: use YQSPPhaseFactors.solve_laurent() instead."""
+    return YQSPPhaseFactors.solve_laurent(P, mode)
 
 def chebqsp_solve(T: list[complex_type] | ChebyshevTExpansion) -> ChebyshevQSPPhaseFactors:
-    """Returns the set of phase factors for a Chebyshev QSP protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
-
-    The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
-    
-    Args:
-        c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
-        
-    Raises:
-        ValueError: If the target polynomial does not have definite parity or is not real."""
-    if isinstance(T, list):
-        T = ChebyshevTExpansion(T)
-
-    if not T.is_real():
-        raise ValueError("Only real polynomials are supported.")
-
-    xqsp = xqsp_solve_laurent(T.to_laurent())
-    return ChebyshevQSPPhaseFactors(xqsp.phi)
+    r"""DEPRECATED: use ChebyshevQSPPhaseFactors.solve() instead."""
+    return ChebyshevQSPPhaseFactors.solve(T)
 
 def chebqsp_approximate(f, deg: int) -> ChebyshevQSPPhaseFactors:
-    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
-    and returns the Chebyshev QSP phase factors implementing an approximating polynomial of degree `deg`
-    (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
-    
-    Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
-    return chebqsp_solve(chebyshev_approximate(f, deg))
+    r"""DEPRECATED: use ChebyshevQSPPhaseFactors.approximate() instead."""
+    return ChebyshevQSPPhaseFactors.approximate(f, deg)
 
 def qsvt_solve(T: list[complex_type] | ChebyshevTExpansion) -> QSVTPhaseFactors:
-    """Returns the set of phase factors for a reflection QSP/QSVT protocol implementing the polynomial `P(x)` (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
-
-    The target polynomial will be `P(x) = c[0] + c[1] T_1(x) + c[2] T_2(x) + ... + c[n] T_n(x)`, where `T_k` are the Chebyshev polynomials of the first kind.
-    
-    Args:
-        c: the list of coefficients of `P(x)` in the Chebyshev basis, or a ChebyshevTExpansion object.
-    
-    Raises:
-        ValueError: If the target polynomial does not have definite parity or is not real."""
-    return QSVTPhaseFactors.from_chebqsp(chebqsp_solve(T))
+    r"""DEPRECATED: use QSVTPhaseFactors.solve() instead."""
+    return QSVTPhaseFactors.solve(T)
 
 def qsvt_approximate(f, deg: int) -> QSVTPhaseFactors:
-    r"""Approximate the given callable object `f` (which takes :math:`x \in [-1, 1]` and returns a complex number)
-    and returns the reflection QSP (a.k.a. QSVT) phase factors implementing an approximating polynomial of degree `deg`
-    (as the real part of the top-left polynomial, see Theorem 9 of arXiv:2105.02859).
-    
-    Note: The parity of `deg` should coincide with the parity of f, otherwise the Chebyshev approximator might give numerical errors."""
-    return qsvt_solve(chebyshev_approximate(f, deg))
+    r"""DEPRECATED: use QSVTPhaseFactors.approximate() instead."""
+    return QSVTPhaseFactors.approximate(f, deg)
