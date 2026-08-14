@@ -178,11 +178,12 @@ class PhaseFactors:
     fields={"phi": "phi"}
 )
 class XQSPPhaseFactors(PhaseFactors):
-    """Phase factors for a X-constrained QSP protocol.
+    r"""Phase factors for a XQSP protocol.
+
+    $$ e^{i\phi_0 X} W(z) e^{i\phi_1 X} W(z) \cdots W(z) e^{i\phi_n X} = \begin{pmatrix} P(z) & Q(z) \\ \cdot & \cdot \end{pmatrix} $$
     
-    Signal operator: `W(z) = diag(z, z^(-1))`,
-    
-    Processing operators: `A[k] = exp(I*phi[k]*X)`."""
+    where $W(z) = \mathrm{diag}(z, 1)$ (`mode='analytic'`) or $W(z) = \mathrm{diag}(z, z^{-1})$ (`mode='laurent'`).
+    """
     def __init__(self, phi: list[float_type]):
         self.phi = list(phi)
 
@@ -226,11 +227,12 @@ class XQSPPhaseFactors(PhaseFactors):
     fields={"phi": "phi"}
 )
 class YQSPPhaseFactors(PhaseFactors):
-    """Phase factors for a Y-constrained QSP protocol.
-
-    Signal operator: `W(z) = diag(z, z^(-1))`,
+    r"""Phase factors for a YQSP protocol.
     
-    Processing operators: `A[k] = exp(I*phi[k]*Y)`."""
+        $$ e^{i\phi_0 Y} W(z) e^{i\phi_1 Y} W(z) \cdots W(z) e^{i\phi_n Y} = \begin{pmatrix} P(z) & Q(z) \\ \cdot & \cdot \end{pmatrix} $$
+        
+        where $W(z) = \mathrm{diag}(z, 1)$ (`mode='analytic'`) or $W(z) = \mathrm{diag}(z, z^{-1})$ (`mode='laurent'`).
+        """
     def __init__(self, phi: list[float_type]):
         self.phi = list(phi)
 
@@ -274,12 +276,12 @@ class YQSPPhaseFactors(PhaseFactors):
     fields={"phi": "phi", "lbd": "lbd", "theta": "theta"}
 )
 class GQSPPhaseFactors(PhaseFactors):
-    """Phase factors for a GQSP protocol.
+    r"""Phase factors for a Generalized QSP protocol.
     
-    Signal operator: `W(z) = diag(z, z^(-1))`,
-    
-    Processing operators: `A[0] = exp(I*lbd*Z) exp(I*phi[0]*X) exp(I*theta[0]*Z), A[k] = exp(I*phi[k]*X) exp(I*theta[k]*Z)`.
-    
+    $$ e^{i\lambda Z} e^{i\phi_0 X} e^{i\theta_0 Z} W(z) e^{i\phi_1 X} e^{i\theta_1 Z} W(z) \cdots W(z) e^{i\phi_n X} e^{i\theta_n Z} = \begin{pmatrix} P(z) & Q(z) \\ \cdot & \cdot \end{pmatrix} $$
+        
+    where $W(z) = \mathrm{diag}(z, 1)$ (`mode='analytic'`) or $W(z) = \mathrm{diag}(z, z^{-1})$ (`mode='laurent'`).
+
     Note:
         This class follows the convention of arXiv:2503.03026, Theorem 2, which is different from the original GQSP convention. If the convention of arXiv:2308.01501 Theorem 3 is desired, then one should use the `to_mw_gqsp()` method."""
     def __init__(self, phi: list[float_type], lbd: float_type=0, theta: list[float_type]=None):
