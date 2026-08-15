@@ -113,3 +113,20 @@ The relationship between reflection and Chebyshev QSP is quite straightforward (
 - To convert Chebyshev QSP to QSVT, use the method [`QSVTPhaseFactors.from_chebqsp()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.QSVTPhaseFactors.from_chebqsp);
 
 - To convert QSVT to Chebyshev QSP, use the method [`QSVTPhaseFactors.to_chebqsp()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.QSVTPhaseFactors.to_chebqsp).
+
+
+## Using the Command Line Interface
+
+The subcommand `qspx solve` can be used to produce protocols for given polynomials or Chebyshev expansions:
+
+```bash
+qspx solve -tqsvt P.qspx -o protocol.qspx
+```
+
+As for GQSP, `--type/-t` option is used to specify whether to produce a Chebyshev QSP protocol (`-tcheb`) or a QSVT protocol (`-tqsvt`).
+
+Given a protocol in a file `protocol.qspx`, it is possible to compute the implementing polynomial as a Chebyshev expansion.
+
+```bash
+qspx make protocol.qspx
+```
