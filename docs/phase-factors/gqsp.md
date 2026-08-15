@@ -110,3 +110,28 @@ The `GQSPPhaseFactors` class provides a [`to_mw_gqsp()`](../reference/nlft_qsp/q
 !!! note
 
     This conversion only preserves $P$. $Q$ will turn out to be equal up to a phase.
+
+
+## Using the Command Line Interface
+
+The subcommand `qspx solve` can be used to produce protocols for given polynomial transformations:
+
+```bash
+qspx solve -tag P.qspx -o protocol.qspx
+```
+
+The `--type/-t` option is used to specify the QSP variant. In the above example it is `a`nalytic `g`eneralized QSP. Options are `[a|l][g|x|y]`, corresponding to analytic/Laurent generalized/X/Y QSP.
+
+If analytic mode is chosen, the given polynomial will be taken ignoring any negative frequencies. If Laurent mode is chosen then a check on definite parity is done.
+
+Given a QSP protocol in a file `protocol.qspx`, it is possible to compute the implementing polynomial.
+
+```bash
+qspx make protocol.qspx
+```
+
+The file contains the information about the QSP variant, but not whether it should be regarded as analytic or Laurent QSP. The `--mode/-m` can be used to specify it (default is `a`nalytic for Generalized QSP, `l`aurent for XQSP and YQSP).
+
+```bash
+qspx make -ml protocol.qspx
+```

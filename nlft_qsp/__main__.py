@@ -27,7 +27,7 @@ arg_input_codes = cloup.option('-f', '--func', 'code_inputs', multiple=True, hel
 arg_qsp_file = cloup.argument('phase_factors', type=click.File('r'), required=True)
 
 opt_output_file = cloup.option('--output', '-o', type=click.File('w'), default='-', help='Output file path. default is - (stdout)')
-opt_qsp_variant = cloup.option('--type', '-t', 'variant', type=click.Choice(['qsvt', 'cheb', 'ag', 'lg', 'ax', 'lx', 'ay', 'ly']), default='ag', help='QSP variant to use: qsvt, cheb, or [a|l][g|x|y]. a = analytic, l = laurent, g = generalized qsp, x/y = x/yqsp. default is ag (analytic generalized).')
+opt_qsp_variant = cloup.option('--type', '-t', 'variant', type=click.Choice(['qsvt', 'cheb', 'ag', 'lg', 'ax', 'lx', 'ay', 'ly']), default='ag', help='QSP variant to use. a = analytic, l = laurent, g = Generalized QSP, x = XQSP, y = YQSP. default is ag (analytic generalized).')
 opt_appr_degree = cloup.option('--degree', '-d', type=click.IntRange(min=0), required=True, help='Degree of the approximation')
 opt_poly_only_f = cloup.option('--poly-only', '-p', 'poly_only', is_flag=True, help='Only compute polynomial approximation, skip QSP synthesis')
 opt_cheb_only_f = cloup.option('--cheb-only', '-c', 'cheb_only', is_flag=True, help='Only compute Chebyshev approximation, skip QSP synthesis')

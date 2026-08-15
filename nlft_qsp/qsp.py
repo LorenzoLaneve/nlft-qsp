@@ -409,7 +409,7 @@ class YQSPPhaseFactors(PhaseFactors):
     type_tag="@qspx/phase_factors/gqsp",
     fields={"phi": "phi", "lbd": "lbd", "theta": "theta"}
 )
-@qsp_variant('g', modes=['l', 'a'], display_name='Generalized QSP')
+@qsp_variant('g', modes=['a', 'l'], display_name='Generalized QSP')
 class GQSPPhaseFactors(PhaseFactors):
     r"""Phase factors for a Generalized QSP protocol.
     
