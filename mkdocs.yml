@@ -26,6 +26,10 @@ nav:
     - Chebyshev QSP and QSVT: phase-factors/qsvt.md
     - Implementing Python functions and interpolations with QSP: phase-factors/python-functions.md
 
+  - Miscellaneous:
+    - Saving and loading from files: misc/files.md
+    - Plotting polynomials: misc/plotting.md
+
   - API Reference
 
 theme:
