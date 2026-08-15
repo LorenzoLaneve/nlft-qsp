@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlft-qsp"
-version = "1.0.4"
+version = "1.1.0"
 description = "A package for computing Quantum Signal Processing phase factors using Non-Linear Fourier Analysis."
 authors = [
     { name = "Lorenzo Laneve" }
@@ -26,11 +26,16 @@ classifiers = [
 dependencies = [
     "numpy>=1.26,<3.0",
     "scipy>=1.15,<2.0",
-    "matplotlib>=3.10,<4.0"
+    "matplotlib>=3.10,<4.0",
+    "click>=8.0",
+    "cloup>=2.0.0"
 ]
 
 [project.urls]
 Repository = "https://github.com/LorenzoLaneve/nlft-qsp"
+
+[project.scripts]
+qspx = "nlft_qsp.__main__:main"
 
 [tool.setuptools]
 packages = ["nlft_qsp", "nlft_qsp.solvers", "nlft_qsp.numerics"]
