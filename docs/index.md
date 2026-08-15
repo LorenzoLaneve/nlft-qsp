@@ -53,3 +53,29 @@ The package exposes the following components:
 - Classes to represent QSP protocols
 - Functions for QSP/QSVT solvers in several variants
 - Utility functions for plotting QSP functions 
+
+
+### Command Line Interface
+
+The package also provides a command line tool `qspx`. Check out the help section by running it on a terminal:
+
+```bash
+qspx --help
+```
+
+The following subcommands are available:
+
+- `qspx solve [OPTIONS] TARGET`  
+    Compute a QSP protocol for the given target polynomial
+
+- `qspx approximate [OPTIONS] TARGET`  
+    Compute a QSP protocol for a function given as a Python code
+
+- `qspx make [OPTIONS] PHASE_FACTORS`  
+    Compute the polynomial implemented by the given QSP protocol
+
+- `qspx plot [OPTIONS] [TARGETS]...`  
+    Plot the polynomials or functions using matplotlib
+
+- `qspx complete [OPTIONS] TARGET`  
+    Compute the complementary polynomial to the given target polynomial

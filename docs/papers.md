@@ -21,7 +21,7 @@ quantum signal processing for arbitrary Szegö functions*.
 
 ---
 
-- Hongkang Ni and Lexing Ying. *Fast Phase Factor Finding for Quantum Signal Processing*.
+Hongkang Ni and Lexing Ying. *Fast Phase Factor Finding for Quantum Signal Processing*.
 [arXiv:2410.06409](https://arxiv.org/abs/2410.06409) (2024)
 
 **Implementation:** [`half_cholesky`](reference/nlft_qsp/solvers/half_cholesky.md)
