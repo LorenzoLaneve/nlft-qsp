@@ -161,6 +161,29 @@ class QSPTestCase(unittest.TestCase):
                 x = np.cos(alpha)
                 self.assertAlmostEqual(np.real(P(z)), T(x), delta=bd.machine_threshold())
 
+    def test_chebqsp_solve_poly(self):
+        coef_odd = [0, 0.1, 0, -0.3, 0, 0.2, 0, 0.14]
+        coef_even = [0.3, 0, -0.2, 0, 0.1, 0, 0.19]
+        for coef in (coef_odd, coef_even):
+            T = Polynomial(coef)
+            phase_factors = ChebyshevQSPPhaseFactors.solve(T)
+            P, Q = phase_factors.polynomials(mode="laurent")
+
+            # Degree
+            self.assertEqual(P.effective_degree(), T.effective_degree ()*2)
+            
+            # Phase factor symmetry
+            phi = list(phase_factors.phi)
+            phi[-1] -= np.pi/2
+            for p1, p2 in zip(phi, phi[::-1]):
+                self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
+
+            # Polynomial relationships
+            for alpha in np.linspace(0, 2*np.pi, 100):
+                z = np.exp(1j*alpha)
+                x = np.cos(alpha)
+                self.assertAlmostEqual(np.real(P(z)), T(x), delta=bd.machine_threshold())
+
     def test_qsvt_polynomials(self):
         phi = [np.pi/3, np.pi/6, np.pi/4]
 
