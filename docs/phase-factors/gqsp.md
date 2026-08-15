@@ -54,7 +54,7 @@ print(Q)
 
 ## Using the GQSP solver
 
-Computing the phase factors for a desired `Polynomial` $P(z)$ can be done using the [`GQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.GQSPPhaseFactors.solve) function. Note that $P(z)$ is assumed to be a polynomial with non-negative frequencies.
+Computing the phase factors for a desired `Polynomial` $P(z)$ can be done using the [`GQSPPhaseFactors.solve()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.GQSPPhaseFactors.solve) function. Note that $P(z)$ is assumed to be a polynomial with non-negative frequencies.
 
 ```python exec="on" source="block" result="text"
 from nlft_qsp import *
@@ -71,7 +71,7 @@ print(P2)
 
 !!! warning
 
-    Make sure that $|P(z)| < 1 - \eta$ on the unit circle, for some sufficiently large gap $\eta > 0$. You can estimate this with the [`Polynomial.sup_norm()`](../../reference/nlft_qsp/poly/#nlft_qsp.poly.Polynomial.sup_norm) method. The complexity and numerical stability degrades as $\eta \rightarrow 0$, and the package might raise a `WeissConvergenceError` as it would not be able to find a complementary polynomial to $P$. This is an instrinsic instability of the problem, not a limitation of the package. It is possible in principle to partially overcome this problem by increasing the floating point precision, e.g., setting the underlying `complex_type` to `numpy.complex256`, but this is not supported by all architectures.
+    Make sure that $|P(z)| < 1 - \eta$ on the unit circle, for some sufficiently large gap $\eta > 0$. You can estimate this with the [`Polynomial.sup_norm()`](../reference/nlft_qsp/poly.md#nlft_qsp.poly.Polynomial.sup_norm) method. The complexity and numerical stability degrades as $\eta \rightarrow 0$, and the package might raise a `WeissConvergenceError` as it would not be able to find a complementary polynomial to $P$. This is an instrinsic instability of the problem, not a limitation of the package. It is possible in principle to partially overcome this problem by increasing the floating point precision, e.g., setting the underlying `complex_type` to `numpy.complex256`, but this is not supported by all architectures.
 
 
 
@@ -87,10 +87,10 @@ Both are special cases of GQSP where we set $\lambda = \theta_k = 0$ for XQSP an
 
 `nlft-qsp` provides the `XQSPPhaseFactor` and `YQSPPhaseFactor` classes, as well as the solvers:
 
-- [`XQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.XQSPPhaseFactors.solve)
-- [`YQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.YQSPPhaseFactors.solve)
-- [`XQSPPhaseFactors.solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.XQSPPhaseFactors.solve_laurent)
-- [`YQSPPhaseFactors.solve_laurent()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.YQSPPhaseFactors.solve_laurent)
+- [`XQSPPhaseFactors.solve()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.XQSPPhaseFactors.solve)
+- [`YQSPPhaseFactors.solve()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.YQSPPhaseFactors.solve)
+- [`XQSPPhaseFactors.solve_laurent()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.XQSPPhaseFactors.solve_laurent)
+- [`YQSPPhaseFactors.solve_laurent()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.YQSPPhaseFactors.solve_laurent)
 
 The first two functions work exactly like `GQSPPhaseFactors.solve`, while `*qsp_solve_laurent` are the counterparts for Laurent QSP, expecting a definite-parity Laurent polynomial $P(z)$ with frequencies in $\{ -n, -n+2, \ldots, n-2, n \}$.
 
@@ -105,7 +105,7 @@ where the matrix $R$ is of the form
 
 $$ R(\theta, \phi, \lambda) = \begin{pmatrix} e^{i(\lambda + \phi)} \cos \theta & e^{i\phi} \sin \theta \\ e^{i\lambda} \sin \theta & -\cos \theta \end{pmatrix} $$
 
-The `GQSPPhaseFactors` class provides a [`to_mw_gqsp()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.GQSPPhaseFactors.to_mw_gqsp) method, which returns the tuple $(\vec{\theta}, \vec{\phi}, \lambda)$ in this order.
+The `GQSPPhaseFactors` class provides a [`to_mw_gqsp()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.GQSPPhaseFactors.to_mw_gqsp) method, which returns the tuple $(\vec{\theta}, \vec{\phi}, \lambda)$ in this order.
 
 !!! note
 

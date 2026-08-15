@@ -1,1 +1,0 @@
-# Defining matrix polynomials

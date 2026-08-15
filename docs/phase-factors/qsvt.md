@@ -23,7 +23,7 @@ By a change of variables $x = \frac{z + z^{-1}}{2}$, we can rewrite $P$ as a Lau
 
 $$ P(z) = \sum_{k = 0}^n c_k \frac{z^k + z^{-k}}{2} $$
 
-and reduce Chebyshev QSP to [Laurent XQSP](gqsp.md#xqsp). This is exactly what the [`ChebyshevQSPPhaseFactors.solve()`](../../reference/nlft_qsp/qsp/#nlft_qsp.qsp.ChebyshevQSPPhaseFactors.solve) function does: it takes the list $\{ c_k \}_k$, either as a Python list or as a `ChebyshevTExpansion` object (see [here](../polynomials/chebyshev-expansions.md) for more info).
+and reduce Chebyshev QSP to [Laurent XQSP](gqsp.md#xqsp). This is exactly what the [`ChebyshevQSPPhaseFactors.solve()`](../reference/nlft_qsp/qsp.md#nlft_qsp.qsp.ChebyshevQSPPhaseFactors.solve) function does: it takes the list $\{ c_k \}_k$, either as a Python list or as a `ChebyshevTExpansion` object (see [here](../polynomials/chebyshev-expansions.md) for more info).
 
 
 ```python exec="on" source="block" result="text"
@@ -72,7 +72,7 @@ print(T_qsp(0.6))
 
 !!! note
 
-    Keep in mind that `from_polynomial()` and `from_laurent_polynomial()` do fundamentally different things: the former computes the polynomial $P(x)$ which satisfies $P(x) = T(x)$, whereas the latter builds $P(z)$ such that $P(z) = \frac{T(z + z^{-1})}{2}$, effectively performing the change of variables mentioned in the [previous subsection](#computing-the-phase-factors).
+    Keep in mind that `from_polynomial()` and `from_laurent_polynomial()` do fundamentally different things: the former computes the polynomial $P(x)$ which satisfies $P(x) = T(x)$, whereas the latter builds $P(z)$ such that $P(z) = T(\frac{z + z^{-1}}{2})$, effectively performing the change of variables mentioned in the [previous subsection](#computing-the-phase-factors).
 
 
 
