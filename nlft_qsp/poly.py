@@ -12,7 +12,7 @@ from .file import serializable
 
 
 class ComplexL0Sequence:
-    """Represents a sequence of complex numbers or complex matrices index by Z, whose support is finite.
+    r"""Represents a sequence of complex numbers or complex matrices index by $\Z$, whose support is finite.
     
     Attributes:
         coeffs (list[complex_type]): List of complex coefficients.
@@ -24,9 +24,9 @@ class ComplexL0Sequence:
         """Initializes a complex sequence.
 
         Args:
-            coeffs: List of complex numbers as coefficients. coeffs[k, :] will be the coefficient of z^(support_start + k).
+            coeffs: List of complex numbers as coefficients. `coeffs[k, :]` will be the coefficient of $z^(s + k)$ where $s$ is `support_start`.
             shape: The shape of the sequence. If it is none, then the shape of coeffs is taken. This is only used for matrix sequences, and is ignored otherwise.
-            support_start (optional): Index of the first element of the sequence. Defaults to 0.
+            support_start (optional): Index of the first element of the sequence. Defaults to $0$.
 
         Note:
             Please provide exactly one of coeffs or shape.
@@ -60,24 +60,21 @@ class ComplexL0Sequence:
         raise ValueError(f"Coefficients must be provided as a list or np.ndarray. Got {coeffs}.")
 
     def support(self) -> range:
-        """Returns the range in Z where the sequence is non-zero.
+        r"""Returns the range in $\Z$ where the sequence is non-zero.
 
         Note:
             This simply checks the allocated array of coefficients but does not check leading or trailing zeros.
-
-        Returns:
-            range: The support of the sequence.
         """
         return range(self.support_start, self.support_start + self.coeffs.shape[0])
     
     def __getitem__(self, k: int | tuple) -> complex_type | np.ndarray:
-        """Returns the k-th element of the sequence, i.e., F_k.
+        r"""Returns the $k$-th element of the sequence, i.e., $F_k$.
 
         Args:
             k (int): The index of the sequence.
 
         Returns:
-            complex_type | np.ndarray: The coefficient of F_k, or 0 if k is out of the support.
+            complex_type | np.ndarray: The coefficient $F_k$, or $0$ if $k$ is out of the support.
 
         Note: in case of matrix sequence, numpy slices can be used on the coefficients.
         """
@@ -100,10 +97,10 @@ class ComplexL0Sequence:
         return 0
 
     def __setitem__(self, k: int, c: complex_type | np.ndarray):
-        """Sets the coefficient of z^k to be c, allocating space if needed.
+        r"""Sets the coefficient of $z^k$ to be $c$, allocating space if needed.
 
         Args:
-            k (int): The exponent of z.
+            k (int): The exponent of $z$.
             c (complex): The coefficient to set.
         """
         if isinstance(k, int):
@@ -120,18 +117,11 @@ class ComplexL0Sequence:
         self.coeffs[(k[0] - self.support_start, *k[1:])] = c
 
     def l2_norm(self) -> float_type:
-        """Computes the l2 norm.
-
-        Returns:
-            float: The l2 norm.
-        """
+        r"""Computes the $\ell_2$ norm."""
         return np.sqrt(self.l2_squared_norm())
 
     def l2_squared_norm(self) -> float_type:
-        """Computes the squared l2 norm.
-
-        Returns:
-            float: The squared l2 norm, i.e., the sum of the squared absolute values.
+        r"""Computes the squared $\ell_2$ norm.
 
         Note:
             For matrix sequences, this is the sum of the squared Frobenius norms of the coefficients.
@@ -156,7 +146,7 @@ class ComplexL0Sequence:
         return all(np.abs(np.real(F)) <= bd.machine_threshold() for F in self.coeffs.flatten())
     
     def is_symmetric(self) -> bool:
-        """Whether the sequence satisfies F[k] = F[-k]."""
+        """Whether the sequence satisfies $F_k = F_{-k}$."""
         if self.shape == ():
             return all(np.abs(self[k] - self[-k]) <= bd.machine_threshold() for k in self.support())
         
@@ -224,7 +214,7 @@ class Polynomial(ComplexL0Sequence):
 
     Attributes:
         coeffs (list[complex_type]): List of complex coefficients.
-        shape (tuple): The shape of the coefficients. This is always () for polynomials, but is used for matrix polynomials.
+        shape (tuple): The shape of the coefficients. This is always `()` for scalar polynomials, but is used for matrix polynomials.
         support_start (int): Minimum degree that appears in the polynomial.
     """
 
@@ -241,7 +231,7 @@ class Polynomial(ComplexL0Sequence):
         """
         super().__init__(coeffs, support_start, shape)
 
-    def duplicate(self):
+    def duplicate(self) -> "Polynomial":
         """Creates a duplicate of the current polynomial.
 
         Returns:
@@ -264,13 +254,11 @@ class Polynomial(ComplexL0Sequence):
         """
         return self.coeffs.shape[0] - 1
 
-    def conjugate(self):
-        r"""Returns the conjugate polynomial on the unit circle. If :math:`p(z) = \sum_k p_k z^k`, then its conjugate is defined as :math:`p^*(z) = \sum_k p_k^* z^{-k}`
+    def conjugate(self) -> "Polynomial":
+        r"""Returns the conjugate polynomial on the unit circle. If $p(z) = \sum_k p_k z^k$, then its conjugate is defined as $p^*(z) = \sum_k p_k^* z^{-k}$. This is also known as the Schwarz reflection across $\mathbb{T}$.
 
-        Returns:
-            Polynomial: The conjugate polynomial.
-
-        Note: for a matrix polynomial, each coefficient is conjugate-transposed.
+        Note:
+            For a matrix polynomial, each coefficient is conjugate-transposed.
         """
         if self.shape == ():
             conj_coeffs = np.flip(np.conj(self.coeffs), axis=0)
@@ -280,8 +268,8 @@ class Polynomial(ComplexL0Sequence):
         
         return Polynomial(conj_coeffs, -(self.support_start + self.coeffs.shape[0] - 1))
     
-    def sharp(self):
-        r"""Same as `conjugate()`, but the support_start is left unchanged.
+    def sharp(self) -> "Polynomial":
+        r"""Same as `conjugate()`, but `support_start` is left unchanged.
 
         Returns:
             Polynomial: The sharp-conjugate polynomial.
@@ -290,13 +278,11 @@ class Polynomial(ComplexL0Sequence):
         p.support_start += self.effective_degree() + 1
         return p
 
-    def schwarz_transform(self):
+    def schwarz_transform(self) -> "Polynomial":
         r"""Returns the anti-analytic polynomial whose real part gives the current polynomial.
         
-        In other words, this is equivalent to adding :math:`iH[p]`, where :math:`H[p]` is the Hilbert transform of p.
-
-        Returns:
-            Polynomial: The Schwarz transform of the polynomial.
+        Note:
+            This is equivalent to adding $i \mathcal{H}[p]`, where $\mathcal{H}[p]$ is the Hilbert transform of $p$.
         """
         schwarz_coeffs = []
         for k in self.support():
@@ -307,13 +293,11 @@ class Polynomial(ComplexL0Sequence):
 
         return Polynomial(np.array(schwarz_coeffs, dtype=complex_type), self.support_start)
     
-    def hilbert_transform(self):
-        r"""Returns the polynomial P such that P + self yields an analytic polynomial.
+    def hilbert_transform(self) -> "Polynomial":
+        r"""Returns the polynomial $Q$ such that $P + Q$ yields an analytic polynomial ($P$ being `self`).
 
-        Note: This is actually i H[self], i.e., the Hilbert transform as returned is already multiplied by i.
-        
-        Returns:
-            Polynomial: The Hilbert transform of the polynomial.
+        Note:
+            This is actually $i \mathcal{H}[P]$, i.e., the Hilbert transform as returned is already multiplied by $i$.
         """
         hilbert_coeffs = []
         for k in self.support():
@@ -416,14 +400,14 @@ class Polynomial(ComplexL0Sequence):
         return res * (z ** self.support_start)
 
     def eval_at_roots_of_unity(self, N: int) -> list[complex_type]: # TODO remove power-of-two assumption
-        """Evaluates the polynomial at the N-th roots of unity using the inverse FFT.
+        r"""Evaluates the polynomial at the $N$-th roots of unity using the inverse fast Fourier transform.
 
         Args:
-            N (int): A power of two specifying the number of roots. If N is not a power of two, then the next power of two is taken.
+            N (int): A power of two specifying the number of roots. If $N$ is not a power of two, then the next power of two is implicitly taken.
 
         Returns:
             list[complex]: List of evaluations at the N-th roots of unity.
-            The k-th element will be `self[w^k]`, where `w` is the main N-th root of unity.
+            The $k$-th element of the list will be $P(e^{2\pi i k/N})$, $P$ being `self`.
         """
         N = next_power_of_two(N)
         M = next_power_of_two(max(N, self.coeffs.shape[0]))
@@ -436,22 +420,22 @@ class Polynomial(ComplexL0Sequence):
         evals = np.fft.ifft(coeffs, norm='forward', axis=0) # M evaluations at the M-th roots of unity
         return evals[::M//N]
     
-    def sup_norm(self, N=1024):
+    def sup_norm(self, N=1024) -> float_type:
         """Estimates the supremum norm of the polynomial over the unit circle
         
         Args:
-            N (int, optional): the number of samples to compute the maximum from. If N is not a power of two, then the next power of two is taken.
+            N (int): the number of samples to compute the maximum from. If $N$ is not a power of two, then the next power of two is taken.
 
         Returns:
-            float: An estimate for the supremum norm of the polynomial over the unit circle.
+            float_type: An estimate for the supremum norm of the polynomial over the unit circle.
         """
         if self.shape == ():
             return np.max([np.abs(sample) for sample in self.eval_at_roots_of_unity(N)])
         
         return np.max([np.linalg.norm(sample, ord=2) for sample in self.eval_at_roots_of_unity(N)])
     
-    def truncate(self, m: int, n: int):
-        """Keeps only the coefficients in [m, n], discarding the others.
+    def truncate(self, m: int, n: int) -> "Polynomial":
+        """Keeps only the coefficients in $[m, n]$, discarding the others.
 
         Returns:
             Polynomial: A new, truncated polynomial.
@@ -461,29 +445,29 @@ class Polynomial(ComplexL0Sequence):
         
         return Polynomial(np.array([self[k] for k in range(m, n+1)], dtype=complex_type), m)
 
-    def only_positive_degrees(self):
+    def only_positive_degrees(self) -> "Polynomial":
         """DEPRECATED: use `analytic_part()` instead."""
         return self.analytic_part()
     
-    def analytic_part(self):
+    def analytic_part(self) -> "Polynomial":
         """Discards all the negative degrees, keeping only the non-negative ones.
         
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
         return self.truncate(0, self.support_start + self.coeffs.shape[0] - 1)
 
-    def only_negative_degrees(self):
+    def only_negative_degrees(self) -> "Polynomial":
         """DEPRECATED: use `anti_analytic_part()` instead."""
         return self.anti_analytic_part()
     
-    def anti_analytic_part(self):
+    def anti_analytic_part(self) -> "Polynomial":
         """Discards all the positive degrees, keeping only the non-positive ones.
         
         Returns:
-            Polynomial: A new polynomial containing only the negative-degree coefficients."""
+            Polynomial: A new polynomial containing only the non-positive-degree coefficients."""
         return self.truncate(self.support_start, 0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Converts the polynomial to a human-readable string representation.
 
         Returns:
@@ -526,10 +510,15 @@ class Polynomial(ComplexL0Sequence):
     }
 )
 class ChebyshevTExpansion(ComplexL0Sequence):
-    """Linear combination of Chebyshev polynomials of the first kind.
+    r"""Linear combination of Chebyshev polynomials of the first kind.
     
     Args:
-        coeffs: Either the coefficients of the linear combination, or the symmetric Laurent polynomial `P(z)` which are equal up to the change of variable `x = (z + z^(-1))/2`.
+        coeffs: Either the coefficients of the linear combination, or the symmetric Laurent polynomial $P(z)$ which is equal up to the change of variable $x = \frac{z + z^{-1}}{2}$.
+
+    Note:
+        The change of variable between Laurent polynomials and Chebyshev expansions is given by the relation $T_k(\cos \theta) = \cos k\theta = \frac{z^k + z^{-k}}{2}$. Thus the expansion is
+
+        $$\sum_{k = 0}^n c_k T_k(x) = \sum_{k = 0}^n c_k \frac{z^k + z^{-k}}{2}$$
     """
     def __init__(self, coeffs: list[complex_type] | Polynomial):
         if isinstance(coeffs, list) or isinstance(coeffs, np.ndarray):
@@ -551,7 +540,7 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         """Evaluates the Chebyshev expansion at the given number.
 
         Args:
-            x (real): The point at which to evaluate the expansion.
+            x (float_type): The point at which to evaluate the expansion.
 
         Returns:
             complex: The evaluated result.
@@ -560,7 +549,7 @@ class ChebyshevTExpansion(ComplexL0Sequence):
 
         return sum(self[k] * np.cos(k * theta) for k in self.support())
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Converts the expansion to a human-readable string representation.
 
         Returns:
@@ -568,22 +557,25 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         """
         return ' + '.join(f"{c} T_{self.support_start + k}(x)" for k, c in enumerate(self.coeffs))
     
-    def to_laurent(self):
-        """Returns the Laurent polynomial `P(z) = self((z + z^(-1))/2)`."""
+    def to_laurent(self) -> Polynomial:
+        r"""Returns the Laurent polynomial $P(e^{i\theta}) = T(\cos \theta)$ where $T(x)$ is represented by `self`."""
         P = Polynomial(np.concat([np.flipud(self.coeffs), self.coeffs[1:]]), support_start=-self.coeffs.shape[0]+1)
         P[0] *= 2
         return P/2
     
     @classmethod
-    def from_polynomial(cls, P: Polynomial):
-        """Returns the Chebyshev expansion `T` satisfying `T(x) = P(x)`."""
+    def from_polynomial(cls, P: Polynomial) -> "ChebyshevTExpansion":
+        r"""Returns the Chebyshev expansion $T$ satisfying $T(x) = P(x)$."""
         return ChebyshevTExpansion(np.polynomial.chebyshev.poly2cheb(P.coeffs))
     
     @classmethod
     def from_laurent_polynomial(cls, P: Polynomial):
-        """Returns the Chebyshev expansion `T` satisfying `T(x) = (P(z) + P^*(z))/2`.
+        r"""Returns the Chebyshev expansion $T$ satisfying $T(x) = \frac{P(z) + P^*(z)}{2}$.
         
-        Note: `P` must be symmetric."""
+        Raises:
+            ValueError: if $P$ is not symmetric.
+
+        Note: $P$ must be symmetric."""
         if not P.is_symmetric():
             raise ValueError("The given Laurent polynomial is not symmetric.")
 
@@ -593,5 +585,5 @@ class ChebyshevTExpansion(ComplexL0Sequence):
         return ChebyshevTExpansion(coeffs)
     
     def to_polynomial(self) -> Polynomial:
-        """Returns the polynomial `P` satisfying `P(x) = T(x)`."""
+        """Returns the polynomial $P$ satisfying $P(x) = T(x)$."""
         return Polynomial(np.polynomial.chebyshev.cheb2poly(self.coeffs))
