@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlft-qsp"
-version = "1.1.0"
-description = "A package for computing Quantum Signal Processing phase factors using Non-Linear Fourier Analysis."
+version = "2.0.0"
+description = "A package for computing Quantum Signal Processing phase factors."
 authors = [
     { name = "Lorenzo Laneve" }
 ]
