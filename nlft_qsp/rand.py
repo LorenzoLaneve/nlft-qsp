@@ -1,5 +1,3 @@
-
-import random
 from numbers import Number
 import numpy as np
 
@@ -42,36 +40,6 @@ def random_real_polynomial(N, eta):
     if s > eta:
         return b * ((1 - eta) / s)
     return b
-
-def random_stairlike_sequence_2d(c, shape: tuple[int] = None, directions: str = None):
-    """directions is a string of either '^' (up) or '>' (right), giving the path of the stairlike sequence.
-    Default is taken randomly."""
-
-    if (shape is None and directions is None) or (shape != None and directions != None):
-        raise ValueError("Only one of shape and directions should be defined.")
-    
-    if shape != None:
-        if len(shape) != 2:
-            raise ValueError("Only 2D shapes are allowed.")
-        
-        directions = list("^" * (shape[0] - 1) + ">" * (shape[1] - 1))
-        random.shuffle(directions)
-    else:
-        directions = list(directions)
-
-    cur_seq = [random_complex(c)]
-    seq = []
-    for d in directions:
-        if d == '^':
-            cur_seq.append(random_complex(c))
-        elif d == '>':
-            seq.append(cur_seq)
-            cur_seq = [random_complex(c)]
-
-    if len(cur_seq) != 0:
-        seq.append(cur_seq)
-
-    return seq
 
 def random_list(c, shape: tuple[int]):
     l = []
