@@ -110,14 +110,19 @@ def get_variant_display_name(variant: str) -> str:
 
 def evaluate_function(code_str: str, mode: str) -> Callable:
     if mode == 'c':
-        bound_var = 'x'
-    else:
-        bound_var = 'z'
+        return eval(
+            f"lambda x: {code_str}",
+            {"__builtins__": {}, "np": np, "sp": sp}
+        )
 
-    return eval(
-        f"lambda {bound_var}: {code_str}",
+    f = eval(
+        f"lambda z, t: {code_str}",
         {"__builtins__": {}, "np": np, "sp": sp}
     )
+
+    return lambda z: f(z, np.angle(z))
+
+    
 
 def normalize_polynomial(P: Polynomial | ChebyshevTExpansion, variant: str):
     mode = get_variant_mode(variant)
