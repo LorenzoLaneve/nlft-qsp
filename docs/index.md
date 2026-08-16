@@ -79,3 +79,5 @@ The following subcommands are available:
 
 - `qspx complete [OPTIONS] TARGET`  
     Compute the complementary polynomial to the given target polynomial
+
+The rest of this documentation also provides examples on how to use the `qspx` CLI.
