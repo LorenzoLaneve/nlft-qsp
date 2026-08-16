@@ -51,7 +51,7 @@ def half_cholesky_matrix_ldl(p: np.ndarray) -> np.ndarray:
     Here $B$ is assumed to be a lower triangular block-Toeplitz matrix whose first block-column is $p$.
 
     Args:
-        p (np.ndarray) - The first block column of B. It should be of shape `(n, d1, d2)` where B is $n \times n$ with `(d1, d2)` blocks.
+        p (np.ndarray): The first block column of B. It should be of shape `(n, d1, d2)` where B is $n \times n$ with `(d1, d2)` blocks.
     
     Note:
         The $k$-th column of $L$ returned will be of length $(n+1) - k$, meaning that the zeros above the diagonal will not be added.
