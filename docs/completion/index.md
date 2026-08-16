@@ -66,3 +66,16 @@ print("|P|^2 + |Q|^2 = ", P * P.conjugate() + Q * Q.conjugate())
 !!! warning
 
     This is provided only for comparison purposes and **should not be used**, as it does not guarantee numerical stability for large polynomial degrees.
+
+
+## From the Command Line Interface
+
+It is possible to compute the complementary polynomial using `qspx complete`.
+
+```
+qspx complete P.qspx -o Q.qspx
+```
+
+The support of $Q$ will follow the support of $P$, i.e., if $P$ has frequencies in $[a, b]$ then also $Q$ will be shifted to have frequencies in the same range. This is to guarantee that $(P, Q)$ is the actual pair of polynomials to be implementable by QSP.
+
+By passing `--nlft` the NLFT convention will be chosen, i.e., the support of $Q$ will end at the zero frequency, in such a way that the pair $(Q, P)$ is in the image of the nonlinear Fourier transform. See [here](https://arxiv.org/abs/2503.03026) for more information about the nonlinear Fourier transform over $SU(2)$.
