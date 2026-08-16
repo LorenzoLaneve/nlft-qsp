@@ -1,9 +1,6 @@
 from typing import TypeAlias
 
 import numpy as np
-import scipy as sp
-
-from ..util import next_power_of_two
 
 
 complex_type: TypeAlias = np.complex128
@@ -18,17 +15,17 @@ def machine_threshold():
 
 
 def unitroots(N: int): # TODO move to util
-    """Returns a list containing the N-th roots of unity."""
+    r"""Returns a list containing the $N$-th roots of unity."""
     return [np.exp(2j*np.pi*k/N) for k in range(N)]
     
 def matrix(x: list):
-    """Constructs a numpy matrix representing a matrix with the given list (of lists) of coefficients."""
+    r"""Constructs a numpy matrix representing a matrix with the given list (of lists) of coefficients."""
     return np.array(x, dtype=complex_type)
     
 def zeros(m: int, n: int):
-    """Constructs a `m x n` zero matrix."""
+    r"""Constructs a $m \times n$ zero matrix."""
     return np.zeros(shape=(m, n), dtype=complex_type)
 
 def eye(n: int):
-    """Constructs the `n x n` identity matrix."""
+    r"""Constructs the $n \times n$ identity matrix."""
     return np.eye(n, dtype=complex_type)
