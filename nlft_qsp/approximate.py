@@ -1,3 +1,5 @@
+from typing import Callable
+
 import numpy as np
 
 from .poly import ChebyshevTExpansion, Polynomial
@@ -6,12 +8,11 @@ from .util import next_power_of_two
 from .numerics import complex_type
 
 
-def chebyshev_approximate(f, N) -> ChebyshevTExpansion:
-    """
-    Computes the Chebyshev expansion up to `N` for a complex-valued function f on [-1, 1].
+def chebyshev_approximate(f: Callable, N: int) -> ChebyshevTExpansion:
+    r"""Computes the Chebyshev expansion up to $N$ for a complex-valued function $f : [-1, 1] \rightarrow \mathbb{C}$.
 
     Args:
-        f (callable): complex-valued function f(x)
+        f (Callable): complex-valued function f(x)
         N (int): degree of Chebyshev approximation
     """
     x = np.cos(np.pi * np.arange(N + 1) / N)
@@ -26,15 +27,15 @@ def chebyshev_approximate(f, N) -> ChebyshevTExpansion:
 
     return ChebyshevTExpansion(F)
 
-def fourier_approximate(f, N) -> Polynomial:
-    r"""Computes the Fourier series of the given function `f(z)`
+def fourier_approximate(f: Callable, N: int) -> Polynomial:
+    r"""Computes the Fourier series of the given function $f(z)$, $z = e^{i\theta}$ being a complex number of unit modulus.
 
     Args:
-        f (callable): a function taking a complex number z and returning a complex number.
+        f (Callable): a function taking a complex number $z$ and returning a complex number.
         N (int): The degree of approximation.
 
     Returns:
-        Polynomial: A Laurent polynomial of degrees in `[-N, N)` approximating f
+        Polynomial: A Laurent polynomial of degrees in $\{-N, N+1, \ldots, N-1\}$ approximating $f$
     """
     M = next_power_of_two(2*N+1)
 
@@ -49,10 +50,10 @@ def laurent_approximation(points: list[complex_type | np.ndarray]) -> Polynomial
     r"""Returns a Laurent polynomial passing through the given points.
 
     Args:
-        points (list[complex]): list of values, where the k-th element is considered to be :math:`f(e^{2\pi i k/N})`.
+        points (list[complex_type] | np.ndarray): list of values, where the $k$-th element is considered to be $f(e^{2\pi i k/N})$. If the points are matrices, then the returned approximation will be a matrix polynomial.
 
     Returns:
-        Polynomial: The unique Laurent polynomial `P(z)` of degree `N = len(points)` satisfying :math:`P(e^{2\pi i k/N}) = f(e^{2\pi i k/N})`, up to working precision, whose frequencies are shifted to be in :math:`[-N/2, N/2)`
+        Polynomial: The unique Laurent polynomial $P(z)$ of degree $N = len(points)$ satisfying $P(e^{2\pi i k/N}) = f(e^{2\pi i k/N})$, up to working precision, whose frequencies are shifted to be in $\{-N/2, -N/2+1, \ldots, N/2 - 1\}$.
     """
     N = len(points)
 
