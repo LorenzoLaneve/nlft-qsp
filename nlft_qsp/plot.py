@@ -6,13 +6,13 @@ import numpy as np
 
 def plot_chebyshev(funcs: dict, num_points: int=1000):
     r"""
-    Plots the real part of each object in funcs over the interval [-1, 1].
+    Plots the real part of each object in funcs over the interval $[-1, 1]$.
     These can be Python functions, `Polynomial` objects, `ChebyshevTExpansion` objects, or
     any callable object.
 
-    Parameters:
-    - funcs (dict): a dictionary where each key is the name appearing in the legend of the corresponding function plot.
-    - num_points (int): number of sampling points.
+    Args:
+        funcs (dict): a dictionary where each key is the name appearing in the legend of the corresponding function plot.
+        num_points (int): number of sampling points.
     """
     plt.figure(figsize=(6, 3))
     
@@ -31,13 +31,12 @@ def plot_chebyshev(funcs: dict, num_points: int=1000):
 
 def plot_fourier(funcs: dict, num_points: int=1000):
     r"""
-    Plots the absolute value of each object in funcs over the unit circle, i.e., plugging
-    :math:`z = exp(1j*x)` for :math:`x \in [-\pi, \pi]`.
+    Plots the absolute value of each object in funcs over the unit circle, i.e., plugging $z = e^{it}$ for $t \in [-\pi, \pi]$.
     These can be Python functions, `Polynomial` objects, or any callable object.
 
-    Parameters:
-    - funcs (dict): a dictionary where each key is the name appearing in the legend of the corresponding function plot.
-    - num_points (int): number of sampling points.
+    Args:
+        funcs (dict): a dictionary where each key is the name appearing in the legend of the corresponding function plot.
+        num_points (int): number of sampling points.
     """
     plt.figure(figsize=(6, 3))
     
@@ -56,11 +55,11 @@ def plot_fourier(funcs: dict, num_points: int=1000):
     plt.show()
 
 def plot_support_2d(l: list, rng: tuple[range]):
-    """Plots where the given objects have non-zero elements (up to machine threshold) in rng.
+    r"""Plots where the given objects have non-zero elements (up to machine threshold) in rng.
     
     Args:
         l (list): A list of objects that support subscript operation.
-        rng (tuple[range]): A 2D tuple of ranges defining the rectangle in the Z^2 grid to plot."""
+        rng (tuple[range]): A 2D tuple of ranges defining the rectangle in the $\Z^2$ grid to plot."""
 
     if len(rng) != 2:
         raise ValueError("rng must have dimension 2.")
