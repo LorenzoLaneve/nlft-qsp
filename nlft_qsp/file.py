@@ -148,7 +148,7 @@ def serializable(type_tag: str, fields: dict):
 
 
 def load_any(file_or_path: str | Path | TextIO) -> object:
-    """Load any registered object dynamically based on its root '@type'.
+    """Load any registered object dynamically based on its root `@type`.
     
     Args:
         file_or_path: File path (str or Path) or an open text stream.
@@ -157,7 +157,7 @@ def load_any(file_or_path: str | Path | TextIO) -> object:
         An instantiated instance of the registered class matching `@type`.
         
     Raises:
-        ValueError: If the JSON file contains invalid JSON.
+        ValueError: If the file contains invalid JSON.
         TypeError: If `@type` is missing or unknown.
     """
     if isinstance(file_or_path, (str, Path)):
