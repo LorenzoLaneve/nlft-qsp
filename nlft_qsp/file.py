@@ -1,11 +1,10 @@
 import json
 from pathlib import Path
-
 from typing import Type, TypeVar, TextIO
 
-from .numerics import complex_type, float_type
-
 import numpy as np
+
+from .numerics import complex_type, float_type
 
 T = TypeVar("T")
 
@@ -15,6 +14,24 @@ COMPLEX_TYPE_TAG = "@qspx/complex"
 
 NDARRAY_COMPLEX_TYPE_TAG = "@qspx/ndarray/complex"
 NDARRAY_FLOAT_TYPE_TAG = "@qspx/ndarray/float"
+
+
+def _parse_json(content):
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON format: {e}") from e
+
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"Expected root JSON payload to be an object/dict with a '@type' field, "
+            f"but got {type(data).__name__}."
+        )
+
+    if not data.get("@type"):
+        raise ValueError("Missing required '@type' field in JSON payload.")
+
+    return data
 
 def _value_to_json(val):
     if isinstance(val, complex):
@@ -60,10 +77,10 @@ def _json_to_value(json):
 
 
 def serializable(type_tag: str, fields: dict):
-    """Class decorator to handle custom field-mapped JSON serialization.
+    """Class decorator to handle JSON serialization.
 
     Args:
-        type_tag: The identifier tag added/expected in JSON as '@type'.
+        type_tag: The identifier tag added/expected in JSON as `@type`.
         fields: A mapping of { python_attribute_name: json_field_name }.
     """
 
@@ -114,11 +131,7 @@ def serializable(type_tag: str, fields: dict):
             else:
                 content = file_or_path.read()
 
-            json_data = json.loads(content)
-            if not isinstance(json_data, dict):
-                raise ValueError(f"Expected JSON data in {file_or_path} to be a JSON object.")
-
-            return cls._load_json_data(json_data)
+            return cls._load_json_data(_parse_json(content))
 
         cls.dump_json = dump_json
         cls.load_json = load_json
@@ -134,17 +147,18 @@ def serializable(type_tag: str, fields: dict):
     return decorator
 
 
-def load_any(file_or_path: str | Path | TextIO):
+def load_any(file_or_path: str | Path | TextIO) -> object:
     """Load any registered object dynamically based on its root '@type'.
     
     Args:
         file_or_path: File path (str or Path) or an open text stream.
         
     Returns:
-        An instantiated instance of the registered class matching '@type'.
+        An instantiated instance of the registered class matching `@type`.
         
     Raises:
-        ValueError: If '@type' is missing or unknown.
+        ValueError: If the JSON file contains invalid JSON.
+        TypeError: If `@type` is missing or unknown.
     """
     if isinstance(file_or_path, (str, Path)):
         content = Path(file_or_path).read_text(encoding="utf-8")
@@ -159,16 +173,15 @@ def load_any(file_or_path: str | Path | TextIO):
     if not isinstance(data, dict):
         raise ValueError(
             f"Expected root JSON payload to be an object/dict with a '@type' field, "
-            f"but got {type(data).__name__} (e.g., list or primitive)."
+            f"but got {type(data).__name__}."
         )
 
-    type_tag = data.get("@type")
-    if not type_tag:
-        raise ValueError("Missing required '@type' field in JSON payload.")
+    data = _parse_json(content)
 
+    type_tag = data.get("@type")
     if type_tag not in TYPE_REGISTRY:
         registered_tags = list(TYPE_REGISTRY.keys())
-        raise ValueError(
+        raise TypeError(
             f"Unknown '@type': '{type_tag}'. Registered types are: {registered_tags}"
         )
 
