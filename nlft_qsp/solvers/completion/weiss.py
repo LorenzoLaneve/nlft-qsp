@@ -15,17 +15,17 @@ class WeissConvergenceError(Exception):
     def __init__(self, *args):
         super().__init__(*args)
 
-def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=False):
+def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=False) -> Polynomial | tuple[Polynomial, Polynomial]:
     """Internal function for Weiss' algorithm. The user should call `weiss.complete`, or `weiss.ratio`.
 
     Args:
         b (Polynomial): The starting polynomial to complete.
         eps (float): The desired tolerance. If not specified, it will be set to working precision.
-        compute_ratio (bool, optional): If True, then also a Polynomial approximating :mode:`b/a` will be returned. Defaults to False.
-        verbose (bool, optional): verbosity during the procedure. Defaults to False.
+        compute_ratio (bool, optional): If True, then also a `Polynomial` approximating $b/a$ will be returned.
+        verbose (bool, optional): verbosity during the procedure.
 
     Returns:
-        Polynomial: A polynomial :math:`a(z)` satisfying :math:`|a|^2 + |b|^2 = 1` on the unit circle (up to working precision). If `compute_ratio=True`, a second polynomial :math:`c(z)` that approximates :math:`b/a` is returned.
+        Polynomial: A polynomial $a(z)$ satisfying $|a|^2 + |b|^2 = 1$ on the unit circle (up to working precision). If `compute_ratio=True`, a second polynomial $c(z)$ that approximates $b/a$ is returned.
     """
     d = b.effective_degree()
     if eps < 0:
@@ -69,8 +69,8 @@ def weiss_internal(b: Polynomial, eps:float=-1, compute_ratio=False, verbose=Fal
     else:
         return a
 
-def complete(b: Polynomial, eps:float=-1, verbose=False):
-    """Uses Weiss' algorithm to find a complementary polynomial to the given one. The polynomial will also be the unique outer, positive-mean polynomial with this property, according to arXiv:2407.05634.
+def complete(b: Polynomial, eps:float=-1, verbose=False) -> Polynomial:
+    """Uses Weiss' algorithm to find a complementary polynomial to the given one. The polynomial will also be the unique outer, positive-mean polynomial with this property, according to [arXiv:2407.05634](https://arxiv.org/abs/2407.05634).
 
     Args:
         b (Polynomial): The polynomial to complete.
@@ -78,12 +78,12 @@ def complete(b: Polynomial, eps:float=-1, verbose=False):
         verbose (bool, optional): verbosity during the procedure. Defaults to False.
 
     Returns:
-        Polynomial: A polynomial :math:`a(z)` satisfying :math:`|a|^2 + |b|^2 = 1` on the unit circle (up to eps).
+        A polynomial $a(z)$ satisfying $|a|^2 + |b|^2 = 1$ on the unit circle (up to eps).
     """
     return weiss_internal(b, eps, verbose=verbose)
 
-def ratio(b: Polynomial, eps:float=-1, verbose=False):
-    """Uses Weiss' algorithm to compute :math:`b/a`, where :math:`a` is the unique outer, positive-mean polynomial such that `|a|^2 + |b|^2 = 1`, up to working precision.
+def ratio(b: Polynomial, eps:float=-1, verbose=False) -> Polynomial:
+    """Uses Weiss' algorithm to compute $b/a$, where $a$ is the unique outer, positive-mean polynomial such that $|a|^2 + |b|^2 = 1$, up to working precision.
 
     Args:
         b (Polynomial): The polynomial to complete.
@@ -91,6 +91,6 @@ def ratio(b: Polynomial, eps:float=-1, verbose=False):
         verbose (bool, optional): verbosity during the procedure. Defaults to False.
 
     Returns:
-        Polynomial: A polynomial :math:`a(z)` satisfying :math:`|a|^2 + |b|^2 = 1` on the unit circle (up to working precision), and a polynomial :math:`c` that approximates :math:`b/a`.
+        A polynomial $a(z)$ satisfying $|a(z)|^2 + |b(z)|^2 = 1$ on the unit circle (up to working precision), and a polynomial $c$ that approximates $b/a$.
     """
     return weiss_internal(b, eps, compute_ratio=True, verbose=verbose)
