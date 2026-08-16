@@ -83,3 +83,37 @@ plot_fourier({
     "Approx.": P
 })
 ```
+
+
+## Using the Command Line Interface
+
+`qspx` has an `approximate` subcommand which works similarly to `qspx solve`, except that a Python function and an approximation degree must be specified instead of a file containing a polynomial.
+
+The following command approximates the function $f(x) = 0.7 \cos(10x)$ with a polynomial of degree 14 and computes a QSVT protocol.
+```bash
+qspx approx -tqsvt '0.7*np.cos(10*x)' -d 14
+```
+
+It is also possible to directly specify the desired polynomials. For example, the command below computes the analytic Generalized QSP protocol for the polynomial $f(z) = \frac{1}{4} + \frac{i}{4} z - \frac{1}{3} z^2$:
+```bash
+qspx approx -tag '1/4 + 1j/4 * z - 1/3 * z ** 2' -d 2
+```
+
+!!! note
+    Python expressions can use `np` and `sp` to access numpy and scipy functions, respectively.
+
+
+!!! note
+    For QSVT (`-tqsvt`) and Chebyshev QSP (`-tcheb`), `x` will be the free variable $x \in [-1, 1]$ for the expression.
+    
+    For all the other variants, `z` is the free variable $|z| = 1$. It is possible to also use `t` for the phase $t \in [-\pi, \pi]$ such that $z = e^{it}$.
+
+
+### Saving approximations
+
+It is also possible to print or save the polynomial approximations without synthesizing a QSP protocol for it. Pass `--poly-only/-p` to approximate on the unit circle or `--cheb-only/-c` to approximate on $[-1, 1]$.
+
+The command below approximates $f(x) = \mathrm{erf}(30 x)$ with a Chebyshev expansion of degree 15 and saves it to `apx.qspx`.
+```bash
+qspx approx -c 'sp.special.erf(30*x)' -d 15 -o apx.qspx
+```
