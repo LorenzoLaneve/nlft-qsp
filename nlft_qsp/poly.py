@@ -460,6 +460,10 @@ class Polynomial(ComplexL0Sequence):
             return Polynomial([self[k] for k in range(m, n+1)], m)
         
         return Polynomial(np.array([self[k] for k in range(m, n+1)], dtype=complex_type), m)
+
+    def only_positive_degrees(self):
+        """DEPRECATED: use `analytic_part()` instead."""
+        return self.analytic_part()
     
     def analytic_part(self):
         """Discards all the negative degrees, keeping only the non-negative ones.
@@ -467,6 +471,10 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             Polynomial: A new polynomial containing only the positive-degree coefficients."""
         return self.truncate(0, self.support_start + self.coeffs.shape[0] - 1)
+
+    def only_negative_degrees(self):
+        """DEPRECATED: use `anti_analytic_part()` instead."""
+        return self.anti_analytic_part()
     
     def anti_analytic_part(self):
         """Discards all the positive degrees, keeping only the non-positive ones.
