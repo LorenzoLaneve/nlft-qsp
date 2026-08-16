@@ -3,18 +3,19 @@ import numpy as np
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
 
-def inlft(a: Polynomial, b: Polynomial):
-    """Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.
+def inlft(a: Polynomial, b: Polynomial) -> NonLinearFourierSequence:
+    """Computes the inverse nonlinear Fourier transform using the plain layer stripping algorithm.
 
     Args:
-        a, b (Polynomial): The pair `(a, b)` is the NLFT we want to compute the sequence for.
+        a (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.
+        b (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.
 
     Note:
-        This algorithm is guaranteed to be numerically stable only if `a` is outer.
+        This algorithm is guaranteed to be numerically stable only if $a$ is outer.
         To generate an outer complementary polynomial, you can use `weiss.complete`.
 
     Returns:
-        NonLinearFourierSequence: A sequence whose NLFT is equal to `(a, b)`.
+        A sequence whose NLFT is equal to $(a, b)$.
     """
     if len(a.support()) != len(b.support()) or a.support().stop != 1:
         return ValueError("(a, b) must be in the image of the NLFT.")

@@ -30,17 +30,18 @@ def nlfft_recurse(a_star: Polynomial, b: Polynomial) -> tuple[NonLinearFourierSe
 
     return NonLinearFourierSequence(np.concat([Fup.coeffs, Fdown.coeffs])), xi_n, eta_n
 
-def inlft(a: Polynomial, b: Polynomial):
-    """Computes the Inverse Non-Linear Fourier Transform using the Non-Linear Fast Fourier Transform algorithm (arXiv:2505.12615).
+def inlft(a: Polynomial, b: Polynomial) -> NonLinearFourierSequence:
+    """Computes the inverse nonlinear Fourier transform using the nonlinear fast Fourier transform algorithm ([arXiv:2505.12615](https://arxiv.org/abs/2505.12615)).
 
     Args:
-        a, b (Polynomial): The pair `(a, b)` is the NLFT we want to compute the sequence for.
+        a (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.
+        b (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.
 
     Note:
-        `a` must be outer. To generate an outer complementary polynomial, you can use `weiss.complete`.
+        $a$ must be outer. To generate an outer complementary polynomial, you can use `weiss.complete`.
 
     Returns:
-        NonLinearFourierSequence: A sequence whose NLFT is equal to `(a, b)` (up to working precision).
+        A sequence whose NLFT is equal to $(a, b)$ (up to working precision).
     """
     if len(a.support()) != len(b.support()) or a.support().stop != 1:
         return ValueError("(a, b) must be in the image of the NLFT.")

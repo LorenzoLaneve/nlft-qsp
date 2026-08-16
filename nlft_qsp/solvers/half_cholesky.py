@@ -10,16 +10,17 @@ from ..numerics import complex_type
 
 
 def solve_ldl_system(L: np.ndarray, D: np.ndarray, C: np.ndarray, mode: str='toeplitz') -> np.ndarray:
-    """Solves the system LDL^* X = C.
+    """Solves the matrix system $LDL^* X = C$.
     
     Args:
-        mode (str): if 'hankel' then the input and output vectors are flipped along axis 0. Defaults to 'toeplitz'.
+        mode (str): if `'hankel'` then the input and output vectors are flipped along axis 0.
     
     Note:
-        L.shape = (n * d, n * d)
-        D.shape = (n, d, d), it should NOT be given as a full block-diagonal matrix.
-        C.shape = (n, d, *) or (n * d, *)
-        The output X will always be of shape (n * d, *)."""
+        The following shapes are assumed:
+        - `L.shape = (n * d, n * d)`
+        - `D.shape = (n, d, d)`, it should NOT be given as a full block-diagonal matrix.
+        - `C`.shape = (n, d, *)` or `(n * d, *)`
+        The output $X$ will always be of shape `(n * d, *)`."""
     n = D.shape[0]
     d = D.shape[1]
 
@@ -45,19 +46,19 @@ def solve_ldl_system(L: np.ndarray, D: np.ndarray, C: np.ndarray, mode: str='toe
     return X
     
 
-def half_cholesky_matrix_ldl(p: np.ndarray):
-    r"""Computes the lower triangular block-matrix `L` and the diagonal positive definite block-matrix `D` for :math:`I + B B^\dag = LDL^\dag`.
-    Here B is assumed to be a lower triangular block-Toeplitz matrix whose first block-column is `p`.
+def half_cholesky_matrix_ldl(p: np.ndarray) -> np.ndarray:
+    r"""Computes the lower triangular block-matrix $L$ and the diagonal positive definite block-matrix $D$ for $I + B B^* = LDL^*$.
+    Here $B$ is assumed to be a lower triangular block-Toeplitz matrix whose first block-column is $p$.
 
     Args:
-        p (np.ndarray) - The first block column of B. It should be of shape (n, d1, d2) where B is n x n with (d1, d2) blocks.
+        p (np.ndarray) - The first block column of B. It should be of shape `(n, d1, d2)` where B is $n \times n$ with `(d1, d2)` blocks.
     
     Note:
-        The k-th column of L returned will be of length `(n+1)-k`, meaning that the zeros above the diagonal will not be added.
-        D is returned as a list of blocks.
+        The $k$-th column of $L$ returned will be of length $(n+1) - k$, meaning that the zeros above the diagonal will not be added.
+        $D$ is returned as a list of blocks.
 
     Returns:
-        list: The matrix L (n * d1, n * d1) and D as a (n, d1, d1) list of blocks."""
+        The matrix $L$ as a numpy array of shape `(n * d1, n * d1)` and $D$ as a list of blocks of shape `(n, d1, d1)`."""
     N = p.shape[0]
     d1 = p.shape[1]
     d2 = p.shape[2]
@@ -94,13 +95,15 @@ def half_cholesky_matrix_ldl(p: np.ndarray):
     return L, np.array(D_blocks, dtype=complex_type)
 
 def solve_system_displacement_structure(p: np.ndarray, C: np.ndarray, mode: str = 'toeplitz') -> np.ndarray:
-    """Solves the linear system (I + BB^*) X = C, where p is the first column of B.
-    B will be assumed to be a lower-triangular block-Toeplitz matrix (when `mode='toeplitz'`) or a
-    anti-upper triangular block-Hankel matrix (when `mode='hankel'`).
+    """Solves the linear system $(I + BB^*) X = C$, where $p$ is the first column of $B$.
+    $B$ will be assumed to be a lower-triangular block-Toeplitz matrix (when `mode='toeplitz'`)
+    or a anti-upper triangular block-Hankel matrix (when `mode='hankel'`).
+
+    Args:
+        mode (str): whether $B$ is constructed as a `'toeplitz'` or as a `'hankel'` matrix.
     
-    Note: p and C are assumed to be of shape (n, d1, d2) and (n, d1, *) respectively.
-    mode : str, 'toeplitz' or 'hankel'
-        The structural type of matrix B."""
+    Note:
+        $p$ and $C$ are assumed to be of shape `(n, d1, d2)` and `(n, d1, *)` respectively."""
 
     if mode == 'hankel':
         C = np.flip(C, axis=0)
@@ -120,15 +123,15 @@ def solve_system_displacement_structure(p: np.ndarray, C: np.ndarray, mode: str 
     return X
 
 
-def half_cholesky_ldl(u, v):
-    r"""Computes the lower triangular matrix `L` for :math:`I + B B^\dag = LDL^\dag` where `D` is some positive diagonal matrix,
-    and `B` is the Toeplitz matrix containing `(c^*[n], c^*[n-1], ..., c^*[k])` using the Half-Cholesky method (see arXiv:2410.06409).
+def half_cholesky_ldl(u, v) -> np.ndarray:
+    r"""Computes the lower triangular matrix $L$ for $I + B B^* = LDL^*$ where $D$ is some positive diagonal matrix,
+    and $B$ is the Toeplitz matrix containing $(c^*_n, c^*_{n-1}, ..., c^*_k)$ using the Half-Cholesky method (see [arXiv:2410.06409](https://arxiv.org/abs/2410.06409)).
     
     Note:
-        The k-th column will be of length `(n+1)-k`, meaning that the zeros above the diagonal will not be added.
+        The $k$-th column will be of length $(n+1)-k$, meaning that the zeros above the diagonal will not be added.
 
     Returns:
-        list: The matrix L, given as an object of the backend."""
+        The matrix $L$, given as an object of the backend."""
     n = len(u) - 1
 
     G = bd.matrix([[uk, vk] for uk, vk in zip(u, v)])
@@ -155,14 +158,14 @@ def half_cholesky_ldl(u, v):
     return L
 
 def inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence:
-    """Compute the Inverse Non-Linear Fourier Transform using the Half Cholesky algorithm.
+    """Compute the inverse nonlinear Fourier transform using the Half Cholesky algorithm.
 
     Args:
-        b (Polynomial): The starting polynomial, such that `(a, b)` is the NLFT we want to compute the sequence for.
-        c (Polynomial): A polynomial approximating the ratio `b/a`. The end of its support must coincide with the one of `b`.
+        b (Polynomial): The starting polynomial, such that $(a, b)$ is the NLFT we want to compute the sequence for.
+        c (Polynomial): A polynomial approximating the ratio $b/a$. The end of its support must coincide with the one of $b$.
 
     Returns:
-        NonLinearFourierSequence: A sequence whose NLFT is equal to `(a, b)` (up to working precision).
+        A sequence whose NLFT is equal to $(a, b)$ (up to working precision).
     """
     n = b.effective_degree()
 

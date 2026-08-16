@@ -57,8 +57,8 @@ def complete(b: Polynomial) -> Polynomial:
         Numerical stability is not guaranteed.
 
     Returns:
-        Polynomial: A polynomial :math:`a(z)` satisfying :math:`|a|^2 + |b|^2 = 1` on the unit circle.
-        In particular (a, b) will be in the image of the NLFT.
+        A polynomial $a(z)$ satisfying $|a(z)|^2 + |b(z)|^2 = 1$ on the unit circle.
+        In particular $(a, b)$ will be in the image of the NLFT.
     """
     poly = torch.tensor(b.coeffs, dtype=torch.cdouble)
 
