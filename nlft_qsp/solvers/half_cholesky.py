@@ -16,10 +16,8 @@ def solve_ldl_system(L: np.ndarray, D: np.ndarray, C: np.ndarray, mode: str='toe
         mode (str): if `'hankel'` then the input and output vectors are flipped along axis 0.
     
     Note:
-        The following shapes are assumed:
-        - `L.shape = (n * d, n * d)`
-        - `D.shape = (n, d, d)`, it should NOT be given as a full block-diagonal matrix.
-        - `C`.shape = (n, d, *)` or `(n * d, *)`
+        The following shapes are assumed: `L.shape = (n * d, n * d)`, `D.shape = (n, d, d)` (it should NOT be given as a full block-diagonal matrix), `C.shape = (n, d, *)` or `(n * d, *)`
+        
         The output $X$ will always be of shape `(n * d, *)`."""
     n = D.shape[0]
     d = D.shape[1]
@@ -131,7 +129,7 @@ def half_cholesky_ldl(u, v) -> np.ndarray:
         The $k$-th column will be of length $(n+1)-k$, meaning that the zeros above the diagonal will not be added.
 
     Returns:
-        The matrix $L$, given as an object of the backend."""
+        The matrix $L$."""
     n = len(u) - 1
 
     G = np.array([[uk, vk] for uk, vk in zip(u, v)], dtype=complex_type)
