@@ -134,7 +134,7 @@ def half_cholesky_ldl(u, v) -> np.ndarray:
         The matrix $L$, given as an object of the backend."""
     n = len(u) - 1
 
-    G = bd.matrix([[uk, vk] for uk, vk in zip(u, v)])
+    G = np.array([[uk, vk] for uk, vk in zip(u, v)], dtype=complex_type)
 
     L_cols = []
     for k in range(n):
@@ -146,11 +146,11 @@ def half_cholesky_ldl(u, v) -> np.ndarray:
 
         L_cols.append([upj/up[0] for upj in up])
 
-        G = bd.matrix([[uk, vk] for uk, vk in zip(up[:-1], vp[1:])])
+        G = np.array([[uk, vk] for uk, vk in zip(up[:-1], vp[1:])], dtype=complex_type)
 
     L_cols += [[1]] # last column
 
-    L = bd.zeros(n+1, n+1)
+    L = np.zeros(shape=(n+1, n+1), dtype=complex_type)
     for k, l in enumerate(L_cols):
         for j, c in enumerate(l):
             L[k+j, k] = c

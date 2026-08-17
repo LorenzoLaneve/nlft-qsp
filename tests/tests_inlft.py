@@ -7,11 +7,8 @@ import scipy as sp
 import nlft_qsp.numerics as bd
 from nlft_qsp.rand import random_polynomial
 
-from nlft_qsp.solvers import weiss
-from nlft_qsp.solvers import riemann_hilbert
-from nlft_qsp.solvers import nlfft
-from nlft_qsp.solvers import layer_stripping
-from nlft_qsp.solvers import half_cholesky
+from nlft_qsp.solvers import weiss, riemann_hilbert, nlfft, layer_stripping, half_cholesky
+from nlft_qsp.util import unitroots
 
 
 class RHWTestCase(unittest.TestCase):
@@ -22,7 +19,7 @@ class RHWTestCase(unittest.TestCase):
         
         self.assertAlmostEqual((a * a.conjugate() + b * b.conjugate() - 1).l2_norm(), 0, delta=bd.machine_threshold())
 
-        self.assertAlmostEqual(max([np.abs(c(z) - b(z)/a(z)) for z in bd.unitroots(512)]), 0, delta=bd.machine_threshold())
+        self.assertAlmostEqual(max([np.abs(c(z) - b(z)/a(z)) for z in unitroots(512)]), 0, delta=bd.machine_threshold())
         self.assertEqual(c.support().stop, b.support().stop)
 
         Ap, Bp = riemann_hilbert.factorize(c, 10, normalize=True)

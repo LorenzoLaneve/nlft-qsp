@@ -7,6 +7,7 @@ import nlft_qsp.numerics as bd
 from nlft_qsp.poly import ChebyshevTExpansion, Polynomial
 from nlft_qsp.rand import random_sequence
 from nlft_qsp.nlft import NonLinearFourierSequence
+from nlft_qsp.util import unitroots
 
 
 class PolynomialTestCase(unittest.TestCase):
@@ -138,30 +139,30 @@ class PolynomialTestCase(unittest.TestCase):
         ep = p.eval_at_roots_of_unity(16)
         eq = q.eval_at_roots_of_unity(16)
 
-        cep = [p(z) for z in bd.unitroots(16)]
-        ceq = [q(z) for z in bd.unitroots(16)]
+        cep = [p(z) for z in unitroots(16)]
+        ceq = [q(z) for z in unitroots(16)]
         for p1, p2 in zip(ep, cep):
             self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
 
-        for z, q1, q2 in zip(bd.unitroots(16), eq, ceq):
+        for z, q1, q2 in zip(unitroots(16), eq, ceq):
             self.assertAlmostEqual(q1, q2, delta=bd.machine_threshold())
 
-        for z, a, b in zip(bd.unitroots(16), ep, eq):
+        for z, a, b in zip(unitroots(16), ep, eq):
             self.assertAlmostEqual(a * (z ** 2), b, delta=bd.machine_threshold())
 
 
         ep = p.eval_at_roots_of_unity(8)
         eq = q.eval_at_roots_of_unity(8)
 
-        cep = [p(z) for z in bd.unitroots(8)]
-        ceq = [q(z) for z in bd.unitroots(8)]
+        cep = [p(z) for z in unitroots(8)]
+        ceq = [q(z) for z in unitroots(8)]
         for p1, p2 in zip(ep, cep):
             self.assertAlmostEqual(p1, p2, delta=bd.machine_threshold())
 
         for q1, q2 in zip(eq, ceq):
             self.assertAlmostEqual(q1, q2, delta=bd.machine_threshold())
 
-        for z, a, b in zip(bd.unitroots(8), ep, eq):
+        for z, a, b in zip(unitroots(8), ep, eq):
             self.assertAlmostEqual(a * (z ** 2), b, delta=bd.machine_threshold())
 
     def test_schwarz_transform(self):

@@ -1,7 +1,6 @@
 import numpy as np
 
-from .. import numerics as bd
-
+from ..numerics import complex_type
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
 
@@ -17,7 +16,7 @@ def toeplitz(c: Polynomial, k: int) -> np.ndarray:
     """
     n = c.support().stop - 1
 
-    return bd.matrix([[c[n + i - j] for i in range(0, n-k+1)] for j in range(0, n-k+1)])
+    return np.array([[c[n + i - j] for i in range(0, n-k+1)] for j in range(0, n-k+1)], dtype=complex_type)
 
 def system_matrix(c: Polynomial, k: int):
     r"""Returns a block matrix of the form 
@@ -39,7 +38,7 @@ def system_matrix(c: Polynomial, k: int):
 
 
     T = toeplitz(c, k)
-    M = bd.zeros(2*d+2, 2*d+2)
+    M = np.zeros(shape=(2*d+2, 2*d+2), dtype=complex_type)
     for i in range(d+1):
         for j in range(d+1):
             M[i, (d+1)+j] = -T[j, i]

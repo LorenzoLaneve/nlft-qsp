@@ -38,4 +38,4 @@ Repository = "https://github.com/LorenzoLaneve/nlft-qsp"
 qspx = "nlft_qsp.__main__:main"
 
 [tool.setuptools]
-packages = ["nlft_qsp", "nlft_qsp.solvers", "nlft_qsp.numerics"]
+packages = ["nlft_qsp", "nlft_qsp.solvers"]

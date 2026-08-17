@@ -5,7 +5,8 @@ import nlft_qsp.numerics as bd
 import numpy as np
 
 from nlft_qsp.poly import Polynomial
-from nlft_qsp.rand import random_complex, random_sequence
+from nlft_qsp.rand import random_complex
+from nlft_qsp.util import unitroots
 
 
 class MatrixPolynomialTestCase(unittest.TestCase):
@@ -136,7 +137,7 @@ class MatrixPolynomialTestCase(unittest.TestCase):
 
         N = 16
         ep = M.eval_at_roots_of_unity(N)
-        cep = [M(z) for z in bd.unitroots(N)]
+        cep = [M(z) for z in unitroots(N)]
 
         # Check that each evaluation is a 2x2 matrix
         for mat in ep:
@@ -189,7 +190,7 @@ class MatrixPolynomialTestCase(unittest.TestCase):
         M = Polynomial(np.random.random_sample((deg, *shape)))
         M_star = M.conjugate()
 
-        for z in bd.unitroots(32): # check schwarz reflection
+        for z in unitroots(32): # check schwarz reflection
             self.assertTrue(np.allclose(M(1/np.conj(z)).T.conj(), M_star(z), rtol=bd.machine_threshold()))
 
     def test_truncate(self):
