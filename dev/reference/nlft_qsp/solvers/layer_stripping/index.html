@@ -1863,6 +1863,8 @@
 
     <div class="doc doc-contents first">
 
+        <p>Module for inverse NLFT based on the layer stripping algorithm.</p>
+
 
 
 
@@ -1884,10 +1886,10 @@
       </thead>
       <tbody>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            inlft(a: Polynomial, b: Polynomial) (nlft_qsp.solvers.layer_stripping.inlft)" href="#nlft_qsp.solvers.layer_stripping.inlft">inlft</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            inlft(a: Polynomial, b: Polynomial) -> NonLinearFourierSequence (nlft_qsp.solvers.layer_stripping.inlft)" href="#nlft_qsp.solvers.layer_stripping.inlft">inlft</a></code></td>
               <td>
                 <div class="doc-md-description">
-                  <p>Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.</p>
+                  <p>Computes the inverse nonlinear Fourier transform using the plain layer stripping algorithm.</p>
                 </div>
               </td>
             </tr>
@@ -1913,14 +1915,14 @@
 
 
 <h2 id="nlft_qsp.solvers.layer_stripping.inlft" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">inlft</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">inlft</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NonLinearFourierSequence</span></code>
 
 <a href="#nlft_qsp.solvers.layer_stripping.inlft" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.</p>
+        <p>Computes the inverse nonlinear Fourier transform using the plain layer stripping algorithm.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1936,14 +1938,30 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>a, b</code>
+                <code>a</code>
             </td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="            Polynomial (nlft_qsp.poly.Polynomial)" href="../../poly/#nlft_qsp.poly.Polynomial">Polynomial</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The pair <code>(a, b)</code> is the NLFT we want to compute the sequence for.</p>
+                <p>The pair <span class="arithmatex">\((a, b)\)</span> is the NLFT we want to compute the sequence for.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>b</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            Polynomial (nlft_qsp.poly.Polynomial)" href="../../poly/#nlft_qsp.poly.Polynomial">Polynomial</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The pair <span class="arithmatex">\((a, b)\)</span> is the NLFT we want to compute the sequence for.</p>
               </div>
             </td>
             <td>
@@ -1956,7 +1974,7 @@
 
 <details class="note" open>
   <summary>Note</summary>
-  <p>This algorithm is guaranteed to be numerically stable only if <code>a</code> is outer.
+  <p>This algorithm is guaranteed to be numerically stable only if <span class="arithmatex">\(a\)</span> is outer.
 To generate an outer complementary polynomial, you can use <code>weiss.complete</code>.</p>
 </details>
 
@@ -1964,17 +1982,18 @@ To generate an outer complementary polynomial, you can use <code>weiss.complete<
     <table>
       <thead>
         <tr>
-<th>Name</th>          <th>Type</th>
+          <th>Type</th>
           <th>Description</th>
         </tr>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-<td><code>NonLinearFourierSequence</code></td>            <td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            NonLinearFourierSequence (nlft_qsp.nlft.NonLinearFourierSequence)" href="../../nlft/#nlft_qsp.nlft.NonLinearFourierSequence">NonLinearFourierSequence</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A sequence whose NLFT is equal to <code>(a, b)</code>.</p>
+                <p>A sequence whose NLFT is equal to <span class="arithmatex">\((a, b)\)</span>.</p>
               </div>
             </td>
           </tr>
@@ -1984,9 +2003,7 @@ To generate an outer complementary polynomial, you can use <code>weiss.complete<
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>nlft_qsp/solvers/layer_stripping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-0-10">10</a></span>
 <span class="normal"><a href="#__codelineno-0-11">11</a></span>
@@ -2016,39 +2033,43 @@ To generate an outer complementary polynomial, you can use <code>weiss.complete<
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">inlft</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">):</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Inverse Non-Linear Fourier Transform using the plain layer stripping algorithm.</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="sd">        a, b (Polynomial): The pair `(a, b)` is the NLFT we want to compute the sequence for.</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="sd">    Note:</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="sd">        This algorithm is guaranteed to be numerically stable only if `a` is outer.</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="sd">        To generate an outer complementary polynomial, you can use `weiss.complete`.</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">        NonLinearFourierSequence: A sequence whose NLFT is equal to `(a, b)`.</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">support</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">support</span><span class="p">())</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">support</span><span class="p">()</span><span class="o">.</span><span class="n">stop</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;(a, b) must be in the image of the NLFT.&quot;</span><span class="p">)</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="n">n</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">effective_degree</span><span class="p">()</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="n">a_star</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="k">def</span><span class="w"> </span><span class="nf">inlft</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NonLinearFourierSequence</span><span class="p">:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="sd">"""Computes the inverse nonlinear Fourier transform using the plain layer stripping algorithm.</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="sd">        a (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="sd">        b (Polynomial): The pair $(a, b)$ is the NLFT we want to compute the sequence for.</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="sd">    Note:</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">        This algorithm is guaranteed to be numerically stable only if $a$ is outer.</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">        To generate an outer complementary polynomial, you can use `weiss.complete`.</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">        A sequence whose NLFT is equal to $(a, b)$.</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    """</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">support</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">support</span><span class="p">())</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">support</span><span class="p">()</span><span class="o">.</span><span class="n">stop</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"(a, b) must be in the image of the NLFT."</span><span class="p">)</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">n</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">effective_degree</span><span class="p">()</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="n">Fk</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">a_star</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Fk</span><span class="p">)</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Fk</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Fk</span><span class="p">))</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="n">a_star</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_star</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Fk</span><span class="p">)</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> \
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>                    <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">Fk</span> <span class="o">*</span> <span class="n">a_star</span><span class="p">)</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="o">+</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">s</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="n">b</span><span class="o">.</span><span class="n">support_start</span> <span class="o">-=</span> <span class="mi">1</span> <span class="c1"># divide by z</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="k">return</span> <span class="n">NonLinearFourierSequence</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">support_start</span><span class="o">=</span><span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="n">a_star</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="n">F</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="n">Fk</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">a_star</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="n">F</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Fk</span><span class="p">)</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Fk</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Fk</span><span class="p">))</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="n">a_star</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_star</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Fk</span><span class="p">)</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">s</span><span class="p">,</span> \
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>                    <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">Fk</span> <span class="o">*</span> <span class="n">a_star</span><span class="p">)</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="o">+</span><span class="n">n</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">s</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">b</span><span class="o">.</span><span class="n">support_start</span> <span class="o">-=</span> <span class="mi">1</span> <span class="c1"># divide by z</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="k">return</span> <span class="n">NonLinearFourierSequence</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">support_start</span><span class="o">=</span><span class="n">b</span><span class="o">.</span><span class="n">support_start</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

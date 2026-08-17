@@ -1143,10 +1143,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.eye" class="md-nav__link">
+  <a href="#nlft_qsp.numerics.complex_type" class="md-nav__link">
     <span class="md-ellipsis">
       
-        eye
+        complex_type
       
     </span>
   </a>
@@ -1154,32 +1154,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.matrix" class="md-nav__link">
+  <a href="#nlft_qsp.numerics.float_type" class="md-nav__link">
     <span class="md-ellipsis">
       
-        matrix
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.unitroots" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        unitroots
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.zeros" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        zeros
+        float_type
       
     </span>
   </a>
@@ -1763,10 +1741,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.eye" class="md-nav__link">
+  <a href="#nlft_qsp.numerics.complex_type" class="md-nav__link">
     <span class="md-ellipsis">
       
-        eye
+        complex_type
       
     </span>
   </a>
@@ -1774,32 +1752,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.matrix" class="md-nav__link">
+  <a href="#nlft_qsp.numerics.float_type" class="md-nav__link">
     <span class="md-ellipsis">
       
-        matrix
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.unitroots" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        unitroots
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nlft_qsp.numerics.zeros" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        zeros
+        float_type
       
     </span>
   </a>
@@ -1909,6 +1865,7 @@
 
     <div class="doc doc-contents first">
 
+        <p>Module dealing with floating point types and error tolerance.</p>
 
 
 
@@ -1920,51 +1877,51 @@
 
 
 
-<p><span class="doc-section-title">Functions:</span></p>
+
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
     <table>
       <thead>
         <tr>
           <th>Name</th>
+          <th>Type</th>
           <th>Description</th>
         </tr>
       </thead>
       <tbody>
-            <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            eye(n: int) (nlft_qsp.numerics.eye)" href="#nlft_qsp.numerics.eye">eye</a></code></td>
-              <td>
-                <div class="doc-md-description">
-                  <p>Constructs the <code>n x n</code> identity matrix.</p>
-                </div>
-              </td>
-            </tr>
-            <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            matrix(x: list) (nlft_qsp.numerics.matrix)" href="#nlft_qsp.numerics.matrix">matrix</a></code></td>
-              <td>
-                <div class="doc-md-description">
-                  <p>Constructs a numpy matrix representing a matrix with the given list (of lists) of coefficients.</p>
-                </div>
-              </td>
-            </tr>
-            <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            unitroots(N: int) (nlft_qsp.numerics.unitroots)" href="#nlft_qsp.numerics.unitroots">unitroots</a></code></td>
-              <td>
-                <div class="doc-md-description">
-                  <p>Returns a list containing the N-th roots of unity.</p>
-                </div>
-              </td>
-            </tr>
-            <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            zeros(m: int, n: int) (nlft_qsp.numerics.zeros)" href="#nlft_qsp.numerics.zeros">zeros</a></code></td>
-              <td>
-                <div class="doc-md-description">
-                  <p>Constructs a <code>m x n</code> zero matrix.</p>
-                </div>
-              </td>
-            </tr>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="            complex_type: TypeAlias = np.complex128
+
+  
+      module-attribute
+   (nlft_qsp.numerics.complex_type)" href="#nlft_qsp.numerics.complex_type">complex_type</a></code></td>
+            <td>
+                  <code><span title="typing.TypeAlias">TypeAlias</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Type used throughout the package for real numbers.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="            float_type: TypeAlias = np.float64
+
+  
+      module-attribute
+   (nlft_qsp.numerics.float_type)" href="#nlft_qsp.numerics.float_type">float_type</a></code></td>
+            <td>
+                  <code><span title="typing.TypeAlias">TypeAlias</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Smallest possible error possible with the working floating-point type.</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
-
-
 
 
 
@@ -1976,116 +1933,52 @@
 
 
 
+<div class="doc doc-object doc-attribute">
 
 
 
-<div class="doc doc-object doc-function">
+<h2 id="nlft_qsp.numerics.complex_type" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">complex_type</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span></code>
 
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
 
-<h2 id="nlft_qsp.numerics.eye" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">eye</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span></code>
-
-<a href="#nlft_qsp.numerics.eye" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Constructs the <code>n x n</code> identity matrix.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>nlft_qsp/numerics/__init__.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="nf">eye</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs the `n x n` identity matrix.&quot;&quot;&quot;</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">complex_type</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="nlft_qsp.numerics.matrix" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span></code>
-
-<a href="#nlft_qsp.numerics.matrix" class="headerlink" title="Permanent link">&para;</a></h2>
+<a href="#nlft_qsp.numerics.complex_type" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Constructs a numpy matrix representing a matrix with the given list (of lists) of coefficients.</p>
+        <p>Type used throughout the package for real numbers.</p>
 
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>nlft_qsp/numerics/__init__.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="k">def</span><span class="w"> </span><span class="nf">matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs a numpy matrix representing a matrix with the given list (of lists) of coefficients.&quot;&quot;&quot;</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">complex_type</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
 
-<div class="doc doc-object doc-function">
+<div class="doc doc-object doc-attribute">
 
 
-<h2 id="nlft_qsp.numerics.unitroots" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">unitroots</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span></code>
 
-<a href="#nlft_qsp.numerics.unitroots" class="headerlink" title="Permanent link">&para;</a></h2>
+<h2 id="nlft_qsp.numerics.float_type" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <code class="highlight language-python"><span class="n">float_type</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#nlft_qsp.numerics.float_type" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
 
-        <p>Returns a list containing the N-th roots of unity.</p>
+        <p>Smallest possible error possible with the working floating-point type.</p>
 
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>nlft_qsp/numerics/__init__.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span><span class="w"> </span><span class="nf">unitroots</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="c1"># TODO move to util</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a list containing the N-th roots of unity.&quot;&quot;&quot;</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">k</span><span class="o">/</span><span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
 
-<div class="doc doc-object doc-function">
 
 
-<h2 id="nlft_qsp.numerics.zeros" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span></code>
-
-<a href="#nlft_qsp.numerics.zeros" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Constructs a <code>m x n</code> zero matrix.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>nlft_qsp/numerics/__init__.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="k">def</span><span class="w"> </span><span class="nf">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs a `m x n` zero matrix.&quot;&quot;&quot;</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">complex_type</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 

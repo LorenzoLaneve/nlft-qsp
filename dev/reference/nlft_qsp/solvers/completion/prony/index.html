@@ -1883,6 +1883,8 @@
 
     <div class="doc doc-contents first">
 
+        <p>Module for polynomial completion based on Prony's method (taken from <a href="https://github.com/quantum-programming/gqsp-angle-finding">github.com/quantum-programming/gqsp-angle-finding</a>).</p>
+
 
 
 
@@ -1994,7 +1996,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A polynomial :math:<code>a(z)</code> satisfying :math:<code>|a|^2 + |b|^2 = 1</code> on the unit circle.</p>
+                <p>A polynomial <span class="arithmatex">\(a(z)\)</span> satisfying <span class="arithmatex">\(|a(z)|^2 + |b(z)|^2 = 1\)</span> on the unit circle.</p>
               </div>
             </td>
           </tr>
@@ -2004,7 +2006,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p>In particular (a, b) will be in the image of the NLFT.</p>
+                <p>In particular <span class="arithmatex">\((a, b)\)</span> will be in the image of the NLFT.</p>
               </div>
             </td>
           </tr>
@@ -2047,7 +2049,7 @@
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">complete</span><span class="p">(</span><span class="n">b</span><span class="p">:</span> <span class="n">Polynomial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polynomial</span><span class="p">:</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses Prony&#39;s method (arXiv:2202.02671) to find a complementary polynomial to the given one.</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">    </span><span class="sd">"""Uses Prony's method (arXiv:2202.02671) to find a complementary polynomial to the given one.</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="sd">    Args:</span>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="sd">        b (Polynomial): The polynomial to complete.</span>
@@ -2056,9 +2058,9 @@
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">        Numerical stability is not guaranteed.</span>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">        Polynomial: A polynomial :math:`a(z)` satisfying :math:`|a|^2 + |b|^2 = 1` on the unit circle.</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">        In particular (a, b) will be in the image of the NLFT.</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">        Polynomial: A polynomial $a(z)$ satisfying $|a(z)|^2 + |b(z)|^2 = 1$ on the unit circle.</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">        In particular $(a, b)$ will be in the image of the NLFT.</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    """</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="n">n</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">effective_degree</span><span class="p">()</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">fft_size</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span>
 </span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a>
