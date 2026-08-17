@@ -1,3 +1,5 @@
+"""Provides functions to compute Laurent/Chebyshev/Fourier approximations."""
+
 from typing import Callable
 
 import numpy as np

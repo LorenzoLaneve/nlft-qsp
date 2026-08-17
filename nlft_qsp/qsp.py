@@ -1,3 +1,5 @@
+"""Definitions of quantum signal processing protocols and public API for QSP solvers."""
+
 from typing import Callable, Type, TypeVar
 
 import numpy as np

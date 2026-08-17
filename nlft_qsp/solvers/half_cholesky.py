@@ -1,7 +1,7 @@
+"""Module for inverse NLFT based on the Half-Cholesky method."""
+
 import numpy as np
 import scipy as sp
-
-from .. import numerics as bd
 
 from ..nlft import NonLinearFourierSequence
 from ..poly import Polynomial
@@ -158,7 +158,7 @@ def half_cholesky_ldl(u, v) -> np.ndarray:
     return L
 
 def inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence:
-    """Compute the inverse nonlinear Fourier transform using the Half Cholesky algorithm.
+    """Compute the inverse nonlinear Fourier transform using the Half Cholesky algorithm. See [arXiv:2410.06409](https://arxiv.org/abs/2410.06409) for an explanation of the method.
 
     Args:
         b (Polynomial): The starting polynomial, such that $(a, b)$ is the NLFT we want to compute the sequence for.

@@ -1,3 +1,5 @@
+"""Random generators (mainly used for testing)"""
+
 from numbers import Number
 import numpy as np
 

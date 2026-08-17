@@ -1,3 +1,5 @@
+"""Module for the inverse NLFT based on the nonlinear fast Fourier transform algorithm."""
+
 import numpy as np
 
 from ..nlft import NonLinearFourierSequence

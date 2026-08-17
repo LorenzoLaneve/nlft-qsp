@@ -1,3 +1,5 @@
+"""Module for JSON serialization of various classes in the package."""
+
 import json
 from pathlib import Path
 from typing import Type, TypeVar, TextIO

@@ -1,3 +1,5 @@
+"""Module for inverse NLFT based on Riemann-Hilbert factorizations."""
+
 import numpy as np
 
 from ..numerics import complex_type
@@ -80,7 +82,7 @@ def factorize(c: Polynomial, k: int, normalize: bool = False) -> tuple[Polynomia
     return Ap, Bp
 
 def inlft(b: Polynomial, c: Polynomial) -> NonLinearFourierSequence:
-    """Compute the inverse nonlinear Fourier transform using the Riemann-Hilbert algorithm.
+    """Compute the inverse nonlinear Fourier transform using the Riemann-Hilbert algorithm. See [arXiv:2407.05634](https://arxiv.org/abs/2407.05634) for an explanation of the method.
 
     Args:
         b (Polynomial): The starting polynomial, such that $(a, b)$ is the NLFT we want to compute the sequence for.

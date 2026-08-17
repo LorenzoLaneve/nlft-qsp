@@ -1,4 +1,4 @@
-# Completion algorithm based on Prony's method (taken from https://github.com/quantum-programming/gqsp-angle-finding)
+"""Module for polynomial completion based on Prony's method (taken from [github.com/quantum-programming/gqsp-angle-finding](https://github.com/quantum-programming/gqsp-angle-finding))."""
 
 
 import numpy as np

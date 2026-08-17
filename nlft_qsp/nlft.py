@@ -1,3 +1,4 @@
+"""Defining the nonlinear Fourier transform, as well as functions to compute the forward NLFT."""
 
 import numpy as np
 

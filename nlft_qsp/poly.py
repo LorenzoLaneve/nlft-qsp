@@ -1,3 +1,5 @@
+"""Definitions of complex sequences, polynomials and Chebyshev expansions, as well as all operations between them."""
+
 import numpy as np
 import scipy as sp
 

@@ -1,6 +1,10 @@
-# Convolution optimization algorithm for polynomial completion (taken from github.com/Danimhn/GQSP-Code)
+"""Convolution optimization algorithm for polynomial completion (taken from [github.com/Danimhn/GQSP-Code](https://github.com/Danimhn/GQSP-Code))
 
-# NOTE: this optional module uses torch (~=2.7.1), which is not included in the package requirements.
+Note:
+    This optional module uses torch (~=2.7.1), which is not included in the package requirements.
+"""
+
+
 
 import numpy as np
 
@@ -48,7 +52,7 @@ def objective_torch(x, Pm1):
     return loss
 
 def complete(b: Polynomial) -> Polynomial:
-    """Uses the convolution optimization algorithm (arXiv:2308.01501) to find a complementary polynomial to the given one.
+    """Uses the convolution optimization algorithm to find a complementary polynomial to the given one. See [arXiv:2308.01501](https://arxiv.org/abs/2308.01501) for an explanation of the method.
 
     Args:
         b (Polynomial): The polynomial to complete.

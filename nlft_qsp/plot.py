@@ -1,4 +1,4 @@
-# Plot functions
+"""Helper functions to plot polynomials using matplotlib."""
 
 from matplotlib import pyplot as plt
 

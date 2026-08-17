@@ -1,3 +1,4 @@
+"""Module for matrix polynomial completion based on the Janashia-Lagvilava method (EXPERIMENTAL)."""
 
 import numpy as np
 import scipy as sp

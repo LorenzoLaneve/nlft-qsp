@@ -1,3 +1,5 @@
+"""Module for polynomial completion based on Weiss' algorithm."""
+
 import numpy as np
 
 from ... import numerics as bd

@@ -1,3 +1,5 @@
+"""Module for inverse NLFT based on the layer stripping algorithm."""
+
 import numpy as np
 
 from ..nlft import NonLinearFourierSequence
