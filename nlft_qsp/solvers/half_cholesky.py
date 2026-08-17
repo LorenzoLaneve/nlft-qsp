@@ -52,13 +52,13 @@ def half_cholesky_matrix_ldl(p: np.ndarray) -> np.ndarray:
 
     Args:
         p (np.ndarray): The first block column of B. It should be of shape `(n, d1, d2)` where B is $n \times n$ with `(d1, d2)` blocks.
-    
-    Note:
-        The $k$-th column of $L$ returned will be of length $(n+1) - k$, meaning that the zeros above the diagonal will not be added.
-        $D$ is returned as a list of blocks.
 
     Returns:
-        The matrix $L$ as a numpy array of shape `(n * d1, n * d1)` and $D$ as a list of blocks of shape `(n, d1, d1)`."""
+        The matrix $L$ as a numpy array of shape `(n * d1, n * d1)` and $D$ as a list of blocks of shape `(n, d1, d1)`.
+        
+    Note:
+        The $k$-th column of $L$ returned will be of length $(n+1) - k$, meaning that the zeros above the diagonal will not be added.
+        $D$ is returned as a list of blocks."""
     N = p.shape[0]
     d1 = p.shape[1]
     d2 = p.shape[2]
@@ -124,8 +124,8 @@ def solve_system_displacement_structure(p: np.ndarray, C: np.ndarray, mode: str 
 
 
 def half_cholesky_ldl(u, v) -> np.ndarray:
-    r"""Computes the lower triangular matrix $L$ for $I + B B^* = LDL^*$ where $D$ is some positive diagonal matrix,
-    and $B$ is the Toeplitz matrix containing $(c^*_n, c^*_{n-1}, ..., c^*_k)$ using the Half-Cholesky method (see [arXiv:2410.06409](https://arxiv.org/abs/2410.06409)).
+    r"""Computes the lower triangular matrix $L$ for $U U^* + V V^* = LDL^*$ using the Half-Cholesky method (see [arXiv:2410.06409](https://arxiv.org/abs/2410.06409)).
+    Here $D$ is some positive diagonal matrix, while $U, V$ are the Toeplitz matrices containing $u, v$ as first columns, respectively.
     
     Note:
         The $k$-th column will be of length $(n+1)-k$, meaning that the zeros above the diagonal will not be added.
