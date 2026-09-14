@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nlft-qsp"
-version = "2.0.0"
+version = "2.0.1"
 description = "A package for computing Quantum Signal Processing phase factors."
 authors = [
     { name = "Lorenzo Laneve" }
@@ -38,4 +38,4 @@ Repository = "https://github.com/LorenzoLaneve/nlft-qsp"
 qspx = "nlft_qsp.__main__:main"
 
 [tool.setuptools]
-packages = ["nlft_qsp", "nlft_qsp.solvers"]
+packages = ["nlft_qsp", "nlft_qsp.solvers", "nlft_qsp.solvers.completion"]
