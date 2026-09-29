@@ -128,10 +128,7 @@ class ComplexL0Sequence:
         Note:
             For matrix sequences, this is the sum of the squared Frobenius norms of the coefficients.
         """
-        if self.shape == ():
-            return sum(np.abs(c)**2 for c in self.coeffs)
-        
-        return sum(np.linalg.norm(c)**2 for c in self.coeffs)
+        return np.sum(np.abs(self.coeffs) ** 2)
     
     def is_real(self) -> bool:
         """Whether the sequence has only real elements."""
