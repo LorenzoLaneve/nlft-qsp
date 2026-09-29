@@ -465,10 +465,24 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             Polynomial: A new, truncated polynomial.
         """
-        if self.shape == ():
-            return Polynomial([self[k] for k in range(m, n+1)], m)
-        
-        return Polynomial(np.array([self[k] for k in range(m, n+1)], dtype=complex_type), m)
+        if n < m:
+            return Polynomial(np.empty((0, *self.shape), dtype=complex_type), m)
+
+        support_end = self.support_start + self.coeffs.shape[0]
+        if self.support_start <= m and n < support_end:
+            start = m - self.support_start
+            return Polynomial(self.coeffs[start:start + n - m + 1], m)
+
+        coeffs = np.zeros((n - m + 1, *self.shape), dtype=complex_type)
+        overlap_start = max(m, self.support_start)
+        overlap_end = min(n + 1, support_end)
+        if overlap_start < overlap_end:
+            source_start = overlap_start - self.support_start
+            target_start = overlap_start - m
+            length = overlap_end - overlap_start
+            coeffs[target_start:target_start + length] = self.coeffs[source_start:source_start + length]
+
+        return Polynomial(coeffs, m)
 
     def only_positive_degrees(self) -> "Polynomial":
         """DEPRECATED: use `analytic_part()` instead."""
