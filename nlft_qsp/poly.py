@@ -174,19 +174,16 @@ class ComplexL0Sequence:
         sum_start = min(self.support_start, other.support_start)
         sum_end = max(self_end, other_end)
 
-        sum_coeffs = []
-        for k in range(sum_start, sum_end):
-            res = 0
-            
-            if self.support_start <= k and k < self_end:
-                res += self.coeffs[k - self.support_start]
+        result_shape = np.broadcast_shapes(self.shape, other.shape)
+        sum_coeffs = np.zeros((sum_end - sum_start, *result_shape), dtype=complex_type)
 
-            if other.support_start <= k and k < other_end:
-                res += other.coeffs[k - other.support_start]
+        self_offset = self.support_start - sum_start
+        sum_coeffs[self_offset:self_offset + self.coeffs.shape[0]] += self.coeffs
 
-            sum_coeffs.append(res)
-            
-        return Polynomial(np.array(sum_coeffs, dtype=complex_type), sum_start) # TODO This should return the lowest class between self and other.
+        other_offset = other.support_start - sum_start
+        sum_coeffs[other_offset:other_offset + other.coeffs.shape[0]] += other.coeffs
+
+        return Polynomial(sum_coeffs, sum_start) # TODO This should return the lowest class between self and other.
     
     def __radd__(self, other):
         return self + other
