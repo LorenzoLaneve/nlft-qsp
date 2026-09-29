@@ -441,7 +441,7 @@ class Polynomial(ComplexL0Sequence):
         coeffs = np.roll(coeffs, self.support_start, axis=0)
         # This has the effect of having everything multiplied by z^s
 
-        evals = np.fft.ifft(coeffs, norm='forward', axis=0) # M evaluations at the M-th roots of unity
+        evals = sp.fft.ifft(coeffs, norm='forward', axis=0, workers=POLY_FFT_WORKERS) # M evaluations at the M-th roots of unity
         return evals[::M//N]
     
     def sup_norm(self, N=1024) -> float_type:
@@ -453,10 +453,11 @@ class Polynomial(ComplexL0Sequence):
         Returns:
             float_type: An estimate for the supremum norm of the polynomial over the unit circle.
         """
+        evals = self.eval_at_roots_of_unity(N)
         if self.shape == ():
-            return np.max([np.abs(sample) for sample in self.eval_at_roots_of_unity(N)])
-        
-        return np.max([np.linalg.norm(sample, ord=2) for sample in self.eval_at_roots_of_unity(N)])
+            return np.max(np.abs(evals))
+
+        return np.max(np.linalg.norm(evals, ord=2, axis=(-2, -1)))
     
     def truncate(self, m: int, n: int) -> "Polynomial":
         """Keeps only the coefficients in $[m, n]$, discarding the others.
