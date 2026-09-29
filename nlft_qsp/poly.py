@@ -5,12 +5,16 @@ import scipy as sp
 
 from numbers import Number
 
-
 from . import numerics as bd
 from .numerics import complex_type, float_type
 
 from .util import next_power_of_two
 from .file import serializable
+
+
+POLY_FFT_WORKERS = 1
+POLY_DIRECT_CONVOLUTION_MAX_LEN = 128
+POLY_DIRECT_MATMUL_MAX_LEN = 4
 
 
 class ComplexL0Sequence:
@@ -280,14 +284,14 @@ class Polynomial(ComplexL0Sequence):
         Note:
             This is equivalent to adding $i \mathcal{H}[p]`, where $\mathcal{H}[p]$ is the Hilbert transform of $p$.
         """
-        schwarz_coeffs = []
-        for k in self.support():
-            if k < 0:
-                schwarz_coeffs.append(2*self[k])
-            elif k == 0:
-                schwarz_coeffs.append(self[k])
+        included_count = min(self.coeffs.shape[0], max(0, 1 - self.support_start))
+        negative_count = min(self.coeffs.shape[0], max(0, -self.support_start))
+        schwarz_coeffs = np.concatenate((
+            2 * self.coeffs[:negative_count],
+            self.coeffs[negative_count:included_count],
+        ), axis=0)
 
-        return Polynomial(np.array(schwarz_coeffs, dtype=complex_type), self.support_start)
+        return Polynomial(schwarz_coeffs, self.support_start)
     
     def hilbert_transform(self) -> "Polynomial":
         r"""Returns the polynomial $Q$ such that $P + Q$ yields an analytic polynomial ($P$ being `self`).
@@ -318,18 +322,24 @@ class Polynomial(ComplexL0Sequence):
             raise TypeError("Polynomial multiplication admits only other polynomials or constants with compatible shape.")
 
         # Pad so they end up with the same length
-        target_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
-        pad_a = [(0, target_len - self.coeffs.shape[0])] + [(0, 0)] * (self.coeffs.ndim - 1)
-        pad_b = [(0, target_len - other.coeffs.shape[0])] + [(0, 0)] * (other.coeffs.ndim - 1)
+        result_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
+        if (
+            self.shape == ()
+            and other.shape == ()
+            and max(self.coeffs.shape[0], other.coeffs.shape[0]) <= POLY_DIRECT_CONVOLUTION_MAX_LEN
+        ):
+            new_coeffs = np.convolve(self.coeffs, other.coeffs)
+            return Polynomial(new_coeffs, self.support_start + other.support_start)
 
-        coeffs_a = np.fft.fft(np.pad(self.coeffs, pad_width=pad_a), axis=0)
-        coeffs_b = np.fft.fft(np.pad(other.coeffs, pad_width=pad_b), axis=0)
+        target_len = sp.fft.next_fast_len(result_len)
+        coeffs_a = sp.fft.fft(self.coeffs, n=target_len, axis=0, workers=POLY_FFT_WORKERS)
+        coeffs_b = sp.fft.fft(other.coeffs, n=target_len, axis=0, workers=POLY_FFT_WORKERS)
 
         # Multiply in the Fourier domain
-        coeffs_c = [a * b for a, b in zip(coeffs_a, coeffs_b)]
+        coeffs_c = coeffs_a * coeffs_b
 
         # Inverse FFT to get the result
-        new_coeffs = np.fft.ifft(coeffs_c, axis=0)
+        new_coeffs = sp.fft.ifft(coeffs_c, axis=0, workers=POLY_FFT_WORKERS)[:result_len]
         support_start = self.support_start + other.support_start  # Lowest degree of the new poly
 
         return Polynomial(new_coeffs, support_start)
@@ -356,18 +366,36 @@ class Polynomial(ComplexL0Sequence):
             raise ValueError(f"Incompatible shapes: {self.shape} vs {other.shape}.")
 
         # Pad so they end up with the same length
-        target_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
-        pad_a = [(0, target_len - self.coeffs.shape[0])] + [(0, 0)] * (self.coeffs.ndim - 1)
-        pad_b = [(0, target_len - other.coeffs.shape[0])] + [(0, 0)] * (other.coeffs.ndim - 1)
+        result_len = self.coeffs.shape[0] + other.coeffs.shape[0] - 1
+        if (
+            self.coeffs.ndim == 3
+            and other.coeffs.ndim == 3
+            and max(self.coeffs.shape[0], other.coeffs.shape[0]) <= POLY_DIRECT_MATMUL_MAX_LEN
+        ):
+            self_len = self.coeffs.shape[0]
+            other_len = other.coeffs.shape[0]
+            new_coeffs = np.zeros(
+                (result_len, self.coeffs.shape[-2], other.coeffs.shape[-1]),
+                dtype=complex_type,
+            )
+            if self_len <= other_len:
+                for i in range(self_len):
+                    new_coeffs[i:i + other_len] += self.coeffs[i] @ other.coeffs
+            else:
+                for j in range(other_len):
+                    new_coeffs[j:j + self_len] += self.coeffs @ other.coeffs[j]
 
-        coeffs_a = np.fft.fft(np.pad(self.coeffs, pad_width=pad_a), axis=0)
-        coeffs_b = np.fft.fft(np.pad(other.coeffs, pad_width=pad_b), axis=0)
+            return Polynomial(new_coeffs, self.support_start + other.support_start)
+
+        target_len = sp.fft.next_fast_len(result_len)
+        coeffs_a = sp.fft.fft(self.coeffs, n=target_len, axis=0, workers=POLY_FFT_WORKERS)
+        coeffs_b = sp.fft.fft(other.coeffs, n=target_len, axis=0, workers=POLY_FFT_WORKERS)
 
         # Multiply in the Fourier domain
-        coeffs_c = [a @ b for a, b in zip(coeffs_a, coeffs_b)]
+        coeffs_c = coeffs_a @ coeffs_b
 
         # Inverse FFT to get the result
-        new_coeffs = np.fft.ifft(coeffs_c, axis=0)
+        new_coeffs = sp.fft.ifft(coeffs_c, axis=0, workers=POLY_FFT_WORKERS)[:result_len]
         support_start = self.support_start + other.support_start  # Lowest degree of the new poly
 
         return Polynomial(new_coeffs, support_start)
