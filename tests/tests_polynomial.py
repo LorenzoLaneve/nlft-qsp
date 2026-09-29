@@ -57,6 +57,13 @@ class PolynomialTestCase(unittest.TestCase):
             else:
                 self.assertEqual(q[k], p[k])
 
+        q = p.truncate(-12, -8)
+        np.testing.assert_array_equal(q.coeffs, [0, 0, 0, 1, 2])
+        self.assertEqual(q.support_start, -12)
+
+        q = p.truncate(11, 13)
+        np.testing.assert_array_equal(q.coeffs, [0, 0, 0])
+
     def test_slice(self):
         p = Polynomial(list(range(20)), support_start=-10)
 
@@ -165,6 +172,11 @@ class PolynomialTestCase(unittest.TestCase):
         for z, a, b in zip(unitroots(8), ep, eq):
             self.assertAlmostEqual(a * (z ** 2), b, delta=bd.machine_threshold())
 
+    def test_sup_norm_scalar(self):
+        p = Polynomial([1 + 2j, -3j, 2])
+        expected = np.max(np.abs(p.eval_at_roots_of_unity(64)))
+        self.assertAlmostEqual(p.sup_norm(64), expected)
+
     def test_schwarz_transform(self):
         p = Polynomial([])
         q = p.schwarz_transform()
@@ -180,6 +192,15 @@ class PolynomialTestCase(unittest.TestCase):
                 self.assertEqual(q[k], p[k])
             else:
                 self.assertEqual(q[k], 0)
+
+        matrix = Polynomial(np.arange(12).reshape(3, 2, 2), support_start=-1)
+        transformed = matrix.schwarz_transform()
+        np.testing.assert_array_equal(transformed.coeffs, [2 * matrix.coeffs[0], matrix.coeffs[1]])
+        self.assertEqual(transformed.shape, (2, 2))
+
+    def test_l2_squared_norm(self):
+        p = Polynomial([3 + 4j, 5 - 12j])
+        self.assertEqual(p.l2_squared_norm(), 194)
 
     def test_chebyshev_expansion_to_laurent(self):
         T = ChebyshevTExpansion(random_sequence(10, 10))

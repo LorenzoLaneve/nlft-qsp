@@ -65,6 +65,27 @@ class MatrixPolynomialTestCase(unittest.TestCase):
             self.assertTrue(np.allclose(M1(z) + M2(z), M5(z), rtol=bd.machine_threshold()))
             self.assertTrue(np.allclose(M1(z) - M2(z), M6(z), rtol=bd.machine_threshold()))
 
+    def test_sup_norm_matrix(self):
+        M = Polynomial(np.arange(12, dtype=np.complex128).reshape(3, 2, 2))
+        evals = M.eval_at_roots_of_unity(64)
+        expected = max(np.linalg.norm(sample, ord=2) for sample in evals)
+        self.assertAlmostEqual(M.sup_norm(64), expected)
+
+    def test_short_matrix_polynomial_matmul(self):
+        left_coeffs = np.arange(18).reshape(3, 2, 3) + 1j * np.arange(18, 36).reshape(3, 2, 3)
+        right_coeffs = np.arange(36).reshape(3, 3, 4) - 1j * np.arange(36, 72).reshape(3, 3, 4)
+        left = Polynomial(left_coeffs, support_start=-2)
+        right = Polynomial(right_coeffs, support_start=5)
+
+        product = left @ right
+        expected = np.zeros((5, 2, 4), dtype=np.complex128)
+        for i in range(left_coeffs.shape[0]):
+            for j in range(right_coeffs.shape[0]):
+                expected[i + j] += left_coeffs[i] @ right_coeffs[j]
+
+        np.testing.assert_allclose(product.coeffs, expected)
+        self.assertEqual(product.support_start, 3)
+
     def test_add_constant_scalar(self):
         M = Polynomial(shape=(2, 2))
         M[1, 0, 0] = 5
@@ -76,6 +97,11 @@ class MatrixPolynomialTestCase(unittest.TestCase):
         
         # Original polynomial part is preserved
         self.assertEqual(M2[1, 0, 0], 5)
+
+    def test_l2_squared_norm(self):
+        coeffs = np.array([[[1 + 2j, 3], [4j, 5 - 6j]]])
+        M = Polynomial(coeffs)
+        self.assertEqual(M.l2_squared_norm(), np.sum(np.abs(coeffs) ** 2))
 
     def test_add_constant_matrix(self):
         M = Polynomial(shape=(2, 2))
@@ -204,6 +230,11 @@ class MatrixPolynomialTestCase(unittest.TestCase):
         self.assertEqual(M2[-2, 0, 0], 0)
         self.assertEqual(M2[0, 0, 0], 2)
         self.assertEqual(M2[2, 0, 0], 0)
+
+        M3 = M.truncate(-3, -1)
+        self.assertEqual(M3.shape, (2, 2))
+        self.assertEqual(M3[-3, 0, 0], 0)
+        self.assertEqual(M3[-2, 0, 0], 1)
 
     def test_slice(self):
         p = Polynomial(np.random.random_sample((20, 3, 4)), support_start=-10)
